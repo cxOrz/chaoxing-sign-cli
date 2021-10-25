@@ -1,5 +1,5 @@
 const { userLogin } = require("./functions/user");
 
 !function () {
-  userLogin()
+  userLogin('***REMOVED***','***REMOVED***')
 }()
