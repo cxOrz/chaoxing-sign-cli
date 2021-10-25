@@ -1,0 +1,11 @@
+{
+  "name": "chaoxing-sign-cli",
+  "version": "1.0.0",
+  "description": "超星学习通签到命令行工具",
+  "main": "index.js",
+  "scripts": {
+    "qrcode": "node index.js"
+  },
+  "author": "mcx",
+  "license": "MIT"
+}
