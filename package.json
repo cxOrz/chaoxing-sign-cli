@@ -4,7 +4,7 @@
   "description": "超星学习通签到命令行工具",
   "main": "index.js",
   "scripts": {
-    "qrcode": "node index.js"
+    "start": "node ./src/index.js"
   },
   "author": "mcx",
   "license": "MIT"
