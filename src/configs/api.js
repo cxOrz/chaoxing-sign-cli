@@ -6,5 +6,17 @@ module.exports = {
   LOGIN: {
     URL: 'http://passport2.chaoxing.com/fanyalogin',
     METHOD: 'POST',
+  },
+  PPTSIGN: {
+    URL: 'https://mobilelearn.chaoxing.com/pptSign/stuSignajax',
+    METHOD: 'GET'
+  },
+  COURSELIST: {
+    URL: 'http://mooc1-1.chaoxing.com/visit/courselistdata',
+    METHOD: 'POST'
+  },
+  ACTIVELIST: {
+    URL: 'https://mobilelearn.chaoxing.com/v2/apis/active/student/activelist',
+    METHOD: 'GET'
   }
 }
