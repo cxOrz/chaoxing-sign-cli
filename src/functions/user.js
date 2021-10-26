@@ -49,6 +49,7 @@ exports.userLogin = async (uname, password) => {
   })
 }
 
+// 获取全部课程
 exports.getCourses = async (_uid, _d, vc3) => {
   return new Promise((resolve) => {
     let data = ''
@@ -63,6 +64,7 @@ exports.getCourses = async (_uid, _d, vc3) => {
         'Cookie': `_uid=${_uid}; _d=${_d}; vc3=${vc3}`
       }
     }, (res) => {
+      // 解决gzip乱码问题
       let gzip = zlib.createGunzip();
       let output
       res.pipe(gzip);
@@ -76,6 +78,7 @@ exports.getCourses = async (_uid, _d, vc3) => {
         // console.log(res.rawHeaders)
         let arr = []
         let end_of_courseid
+        // 解析出所有 courseId 和 classId，填充到数组返回
         for (let i = 1; ; i++) {
           i = data.indexOf('course_', i)
           if (i == -1) break
@@ -85,7 +88,7 @@ exports.getCourses = async (_uid, _d, vc3) => {
             classId: data.slice(end_of_courseid + 1, data.indexOf('"', i + 1))
           })
         }
-        console.log(arr)
+        // console.log(arr)
         resolve(arr)
       })
     })
