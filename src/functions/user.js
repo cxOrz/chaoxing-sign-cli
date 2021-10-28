@@ -37,7 +37,7 @@ exports.userLogin = async (uname, password) => {
               params.uf = res.headers['set-cookie'][4].slice(3, res.headers['set-cookie'][4].indexOf(';'))
               params._d = res.headers['set-cookie'][5].slice(3, res.headers['set-cookie'][5].indexOf(';'))
               params.vc3 = res.headers['set-cookie'][9].slice(4, res.headers['set-cookie'][9].indexOf(';'))
-              console.log(params)
+              // console.log(params)
               resolve(params)
             } else {
               console.log('登陆失败')
