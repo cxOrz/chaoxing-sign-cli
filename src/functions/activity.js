@@ -27,5 +27,9 @@ exports.getSignActivity = async (courses, uf, _d, UID, vc3) => {
         })
       })
     }
+    if(i==1000){
+      console.log('未检测到签到活动！')
+      process.exit(0)
+    }
   })
 }
