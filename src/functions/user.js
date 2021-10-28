@@ -1,12 +1,12 @@
 const http = require('http')
 const zlib = require('zlib')
-const { LOGIN_PAGE, LOGIN, COURSELIST } = require("../configs/api")
+const { LOGIN_PAGE, LOGIN, COURSELIST, ACCOUNTMANAGE } = require("../configs/api")
 
 exports.userLogin = async (uname, password) => {
   return new Promise((resolve) => {
     let params = {
       fid: '-1', pid: '-1', refer: 'http%3A%2F%2Fi.chaoxing.com', _blank: '1', t: 'true',
-      vc3: null, _uid: null, _d: null
+      vc3: null, _uid: null, _d: null, uf: null
     }
     let data = ''
     http.get(LOGIN_PAGE.URL, {
@@ -29,12 +29,19 @@ exports.userLogin = async (uname, password) => {
           data = ''
           res.on('data', (chunk) => { data += chunk })
           res.on('end', () => {
-            console.log(res.rawHeaders)
+            console.log(res.headers)
             if (JSON.parse(data).status) {
               console.log('登陆成功')
+              params.fid = res.headers['set-cookie'][2].slice(4, res.headers['set-cookie'][2].indexOf(';'))
+              params._uid = res.headers['set-cookie'][3].slice(5, res.headers['set-cookie'][3].indexOf(';'))
+              params.uf = res.headers['set-cookie'][4].slice(3, res.headers['set-cookie'][4].indexOf(';'))
+              params._d = res.headers['set-cookie'][5].slice(3, res.headers['set-cookie'][5].indexOf(';'))
+              params.vc3 = res.headers['set-cookie'][9].slice(4, res.headers['set-cookie'][9].indexOf(';'))
+              console.log(params)
               resolve(params)
             } else {
               console.log('登陆失败')
+              process.exit(1)
             }
           })
         })
@@ -95,5 +102,27 @@ exports.getCourses = async (_uid, _d, vc3) => {
     let formdata = `courseType=1&courseFolderId=0&courseFolderSize=0`
     req.write(formdata)
     req.end()
+  })
+}
+
+// 获取用户名
+exports.getAccountInfo = async (uf, _d, _uid, vc3) => {
+  return new Promise((resolve) => {
+    let data = ''
+    http.get(ACCOUNTMANAGE.URL, {
+      headers: {
+        'Cookie': `uf=${uf}; _d=${_d}; UID=${_uid}; vc3=${vc3};`
+      }
+    }, (res) => {
+      res.on('data', (chunk) => {
+        data += chunk
+      })
+      res.on('end', () => {
+        // console.log(data)
+        let end_of_messageName = data.indexOf('messageName') + 13
+        let name = data.slice(end_of_messageName, data.indexOf('<', end_of_messageName))
+        resolve(name)
+      })
+    })
   })
 }

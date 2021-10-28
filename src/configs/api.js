@@ -18,5 +18,9 @@ module.exports = {
   ACTIVELIST: {
     URL: 'https://mobilelearn.chaoxing.com/v2/apis/active/student/activelist',
     METHOD: 'GET'
+  },
+  ACCOUNTMANAGE: {
+    URL: 'http://passport2.chaoxing.com/mooc/accountManage',
+    METHOD: 'GET'
   }
 }
