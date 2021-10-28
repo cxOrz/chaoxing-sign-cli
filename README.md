@@ -3,7 +3,7 @@
   <img src="https://img.shields.io/badge/nodejs->=v8.5.4-brightgreen.svg" />
 </p>
 
-基于 Nodejs ，实现的一个签到命令行工具。
+基于 Nodejs ，实现的一个签到命令行工具。为了节约性能，只对开始一小时以内的活动签到，超过一小时也说明不急，你自己去学习通签。
 
 **功能**： 二维码签到（10秒变换也可用）。
 
