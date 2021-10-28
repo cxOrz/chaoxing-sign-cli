@@ -15,7 +15,7 @@ exports.userLogin = async (uname, password) => {
       res.on('data', (chunk) => { data += chunk })
       res.on('end', () => {
         // 首次访问登录页所得的响应头，以及页面内容
-        console.log(res.rawHeaders)
+        // console.log(res.rawHeaders)
         // console.log(data)
 
         // 登录
