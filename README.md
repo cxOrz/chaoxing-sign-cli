@@ -1,4 +1,4 @@
-<h1 align="center">超星学习通签到</h1>
+<h1 align="center">⏰超星学习通签到⏰</h1>
 <p align="center">
   <img src="https://img.shields.io/badge/nodejs->=v8.5.4-brightgreen.svg" />
 </p>
