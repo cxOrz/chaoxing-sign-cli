@@ -1,4 +1,5 @@
 const { getSignActivity } = require("./functions/activity");
+const { GeneralSign } = require("./functions/general");
 const { LocationSign } = require("./functions/location");
 const { QRCodeSign } = require("./functions/QRCode");
 const { userLogin, getCourses, getAccountInfo } = require("./functions/user");
@@ -35,6 +36,11 @@ const rl = readline.createInterface()
       let lnglat = await readline.question(rl, '经纬度，如\"113.516288,34.817038\": ')
       let address = await readline.question(rl, '详细地址: ')
       await LocationSign(params.uf, params._d, params.vc3, name, address, aid, params._uid, Number(lnglat.substring(lnglat.indexOf(',') + 1, lnglat.length)), Number(lnglat.substring(0, lnglat.indexOf(','))), params.fid)
+      process.exit(0)
+    }
+    // 普通签到、手势签到
+    if (process.argv.includes('--general')) {
+      await GeneralSign(params.uf, params._d, params.vc3, name, aid, params._uid, params.fid)
       process.exit(0)
     }
   }
