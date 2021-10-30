@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node ./src/index.js",
-    "code": "node ./src/index.js --qrcode"
+    "code": "node ./src/index.js --qrcode",
+    "loc": "node ./src/index.js --location"
   },
   "author": "mcx",
   "license": "MIT"
