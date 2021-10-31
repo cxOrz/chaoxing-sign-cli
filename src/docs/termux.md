@@ -20,4 +20,4 @@ pkg install nodejs-lts
 
 完成后，如果安装成功，在 Termux 中输入 `node -v` 将显示安装的 Node 版本。
 
-此时，Node环境已经配置好，如果没有 git 请使用 `pkg install git` 来安装。之后的步骤就是拉取项目，运行项目了，请回到主页查看如何操作。
+此时，Node环境已经配置好，如果没有 git 请使用 `pkg install git` 来安装。之后的步骤就是拉取项目，运行项目了，请回到[主页](https://github.com/***REMOVED***/chaoxing-sign-cli)查看如何操作。
