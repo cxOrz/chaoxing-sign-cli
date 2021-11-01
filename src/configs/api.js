@@ -22,5 +22,13 @@ module.exports = {
   ACCOUNTMANAGE: {
     URL: 'http://passport2.chaoxing.com/mooc/accountManage',
     METHOD: 'GET'
+  },
+  PANCHAOXING: {
+    URL: 'https://pan-yz.chaoxing.com',
+    METHOD: 'GET'
+  },
+  PANLIST: {
+    URL: 'https://pan-yz.chaoxing.com/opt/listres',
+    METHOD: 'POST'
   }
 }

@@ -1,12 +1,13 @@
 {
   "name": "chaoxing-sign-cli",
-  "version": "1.4.0",
+  "version": "1.6.0",
   "description": "超星学习通签到命令行工具",
   "main": "index.js",
   "scripts": {
     "code": "node ./src/index.js --qrcode",
     "loc": "node ./src/index.js --location",
-    "gen": "node ./src/index.js --general"
+    "gen": "node ./src/index.js --general",
+    "cam": "node ./src/index.js --photo"
   },
   "repository": "https://github.com/***REMOVED***/chaoxing-sign-cli.git",
   "author": "mcx",
