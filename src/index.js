@@ -1,6 +1,7 @@
 const { getSignActivity } = require("./functions/activity");
 const { GeneralSign } = require("./functions/general");
 const { LocationSign } = require("./functions/location");
+const { PhotoSign, getObjectIdFromcxPan } = require("./functions/photo");
 const { QRCodeSign } = require("./functions/QRCode");
 const { userLogin, getCourses, getAccountInfo } = require("./functions/user");
 const readline = require('./utils/readline')
@@ -41,6 +42,14 @@ const rl = readline.createInterface()
     // 普通签到、手势签到
     if (process.argv.includes('--general')) {
       await GeneralSign(params.uf, params._d, params.vc3, name, aid, params._uid, params.fid)
+      process.exit(0)
+    }
+    // 拍照签到
+    if (process.argv.includes('--photo')) {
+      await readline.question(rl, '访问 https://pan-yz.chaoxing.com 并在根目录上传你想要提交的照片，格式为jpg或png，命名为 0.jpg 或 0.png，完成后按回车继续...')
+      // 获取照片objectId
+      let objectId = await getObjectIdFromcxPan(params.uf, params._d, params.vc3, params._uid)
+      await PhotoSign(params.uf, params._d, params.vc3, name, aid, params._uid, params.fid, objectId)
       process.exit(0)
     }
   }
