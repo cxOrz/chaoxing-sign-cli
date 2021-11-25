@@ -3,16 +3,39 @@ const { GeneralSign } = require("./functions/general");
 const { LocationSign } = require("./functions/location");
 const { PhotoSign, getObjectIdFromcxPan } = require("./functions/photo");
 const { QRCodeSign } = require("./functions/QRCode");
-const { userLogin, getCourses, getAccountInfo } = require("./functions/user");
+const { userLogin, getCourses, getAccountInfo, printUsers } = require("./functions/user");
+const { getStore, storeUser } = require('./utils/file');
 const readline = require('./utils/readline')
 
 const rl = readline.createInterface()
 
 !async function () {
-  let uname = await readline.question(rl, '用户名(手机号)：')
-  let password = await readline.question(rl, '密码：')
-  // 登录，获取各参数
-  let params = await userLogin(uname, password)
+  let params;
+  // 本地与登录之间的抉择
+  {
+    // 打印本地用户列表，并返回用户数量
+    let userLength = printUsers()
+    let input = await readline.question(rl, '若使用以上用户，输入序号(0-?);若手动填写用户名密码登录，输入(n)；\n请输入：')
+    // 使用新用户登录
+    if (input === 'n') {
+      let uname = await readline.question(rl, '手机号：')
+      let password = await readline.question(rl, '密码：')
+      // 登录获取各参数
+      params = await userLogin(uname, password)
+      storeUser(uname, params) // 储存到本地
+    } else if (Number(input) === Number.NaN || !(Number(input) >= 0 && Number(input) < userLength)) {
+      console.log('输入有误，程序退出；')
+      process.exit(0)
+    } else {
+      // 使用本地储存的参数
+      const data = getStore()
+      if ((Date.now() - new Date(data.users[Number(input)].date)) / 86400 >= 20) {
+        console.log('身份过期，程序将关闭，请你使用手动填写用户名密码的方式登录！手动登录后身份信息刷新，之后可继续使用本地凭证！')
+        process.exit(0)
+      }
+      params = data.users[Number(input)].params
+    }
+  }
 
   // 获取用户名
   let name = await getAccountInfo(params.uf, params._d, params._uid, params.vc3)

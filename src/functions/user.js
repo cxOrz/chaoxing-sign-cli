@@ -1,6 +1,7 @@
 const http = require('http')
 const zlib = require('zlib')
 const { LOGIN_PAGE, LOGIN, COURSELIST, ACCOUNTMANAGE } = require("../configs/api")
+const { getStore } = require('../utils/file')
 
 exports.userLogin = async (uname, password) => {
   return new Promise((resolve) => {
@@ -125,4 +126,24 @@ exports.getAccountInfo = async (uf, _d, _uid, vc3) => {
       })
     })
   })
+}
+
+/**
+ * 
+ * @returns 用户数量
+ */
+exports.printUsers = () => {
+  const data = getStore()
+  console.log('####################')
+  console.log('##    用户列表    ##')
+  console.log('####################')
+  if (data.users.length === 0) {
+    console.log('#        空        #')
+  }
+  for (let i = 0; i < data.users.length; i++) {
+    if (i > 9) console.log(`# ${i} # ${data.users[i].phone} #`)
+    else console.log(`# ${i}  # ${data.users[i].phone} #`)
+  }
+  console.log('####################')
+  return data.users.length
 }
