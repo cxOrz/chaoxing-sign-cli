@@ -9,7 +9,7 @@
 
 **注意**： 本程序仅为交流学习使用，借助学习通的平台，通过本项目加深http请求、网络通信、接口编写、交互设计等方面知识的理解，请勿用作商业以及其他用途。
 
-**为确保你的代码最新与仓库保持同步，将在每次签到结束强制拉取代码更新**，如需关闭更新，请查看[issue2](https://github.com/miaochenxi/chaoxing-sign-cli/issues/2#issuecomment-962781427)，更多功能正在开发 ...
+**为确保你的代码最新与仓库保持同步，将在每次签到结束强制拉取代码更新**，如需关闭更新，请查看[issue2](https://github.com/miaochenxi/chaoxing-sign-cli/issues/2#issuecomment-962781427)。手动终止检查更新可在每次检查时按下 `Ctrl`+`C` 并确认终止，更多功能正在开发 ...
 
 ## 环境 💻
 
