@@ -11,8 +11,7 @@ exports.LocationSign = async (uf, _d, vc3, name, address, activeId, uid, lat, lo
     }, (res) => {
       res.on('data', (chunk) => { data += chunk })
       res.on('end', () => {
-        if (data == 'success')
-          console.log(`${data}签到成功`)
+        console.log(data)
         resolve()
       })
     })
