@@ -18,7 +18,8 @@ exports.storeUser = (phone, params) => {
   // 存了则替换
   for (; i < data.users.length; i++) {
     if (data.users[i].phone === phone) {
-      data.users[i] = user
+      data.users[i] = user;
+      break;
     }
   }
   // 未存则push
