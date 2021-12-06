@@ -67,7 +67,6 @@ exports.getCourses = async (_uid, _d, vc3) => {
         'Accept': ' text/html, */*; q=0.01',
         'Accept-Encoding': 'gzip, deflate',
         'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
-        'Connection': 'keep-alive',
         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8;',
         'Cookie': `_uid=${_uid}; _d=${_d}; vc3=${vc3}`
       }
@@ -75,7 +74,12 @@ exports.getCourses = async (_uid, _d, vc3) => {
       // 解决gzip乱码问题
       let gzip = zlib.createGunzip();
       let output
+
       res.pipe(gzip);
+      if (res.statusCode === 302) {
+        console.log('身份过期，程序将关闭，请你使用手动填写用户名密码的方式登录！手动登录后身份信息刷新，之后可继续使用本地凭证！\n')
+        process.exit(-1)
+      }
       output = gzip;
       output.on('data', (chunk) => {
         data += chunk

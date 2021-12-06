@@ -29,10 +29,11 @@ const rl = readline.createInterface()
     } else {
       // 使用本地储存的参数
       const data = getStore()
-      if ((Date.now() - new Date(data.users[Number(input)].date)) / 86400000 >= 20) {
-        console.log('身份过期，程序将关闭，请你使用手动填写用户名密码的方式登录！手动登录后身份信息刷新，之后可继续使用本地凭证！')
-        process.exit(0)
-      }
+      
+      // if ((Date.now() - new Date(data.users[Number(input)].date)) / 86400000 >= 7) {
+      //   console.log('身份过期，程序将关闭，请你使用手动填写用户名密码的方式登录！手动登录后身份信息刷新，之后可继续使用本地凭证！')
+      //   process.exit(0)
+      // }
       params = data.users[Number(input)].params
     }
   }

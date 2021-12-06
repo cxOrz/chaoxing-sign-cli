@@ -24,7 +24,7 @@ exports.getSignActivity = async (courses, uf, _d, UID, vc3) => {
               // 判断是否有效签到活动
               if ((otherId >= 0 && otherId <= 4) && data.data.activeList[0].status == 1) {
                 // 活动开始超过一小时则忽略
-                if ((new Date().getTime() - data.data.activeList[0].startTime) / 1000 < 3600) {
+                if ((new Date().getTime() - data.data.activeList[0].startTime) / 1000 < 7200) {
                   console.log(`检测到活动：${data.data.activeList[0].nameOne}`)
                   aid = data.data.activeList[0].id
                   i = 999 // 设置flag结束循环，设为非length值，说明是获取到了活动而结束循环，设置完最后还会自增一次。
