@@ -22,7 +22,7 @@ exports.getSignActivity = async (courses, uf, _d, UID, vc3) => {
             if (data.data.activeList.length != 0) {
               let otherId = Number(data.data.activeList[0].otherId)
               // 判断是否有效签到活动
-              if ((otherId >= 0 && otherId <= 4) && data.data.activeList[0].status == 1) {
+              if ((otherId >= 0 && otherId <= 5) && data.data.activeList[0].status == 1) {
                 // 活动开始超过一小时则忽略
                 if ((new Date().getTime() - data.data.activeList[0].startTime) / 1000 < 7200) {
                   console.log(`检测到活动：${data.data.activeList[0].nameOne}`)
