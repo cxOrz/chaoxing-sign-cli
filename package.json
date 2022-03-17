@@ -1,13 +1,10 @@
 {
   "name": "chaoxing-sign-cli",
-  "version": "1.8.7",
+  "version": "1.9.8",
   "description": "超星学习通签到命令行工具",
   "main": "index.js",
   "scripts": {
-    "code": "(node ./src/index.js --qrcode && echo \"正在检查更新，若等待时间过长请挂代理...(连按 Ctrl+C 终止)\" && git pull) || (echo \"正在检查更新，若等待时间过长请挂代理...(连按 Ctrl+C 终止)\" && git pull)",
-    "loc": "(node ./src/index.js --location && echo \"正在检查更新，若等待时间过长请挂代理...(连按 Ctrl+C 终止)\" && git pull) || (echo \"正在检查更新，若等待时间过长请挂代理...(连按 Ctrl+C 终止)\" && git pull)",
-    "gen": "(node ./src/index.js --general && echo \"正在检查更新，若等待时间过长请挂代理...(连按 Ctrl+C 终止)\" && git pull) || (echo \"正在检查更新，若等待时间过长请挂代理...(连按 Ctrl+C 终止)\" && git pull)",
-    "cam": "(node ./src/index.js --photo && echo \"正在检查更新，若等待时间过长请挂代理...(连按 Ctrl+C 终止)\" && git pull) || (echo \"正在检查更新，若等待时间过长请挂代理...(连按 Ctrl+C 终止)\" && git pull)"
+    "start": "(node ./src/index.js && echo \"正在检查更新，若等待时间过长请挂代理...(连按 Ctrl+C 终止)\" && git pull) || (echo \"正在检查更新，若等待时间过长请挂代理...(连按 Ctrl+C 终止)\" && git pull)"
   },
   "repository": "https://github.com/***REMOVED***/chaoxing-sign-cli.git",
   "author": "mcx",
