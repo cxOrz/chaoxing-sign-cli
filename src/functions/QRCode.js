@@ -12,7 +12,7 @@ exports.QRCodeSign = async (enc, name, fid, uid, aid, uf, _d, vc3) => {
       res.on('data', (chunk) => { data += chunk })
       res.on('end', () => {
         if (data == 'success')
-          console.log(`${data}签到成功`)
+          console.log(`[二维码]签到成功`)
           resolve()
       })
     })

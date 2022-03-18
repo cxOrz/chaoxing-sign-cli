@@ -11,7 +11,7 @@ exports.LocationSign = async (uf, _d, vc3, name, address, activeId, uid, lat, lo
     }, (res) => {
       res.on('data', (chunk) => { data += chunk })
       res.on('end', () => {
-        console.log(data)
+        console.log(`[位置]${data}`)
         resolve()
       })
     })
