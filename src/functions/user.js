@@ -30,7 +30,7 @@ exports.userLogin = async (uname, password) => {
           data = ''
           res.on('data', (chunk) => { data += chunk })
           res.on('end', () => {
-            console.log(res.headers)
+            // console.log(res.headers)
             if (JSON.parse(data).status) {
               console.log('登陆成功')
               params.fid = res.headers['set-cookie'][2].slice(4, res.headers['set-cookie'][2].indexOf(';'))
