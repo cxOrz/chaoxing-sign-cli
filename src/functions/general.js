@@ -12,7 +12,7 @@ exports.GeneralSign = async (uf, _d, vc3, name, activeId, uid, fid) => {
       res.on('data', (chunk) => { data += chunk })
       res.on('end', () => {
         if (data == 'success')
-          console.log(`${data}签到成功`)
+          console.log(`[通用]签到成功`)
         resolve()
       })
     })
