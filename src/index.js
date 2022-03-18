@@ -15,7 +15,7 @@ const rl = readline.createInterface()
   {
     // 打印本地用户列表，并返回用户数量
     let userLength = printUsers()
-    let input = await readline.question(rl, '若使用以上用户，输入序号(0-?);若手动填写用户名密码登录，输入(n)；\n请输入：')
+    let input = await readline.question(rl, '[ 若使用列表中用户，输入前面的序号; 若使用账号和密码登录，输入n ]\n输入：')
     // 使用新用户登录
     if (input === 'n') {
       let uname = await readline.question(rl, '手机号：')
