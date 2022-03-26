@@ -41,7 +41,7 @@ exports.getSignActivity = async (courses, uf, _d, UID, vc3) => {
   // 若等于length说明是遍历了全部，都没有获得活动
   if (i == courses.length) {
     console.log('未检测到有效签到活动！')
-    process.exit(0) // 直接退出
+    return 'NoActivity' // 直接退出
   } else {
     return activity
   }
