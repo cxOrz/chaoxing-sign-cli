@@ -42,7 +42,7 @@ exports.userLogin = async (uname, password) => {
               resolve(params)
             } else {
               console.log('登陆失败')
-              process.exit(1)
+              resolve("AuthFailed")
             }
           })
         })
@@ -78,7 +78,7 @@ exports.getCourses = async (_uid, _d, vc3) => {
       res.pipe(gzip);
       if (res.statusCode === 302) {
         console.log('身份过期，程序将关闭，请你使用手动填写用户名密码的方式登录！手动登录后身份信息刷新，之后可继续使用本地凭证！\n')
-        process.exit(-1)
+        resolve("AuthRequired")
       }
       output = gzip;
       output.on('data', (chunk) => {
