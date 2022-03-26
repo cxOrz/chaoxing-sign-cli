@@ -22,6 +22,7 @@ const rl = readline.createInterface()
       let password = await readline.question(rl, '密码：')
       // 登录获取各参数
       params = await userLogin(uname, password)
+      if (params === "AuthFailed") process.exit(1)
       storeUser(uname, params) // 储存到本地
     } else if (Number(input) === Number.NaN || !(Number(input) >= 0 && Number(input) < userLength)) {
       console.log('输入有误，程序退出；')
@@ -39,8 +40,10 @@ const rl = readline.createInterface()
 
   // 获取所有课程
   let courses = await getCourses(params._uid, params._d, params.vc3)
+  if (courses === "AuthRequired") process.exit(1)
   // 获取进行中的签到活动
   let activity = await getSignActivity(courses, params.uf, params._d, params._uid, params.vc3)
+  if (activity === "NoActivity") process.exit(1)
 
   // 检测到签到活动
   switch (activity.otherId) {

@@ -39,7 +39,7 @@ cd chaoxing-sign-cli
 npm start
 ```
 
-## 运行须知 🧩
+## 运行须知 📄
 
 ### 二维码签到
 
@@ -61,10 +61,29 @@ npm start
 
 没有任何需要准备的，直接运行即可。
 
-## 截图
+## 高级 🎲
 
-![成功截图](src/docs/success.png)
+以上内容介绍了最基本的用法，接下来介绍一些稍高级一些的使用方法。
+
+### 运行接口服务
+
+运行 `npm run serve` 将启动接口服务，可通过调用 API 来实现以上功能。接下来描述每个接口的参数以及调用方式：
+
+|路径|请求方式|参数|内容类型|
+|-|-|-|-|
+|/|GET|无|无|
+|/login|POST|phone, password|JSON|
+|/activity|POST|uf, _d, vc3, uid|JSON|
+|/qrcode|POST|uf, _d, vc3, name, aid, uid, fid, enc|JSON|
+|/location|POST|uf, _d, vc3, name, aid, uid, fid, address, lat, lon|JSON|
+|/general|POST|uf, _d, vc3, name, aid, uid, fid|JSON|
+|/photo|POST|uf, _d, vc3, name, aid, uid, fid|JSON|
+
+### 图形化界面
+
+敬请期待。
+
 
 ## 鸣谢
 
-超星学习通yyds。
+非常感谢超星学习通，实践出真知。

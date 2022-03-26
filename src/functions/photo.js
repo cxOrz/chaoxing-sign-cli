@@ -11,9 +11,11 @@ exports.PhotoSign = async (uf, _d, vc3, name, activeId, uid, fid, objectId) => {
     }, (res) => {
       res.on('data', (chunk) => { data += chunk })
       res.on('end', () => {
-        if (data == 'success')
+        if (data === 'success') {
           console.log(`[拍照]签到成功`)
-        resolve()
+          resolve('success')
+        }
+        resolve(data)
       })
     })
   })
