@@ -27,6 +27,7 @@ exports.getSignActivity = async (courses, uf, _d, UID, vc3) => {
                 console.log(`检测到活动：${data.data.activeList[0].nameOne}`)
                 activity = {
                   aid: data.data.activeList[0].id,
+                  name: data.data.activeList[0].nameOne,
                   otherId
                 }
                 i = NaN // 设为NaN将结束循环，该值说明获取到了活动。

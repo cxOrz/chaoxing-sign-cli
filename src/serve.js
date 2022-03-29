@@ -22,15 +22,9 @@ router.post('/login', async (ctx) => {
     ctx.body = 'AuthFailed'
     return
   }
-  params.name = await getAccountInfo(params.uf, params._d, params.uid, params.vc3)
-  ctx.cookies.set('fid', params.fid)
-  ctx.cookies.set('uid', params.uid)
-  ctx.cookies.set('uf', params.uf)
-  ctx.cookies.set('_d', params._d)
-  ctx.cookies.set('vc3', params.vc3)
-  ctx.cookies.set('name', encodeURI(params.name))
+  params.name = await getAccountInfo(params.uf, params._d, params._uid, params.vc3)
 
-  ctx.body = 'success'
+  ctx.body = params
 })
 
 router.post('/activity', async (ctx) => {
@@ -61,7 +55,7 @@ router.post('/qrcode', async (ctx) => {
 })
 
 router.post('/location', async (ctx) => {
-  let res = await LocationSign(ctx.request.body.uf, ctx.request.body._d, ctx.request.body.vc3, ctx.request.body.name, ctx.request.body.address, ctx.request.body.activeId, ctx.request.body.uid, ctx.request.body.lat, ctx.request.body.lon, ctx.request.body.fid)
+  let res = await LocationSign(ctx.request.body.uf, ctx.request.body._d, ctx.request.body.vc3, ctx.request.body.name, ctx.request.body.address, ctx.request.body.aid, ctx.request.body.uid, ctx.request.body.lat, ctx.request.body.lon, ctx.request.body.fid)
   if (res === 'success') {
     ctx.body = 'success'
     return
@@ -92,8 +86,20 @@ router.post('/photo', async (ctx) => {
 })
 
 app.use(bodyparser())
+app.use(async (ctx, next) => {
+  ctx.set("Access-Control-Allow-Origin", "*")
+  ctx.set("Access-Control-Allow-Headers", "Content-Type")
+  await next()
+})
+app.use(async (ctx, next) => {
+  if (ctx.method === 'OPTIONS') {
+    ctx.body = ''
+  }
+  await next()
+});
 app.use(router.routes())
 
-app.listen(3000, () => {
-  console.log("API Server: http://localhost:3000")
+
+app.listen(5000, () => {
+  console.log("API Server: http://localhost:5000")
 })

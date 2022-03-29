@@ -71,16 +71,16 @@ exports.getCourses = async (_uid, _d, vc3) => {
         'Cookie': `_uid=${_uid}; _d=${_d}; vc3=${vc3}`
       }
     }, (res) => {
-      // 解决gzip乱码问题
-      let gzip = zlib.createGunzip();
-      let output
-
-      res.pipe(gzip);
       if (res.statusCode === 302) {
         console.log('身份过期，程序将关闭，请你使用手动填写用户名密码的方式登录！手动登录后身份信息刷新，之后可继续使用本地凭证！\n')
         resolve("AuthRequired")
+        return
       }
-      output = gzip;
+      // 解决gzip乱码问题
+      let gzip = zlib.createGunzip();
+      let output
+      res.pipe(gzip)
+      output = gzip
       output.on('data', (chunk) => {
         data += chunk
       })
