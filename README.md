@@ -75,11 +75,11 @@ npm start
 |-|-|-|-|
 |/|GET|无|无|
 |/login|POST|phone, password|JSON|
-|/activity|POST|uf, _d, vc3, uid|JSON|
-|/qrcode|POST|uf, _d, vc3, name, aid, uid, fid, enc|JSON|
-|/location|POST|uf, _d, vc3, name, aid, uid, fid, address, lat, lon|JSON|
-|/general|POST|uf, _d, vc3, name, aid, uid, fid|JSON|
-|/photo|POST|uf, _d, vc3, name, aid, uid, fid|JSON|
+|/activity|POST|uf, _d, vc3, _uid|JSON|
+|/qrcode|POST|uf, _d, vc3, name, aid, _uid, fid, enc|JSON|
+|/location|POST|uf, _d, vc3, name, aid, _uid, fid, address, lat, lon|JSON|
+|/general|POST|uf, _d, vc3, name, aid, _uid, fid|JSON|
+|/photo|POST|uf, _d, vc3, name, aid, _uid, fid|JSON|
 
 ### 图形化界面
 
