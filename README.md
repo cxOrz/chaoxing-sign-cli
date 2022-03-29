@@ -71,19 +71,35 @@ npm start
 
 运行 `npm run serve` 将启动接口服务，可通过调用 API 来实现以上功能。接下来描述每个接口的参数以及调用方式：
 
-|路径|请求方式|参数|内容类型|
-|-|-|-|-|
-|/|GET|无|无|
-|/login|POST|phone, password|JSON|
-|/activity|POST|uf, _d, vc3, _uid|JSON|
-|/qrcode|POST|uf, _d, vc3, name, aid, _uid, fid, enc|JSON|
-|/location|POST|uf, _d, vc3, name, aid, _uid, fid, address, lat, lon|JSON|
-|/general|POST|uf, _d, vc3, name, aid, _uid, fid|JSON|
-|/photo|POST|uf, _d, vc3, name, aid, _uid, fid|JSON|
+|路径|请求方式|参数|内容类型|返回内容|
+|-|-|-|-|-|
+|/|GET|无|无|待填|
+|/login|POST|phone, password|JSON|待填|
+|/activity|POST|uf, _d, vc3, _uid|JSON|待填|
+|/qrcode|POST|uf, _d, vc3, name, aid, _uid, fid, enc|JSON|待填|
+|/location|POST|uf, _d, vc3, name, aid, _uid, fid, address, lat, lon|JSON|待填|
+|/general|POST|uf, _d, vc3, name, aid, _uid, fid|JSON|待填|
+|/photo|POST|uf, _d, vc3, name, aid, _uid, fid|JSON|待填|
 
 ### 图形化界面
 
-敬请期待。
+基于 React.js + Material UI 开发前端页面，其中修改了很多 MUI 附带样式，也自己手写了一些，整体设计灵感-->拟态。
+
+访问 [这里](https://github.com/***REMOVED***/chaoxing-sign-ui) 查看图形化客户端具体内容。
+
+基本使用步骤：
+1. 将两个项目依赖都装好
+2. 在本项目运行 `npm run serve` 或 `yarn serve`
+3. 在 UI 项目(与本仓库分离)运行 `npm start` 或 `yarn start`
+4. 未作任何修改的情况下，可通过 http://localhost:3000 通过网页使用全部功能
+
+不过我的建议是，构建一下页面，然后部署到服务器自己学习用。
+
+
+> 可在 Termux 或服务器上配置并部署 `接口服务` 和 `前端页面`， 运行两者，获得最佳体验。
+
+![](https://636c-cloudbase-1a4211-1252446325.tcb.qcloud.la/chaoxing-sign-ui/1.png)
+![](https://636c-cloudbase-1a4211-1252446325.tcb.qcloud.la/chaoxing-sign-ui/2.png)
 
 
 ## 鸣谢

@@ -24,4 +24,4 @@ pkg install nodejs-lts git
 
 ## 截图
 
-<img src="./termux.png" width="450px">
+<img src="https://636c-cloudbase-1a4211-1252446325.tcb.qcloud.la/chaoxing-sign-cli/termux.png?sign=bfc518a34929722749e627538837e99c&t=1648568993" width="450px">
