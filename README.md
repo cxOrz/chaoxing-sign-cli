@@ -17,6 +17,8 @@
 
 安卓手机上可以用 Termux 来运行NodeJS程序，[查看Termux教程](./src/docs/termux.md) 。
 
+苹果手机请查看 [高级](https://github.com/miaochenxi/chaoxing-sign-cli#%E9%AB%98%E7%BA%A7-) 部分，通过这种方式来使用，当然这种方式也适用于其他。
+
 ## 部署 🛠
 
 将仓库克隆到本地
