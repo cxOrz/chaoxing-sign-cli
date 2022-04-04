@@ -41,7 +41,7 @@ cd chaoxing-sign-cli
 npm start
 ```
 
-## 运行须知 📄
+## 使用须知 📄
 
 ### 二维码签到
 
@@ -103,6 +103,9 @@ npm start
 ![](https://636c-cloudbase-1a4211-1252446325.tcb.qcloud.la/chaoxing-sign-ui/1.png)
 ![](https://636c-cloudbase-1a4211-1252446325.tcb.qcloud.la/chaoxing-sign-ui/2.png)
 
+## 贡献
+
+欢迎对本仓库提交代码，但是在这之前请发起一个Issue描述你想要修改或提供的功能，经过讨论之后再确定是否进行下去，避免辛苦写完代码最终没有得到合并。本项目按照个人意愿进行开发，一些功能以及设计带有个人主观的想法，所以有想法要提交代码的朋友请一定先讨论一下。
 
 ## 鸣谢
 
