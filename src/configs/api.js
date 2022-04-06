@@ -30,5 +30,13 @@ module.exports = {
   PANLIST: {
     URL: 'https://pan-yz.chaoxing.com/opt/listres',
     METHOD: 'POST'
+  },
+  PANTOKEN:{
+    URL: 'https://pan-yz.chaoxing.com/api/token/uservalid',
+    METHOD: 'GET'
+  },
+  PANUPLOAD:{
+    URL:'https://pan-yz.chaoxing.com/upload',
+    METHOD:'POST'
   }
 }
