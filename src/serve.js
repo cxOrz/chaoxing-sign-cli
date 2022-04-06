@@ -1,12 +1,14 @@
 const Router = require('@koa/router')
 const Koa = require('koa')
+const fs = require('fs')
 const bodyparser = require('koa-bodyparser')
-const { userLogin, getAccountInfo, getCourses } = require('./functions/user')
+const multiparty = require('multiparty')
+const { userLogin, getAccountInfo, getCourses, getPanToken } = require('./functions/user')
 const { getSignActivity } = require("./functions/activity");
 const { QRCodeSign } = require('./functions/QRCode');
 const { LocationSign } = require('./functions/location');
 const { GeneralSign } = require('./functions/general');
-const { PhotoSign, getObjectIdFromcxPan } = require('./functions/photo')
+const { PhotoSign, getObjectIdFromcxPan, uploadPhoto } = require('./functions/photo')
 
 const app = new Koa()
 const router = new Router()
@@ -72,6 +74,47 @@ router.post('/general', async (ctx) => {
   } else {
     ctx.body = res
   }
+})
+
+router.post('/uvtoken', async (ctx) => {
+  let res = await getPanToken(ctx.request.body.uf, ctx.request.body._d, ctx.request.body.uid, ctx.request.body.vc3)
+  ctx.body = res
+})
+
+router.post('/upload', async (ctx) => {
+  let form = new multiparty.Form()
+  let fields = {}
+  let data = []
+
+  let result = await new Promise((resolve) => {
+    // 解析到part时，判断是否为文件
+    form.on('part', (part) => {
+      if (part.filename !== undefined) {
+        // 存入data数组
+        part.on('data', (chunk) => {
+          data.push(chunk)
+        })
+        // 存完继续
+        part.on('close', () => {
+          part.resume()
+        })
+      }
+    })
+    // 解析遇到文本时
+    form.on('field', (name, str) => {
+      fields[name] = str
+    })
+    // 解析完成后
+    form.on('close', async () => {
+      let buffer = Buffer.concat(data)
+      let res = await uploadPhoto(fields['uf'], fields['_d'], fields['_uid'], fields['vc3'], ctx.query._token, buffer)
+      resolve(res)
+      console.log(res)
+    })
+    // 解析请求表单
+    form.parse(ctx.req)
+  })
+  ctx.body = result
 })
 
 router.post('/photo', async (ctx) => {

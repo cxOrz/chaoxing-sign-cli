@@ -1,5 +1,8 @@
 const https = require('https')
-const { PPTSIGN, PANCHAOXING, PANLIST } = require('../configs/api')
+const fs = require('fs')
+const FormData = require('form-data')
+const path = require('path')
+const { PPTSIGN, PANCHAOXING, PANLIST, PANUPLOAD } = require('../configs/api')
 
 exports.PhotoSign = async (uf, _d, vc3, name, activeId, uid, fid, objectId) => {
   let data = ''
@@ -64,5 +67,38 @@ exports.getObjectIdFromcxPan = (uf, _d, vc3, uid) => {
         postreq.end()
       })
     })
+  })
+}
+
+// 图片上传
+exports.uploadPhoto = (uf, _d, _uid, vc3, token, buffer) => {
+  let form = new FormData()
+  let data = ''
+  let tempFilePath = path.join(__dirname, './tmp/temp.jpg')
+  // 若部署在云函数中，使用以下路径
+  // let tempFilePath = '/tmp/temp.jpg'
+  fs.writeFileSync(tempFilePath, buffer)
+  let readStream = fs.createReadStream(tempFilePath)
+  form.append('file', readStream)
+  form.append('puid', _uid)
+
+  return new Promise((resolve) => {
+    // 上传文件
+    let request = https.request(PANUPLOAD.URL + '?_token=' + token, {
+      method: PANUPLOAD.METHOD,
+      headers: {
+        'Cookie': `uf=${uf}; _d=${_d}; UID=${_uid}; vc3=${vc3};`,
+        'Content-Type': `multipart/form-data;boundary=${form.getBoundary()}`
+      }
+    }, (res) => {
+      res.on('data', (chunk) => {
+        data += chunk
+      })
+      res.on('end', () => {
+        console.log(data)
+        resolve(data)
+      })
+    })
+    form.pipe(request)
   })
 }
