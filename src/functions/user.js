@@ -1,6 +1,7 @@
 const http = require('http')
+const https = require('https')
 const zlib = require('zlib')
-const { LOGIN_PAGE, LOGIN, COURSELIST, ACCOUNTMANAGE } = require("../configs/api")
+const { LOGIN_PAGE, LOGIN, COURSELIST, ACCOUNTMANAGE, PANTOKEN } = require("../configs/api")
 const { getStore } = require('../utils/file')
 
 exports.userLogin = async (uname, password) => {
@@ -127,6 +128,25 @@ exports.getAccountInfo = async (uf, _d, _uid, vc3) => {
         let end_of_messageName = data.indexOf('messageName') + 13
         let name = data.slice(end_of_messageName, data.indexOf('<', end_of_messageName))
         resolve(name)
+      })
+    })
+  })
+}
+
+// 获取用户鉴权token
+exports.getPanToken = (uf, _d, _uid, vc3) => {
+  return new Promise((resolve) => {
+    let data = ''
+    https.get(PANTOKEN.URL, {
+      headers: {
+        'Cookie': `uf=${uf}; _d=${_d}; UID=${_uid}; vc3=${vc3};`
+      }
+    }, (res) => {
+      res.on('data', (chunk) => {
+        data += chunk
+      })
+      res.on('end', () => {
+        resolve(data)
       })
     })
   })
