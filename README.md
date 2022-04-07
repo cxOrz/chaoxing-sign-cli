@@ -49,7 +49,7 @@ npm start
 
 ![识别二维码得到字符串](./src/docs/qr.png)
 
-复制其中的 `enc` 参数，注意不要复制多余内容和空格，例如 1D0A628CK317F44CCC378M5KD92，复制该值，询问时填入。
+复制其中的 `enc` 参数，注意不要复制多余内容和空格，例如 1D0A628CK317F44CCC378M5KD92，复制该值，询问时填入。若使用 UI 仓库的项目(查看`高级`)，则可直接选择图片提交。
 
 ### 位置签到
 
@@ -57,7 +57,7 @@ npm start
 
 ### 拍照签到
 
-需要事先准备一张用来提交的照片。浏览器访问超星云盘：https://pan-yz.chaoxing.com ，在根目录上传一张你准备的照片，命名为 `0.jpg` 或 `0.png` 。
+需要事先准备一张用来提交的照片。浏览器访问超星云盘：https://pan-yz.chaoxing.com ，在根目录上传一张你准备的照片，命名为 `0.jpg` 或 `0.png` 。若使用 UI 仓库的项目(查看`高级`)，则可直接选择图片提交。
 
 ### 普通签到&手势签到&签到码签到
 
@@ -77,11 +77,13 @@ npm start
 |-|-|-|-|-|
 |/|GET|无|无|待填|
 |/login|POST|phone, password|JSON|待填|
-|/activity|POST|uf, _d, vc3, _uid|JSON|待填|
-|/qrcode|POST|uf, _d, vc3, name, aid, _uid, fid, enc|JSON|待填|
-|/location|POST|uf, _d, vc3, name, aid, _uid, fid, address, lat, lon|JSON|待填|
-|/general|POST|uf, _d, vc3, name, aid, _uid, fid|JSON|待填|
-|/photo|POST|uf, _d, vc3, name, aid, _uid, fid|JSON|待填|
+|/activity|POST|uf, _d, vc3, uid|JSON|待填|
+|/uvtoken|POST|uf, _d, vc3, uid|JSON|待填|
+|/qrcode|POST|uf, _d, vc3, name, aid, uid, fid, enc|JSON|待填|
+|/location|POST|uf, _d, vc3, name, aid, uid, fid, address, lat, lon|JSON|待填|
+|/general|POST|uf, _d, vc3, name, aid, uid, fid|JSON|待填|
+|/photo|POST|uf, _d, vc3, name, aid, uid, fid, objectId|JSON|待填|
+|/upload|POST|uf, _d, vc3, uid, file, ?_token|multipart/form-data|待填|
 
 ### 图形化界面
 
@@ -99,6 +101,8 @@ npm start
 
 
 > 可在 Termux 或服务器上配置并部署 `接口服务` 和 `前端页面`， 运行两者，获得最佳体验。
+
+> 若部署在云函数，请查看 src/functions/photo.js 中的函数 uploadPhoto, 根据注释修改路径。
 
 ![](https://636c-cloudbase-1a4211-1252446325.tcb.qcloud.la/chaoxing-sign-ui/1.png)
 ![](https://636c-cloudbase-1a4211-1252446325.tcb.qcloud.la/chaoxing-sign-ui/2.png)
