@@ -1,6 +1,5 @@
 const https = require('https')
 const fs = require('fs')
-const FormData = require('form-data')
 const path = require('path')
 const { PPTSIGN, PANCHAOXING, PANLIST, PANUPLOAD } = require('../configs/api')
 
@@ -73,6 +72,7 @@ exports.getObjectIdFromcxPan = (uf, _d, vc3, uid) => {
 
 // 直接上传图片获得objectId，在UI项目里使用
 exports.uploadPhoto = (uf, _d, _uid, vc3, token, buffer) => {
+  const FormData = require('form-data')
   let form = new FormData()
   let data = ''
 
@@ -80,7 +80,7 @@ exports.uploadPhoto = (uf, _d, _uid, vc3, token, buffer) => {
   let tempFilePath = path.join(__dirname, '../tmp/temp.jpg')
   // 若部署在云函数中，注释以上两行，并使用以下路径
   // let tempFilePath = '/tmp/temp.jpg'
-  
+
   fs.writeFileSync(tempFilePath, buffer)
   let readStream = fs.createReadStream(tempFilePath)
   form.append('file', readStream)
