@@ -118,8 +118,7 @@ router.post('/upload', async (ctx) => {
 })
 
 router.post('/photo', async (ctx) => {
-  let objectId = await getObjectIdFromcxPan(ctx.request.body.uf, ctx.request.body._d, ctx.request.body.vc3, ctx.request.body.uid)
-  let res = await PhotoSign(ctx.request.body.uf, ctx.request.body._d, ctx.request.body.vc3, ctx.request.body.name, ctx.request.body.aid, ctx.request.body.uid, ctx.request.body.fid, objectId)
+  let res = await PhotoSign(ctx.request.body.uf, ctx.request.body._d, ctx.request.body.vc3, ctx.request.body.name, ctx.request.body.aid, ctx.request.body.uid, ctx.request.body.fid, ctx.request.body.objectId)
   if (res === 'success') {
     ctx.body = 'success'
     return
