@@ -1,6 +1,6 @@
 {
   "name": "chaoxing-sign-cli",
-  "version": "2.0.8",
+  "version": "2.2.2",
   "description": "超星学习通签到命令行工具",
   "main": "index.js",
   "scripts": {
