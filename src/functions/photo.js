@@ -24,6 +24,7 @@ exports.PhotoSign = async (uf, _d, vc3, name, activeId, uid, fid, objectId) => {
   })
 }
 
+// 在Termux或其他终端中使用，从云盘获取图片
 exports.getObjectIdFromcxPan = (uf, _d, vc3, uid) => {
   let data = ''
   return new Promise((resolve) => {
@@ -70,11 +71,12 @@ exports.getObjectIdFromcxPan = (uf, _d, vc3, uid) => {
   })
 }
 
-// 图片上传
+// 直接上传图片获得objectId，在UI项目里使用
 exports.uploadPhoto = (uf, _d, _uid, vc3, token, buffer) => {
   let form = new FormData()
   let data = ''
-  let tempFilePath = path.join(__dirname, './tmp/temp.jpg')
+  let tempFilePath = path.join(__dirname, '../tmp/temp.jpg')
+  fs.mkdirSync(path.join(__dirname, '../tmp'), { recursive: true })
   // 若部署在云函数中，使用以下路径
   // let tempFilePath = '/tmp/temp.jpg'
   fs.writeFileSync(tempFilePath, buffer)
@@ -95,7 +97,6 @@ exports.uploadPhoto = (uf, _d, _uid, vc3, token, buffer) => {
         data += chunk
       })
       res.on('end', () => {
-        console.log(data)
         resolve(data)
       })
     })
