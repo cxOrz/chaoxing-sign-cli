@@ -104,8 +104,8 @@ npm start
 
 > 若部署在云函数，请查看 src/functions/photo.js 中的函数 uploadPhoto, 根据注释修改路径。
 
-![](https://636c-cloudbase-1a4211-1252446325.tcb.qcloud.la/chaoxing-sign-ui/1.png)
-![](https://636c-cloudbase-1a4211-1252446325.tcb.qcloud.la/chaoxing-sign-ui/2.png)
+![](https://636c-cloudbase-1a4211-1252446325.tcb.qcloud.la/chaoxing-sign-ui/1.png?)
+![](https://636c-cloudbase-1a4211-1252446325.tcb.qcloud.la/chaoxing-sign-ui/2.png?)
 
 ## 贡献
 
