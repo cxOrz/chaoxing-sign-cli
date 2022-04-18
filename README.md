@@ -75,8 +75,8 @@ npm start
 
 |路径|请求方式|参数|内容类型|返回内容|
 |-|-|-|-|-|
-|/|GET|无|无|待填|
-|/login|POST|phone, password|JSON|待填|
+|/|GET|无|无|\< String \>|
+|/login|POST|phone, password|JSON|\< String \>|
 |/activity|POST|uf, _d, vc3, uid|JSON|待填|
 |/uvtoken|POST|uf, _d, vc3, uid|JSON|待填|
 |/qrcode|POST|uf, _d, vc3, name, aid, uid, fid, enc|JSON|待填|
@@ -84,6 +84,7 @@ npm start
 |/general|POST|uf, _d, vc3, name, aid, uid, fid|JSON|待填|
 |/photo|POST|uf, _d, vc3, name, aid, uid, fid, objectId|JSON|待填|
 |/upload|POST|uf, _d, vc3, uid, file, ?_token|multipart/form-data|待填|
+|/qrocr|POST|file|multipart/form-data|\< String \>|
 
 ### 图形化界面
 
@@ -102,7 +103,7 @@ npm start
 
 > 可在 Termux 或服务器上配置并部署 `接口服务` 和 `前端页面`， 运行两者，获得最佳体验。
 
-> 若部署在云函数，请查看 src/functions/photo.js 中的函数 uploadPhoto, 根据注释修改路径。
+> 若部署在云函数，请查看 src/functions/photo.js 中的函数 uploadPhoto, 根据注释修改路径。若使用 `/qrocr` 接口，需要在 "src\functions\tencent\QrCodeOCR.js" 配置腾讯云的 secretId 和 secretKey。
 
 ![](https://636c-cloudbase-1a4211-1252446325.tcb.qcloud.la/chaoxing-sign-ui/1.png?)
 ![](https://636c-cloudbase-1a4211-1252446325.tcb.qcloud.la/chaoxing-sign-ui/2.png?)
