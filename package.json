@@ -1,6 +1,6 @@
 {
   "name": "chaoxing-sign-cli",
-  "version": "2.2.2",
+  "version": "2.3.2",
   "description": "超星学习通签到命令行工具",
   "main": "index.js",
   "scripts": {
@@ -15,6 +15,7 @@
     "form-data": "^4.0.0",
     "koa": "^2.13.4",
     "koa-bodyparser": "^4.3.0",
-    "multiparty": "^4.2.3"
+    "multiparty": "^4.2.3",
+    "tencentcloud-sdk-nodejs": "^4.0.327"
   }
 }
