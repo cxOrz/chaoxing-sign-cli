@@ -1,6 +1,5 @@
 const Router = require('@koa/router')
 const Koa = require('koa')
-const fs = require('fs')
 const bodyparser = require('koa-bodyparser')
 const multiparty = require('multiparty')
 const { userLogin, getAccountInfo, getCourses, getPanToken } = require('./functions/user')
@@ -8,7 +7,8 @@ const { getSignActivity } = require("./functions/activity");
 const { QRCodeSign } = require('./functions/QRCode');
 const { LocationSign } = require('./functions/location');
 const { GeneralSign } = require('./functions/general');
-const { PhotoSign, getObjectIdFromcxPan, uploadPhoto } = require('./functions/photo')
+const { PhotoSign, uploadPhoto } = require('./functions/photo')
+const { QrCodeScan } = require('./functions/tencent/QrCodeOCR')
 
 const app = new Koa()
 const router = new Router()
@@ -125,6 +125,37 @@ router.post('/photo', async (ctx) => {
   } else {
     ctx.body = res
   }
+})
+
+router.post('/qrocr', async (ctx) => {
+  let form = new multiparty.Form()
+  let data = []
+  let result = await new Promise((resolve) => {
+    form.on('part', (part) => {
+      if (part.filename !== undefined) {
+        part.on('data', (chunk) => {
+          data.push(chunk)
+        })
+        part.on('close', () => {
+          part.resume()
+        })
+      }
+    })
+    form.on('close', async () => {
+      let buffer = Buffer.concat(data)
+      let base64str = buffer.toString('base64')
+      let res
+      try {
+        res = await QrCodeScan(base64str)
+        resolve(res.CodeResults[0].Url.split('=').pop())
+        console.log(res)
+      } catch (error) {
+        resolve('识别失败')
+      }
+    })
+    form.parse(ctx.req)
+  })
+  ctx.body = result
 })
 
 app.use(bodyparser())
