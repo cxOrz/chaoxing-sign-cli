@@ -14,7 +14,10 @@ exports.LocationSign = async (uf, _d, vc3, name, address, activeId, uid, lat, lo
         if (data === 'success') {
           console.log(`[位置]签到成功`)
           resolve('success')
-        } else resolve(data)
+        } else {
+          console.log(data)
+          resolve(data)
+        }
       })
     })
   })

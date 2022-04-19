@@ -14,7 +14,10 @@ exports.QRCodeSign = async (enc, name, fid, uid, aid, uf, _d, vc3) => {
         if (data === 'success') {
           console.log(`[二维码]签到成功`)
           resolve("success")
-        } else resolve(data)
+        } else {
+          console.log(data)
+          resolve(data)
+        }
       })
     })
   })

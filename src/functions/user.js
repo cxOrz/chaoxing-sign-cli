@@ -34,11 +34,21 @@ exports.userLogin = async (uname, password) => {
             // console.log(res.headers)
             if (JSON.parse(data).status) {
               console.log('登陆成功')
-              params.fid = res.headers['set-cookie'][2].slice(4, res.headers['set-cookie'][2].indexOf(';'))
-              params._uid = res.headers['set-cookie'][3].slice(5, res.headers['set-cookie'][3].indexOf(';'))
-              params.uf = res.headers['set-cookie'][4].slice(3, res.headers['set-cookie'][4].indexOf(';'))
-              params._d = res.headers['set-cookie'][5].slice(3, res.headers['set-cookie'][5].indexOf(';'))
-              params.vc3 = res.headers['set-cookie'][9].slice(4, res.headers['set-cookie'][9].indexOf(';'))
+              let lv = res.headers['set-cookie'][1].slice(3, 4)
+              if (lv === '1') {
+                params.fid = res.headers['set-cookie'][2].slice(4, res.headers['set-cookie'][2].indexOf(';'))
+                params._uid = res.headers['set-cookie'][3].slice(5, res.headers['set-cookie'][3].indexOf(';'))
+                params.uf = res.headers['set-cookie'][4].slice(3, res.headers['set-cookie'][4].indexOf(';'))
+                params._d = res.headers['set-cookie'][5].slice(3, res.headers['set-cookie'][5].indexOf(';'))
+                params.vc3 = res.headers['set-cookie'][9].slice(4, res.headers['set-cookie'][9].indexOf(';'))
+              }
+              else {
+                params.fid = "0"
+                params._uid = res.headers['set-cookie'][4].slice(5, res.headers['set-cookie'][4].indexOf(';'))
+                params.uf = res.headers['set-cookie'][5].slice(3, res.headers['set-cookie'][5].indexOf(';'))
+                params._d = res.headers['set-cookie'][6].slice(3, res.headers['set-cookie'][6].indexOf(';'))
+                params.vc3 = res.headers['set-cookie'][10].slice(4, res.headers['set-cookie'][10].indexOf(';'))
+              }
               // console.log(params)
               resolve(params)
             } else {
@@ -65,7 +75,7 @@ exports.getCourses = async (_uid, _d, vc3) => {
     let req = http.request(COURSELIST.URL, {
       method: COURSELIST.METHOD,
       headers: {
-        'Accept': ' text/html, */*; q=0.01',
+        'Accept': 'text/html, */*; q=0.01',
         'Accept-Encoding': 'gzip, deflate',
         'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8;',

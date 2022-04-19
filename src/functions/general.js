@@ -14,7 +14,10 @@ exports.GeneralSign = async (uf, _d, vc3, name, activeId, uid, fid) => {
         if (data === 'success') {
           console.log(`[通用]签到成功`)
           resolve('success')
-        } else resolve(data)
+        } else {
+          console.log(data)
+          resolve(data)
+        }
       })
     })
   })
