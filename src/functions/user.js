@@ -34,12 +34,39 @@ exports.userLogin = async (uname, password) => {
             // console.log(res.headers)
             if (JSON.parse(data).status) {
               console.log('登陆成功')
-              params.fid = res.headers['set-cookie'][2].slice(4, res.headers['set-cookie'][2].indexOf(';'))
-              params._uid = res.headers['set-cookie'][3].slice(5, res.headers['set-cookie'][3].indexOf(';'))
-              params.uf = res.headers['set-cookie'][4].slice(3, res.headers['set-cookie'][4].indexOf(';'))
-              params._d = res.headers['set-cookie'][5].slice(3, res.headers['set-cookie'][5].indexOf(';'))
-              params.vc3 = res.headers['set-cookie'][9].slice(4, res.headers['set-cookie'][9].indexOf(';'))
-              // console.log(params)
+              let cookies = res.headers['set-cookie']
+              for (var i = 0; i < cookies.length; i++) {
+                let cookie = cookies[i]
+                let values = cookie.split(";")[0].split("=")
+                if (values.length != 2) {
+                  continue
+                }
+
+                let key = values[0]
+                let value = values[1]
+                switch(key) {
+                  case 'fid':
+                    params.fid = value
+                    break
+                  case '_uid':
+                    params._uid = value
+                    break
+                  case 'uf':
+                    params.uf = value
+                    break
+                  case '_d':
+                    params._d = value
+                    break
+                  case 'vc3':
+                    params.vc3 = value
+                    break
+                  case '_uid':
+                    params._uid = value
+                    break
+                  default:
+                }
+              }
+              // console.log(params) 
               resolve(params)
             } else {
               console.log('登陆失败')
