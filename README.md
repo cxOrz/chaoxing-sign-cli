@@ -3,13 +3,13 @@
   <img src="https://img.shields.io/badge/nodejs->=v8.5.4-brightgreen.svg" />
 </p>
 
-基于 Nodejs ，实现的一个签到命令行工具。为了节约性能，只对开始2小时以内的活动签到。特殊情况：同一时间有多个有效签到活动的话，只签最新的。
+基于 Nodejs 实现的一个签到命令行工具。
 
 **功能**： 普通签到、拍照签到、手势签到、位置签到、签到码签到、二维码签到（10秒变换不影响），多用户凭据储存（多开）。
 
 **注意**： 本程序仅为交流学习使用，借助学习通的平台，通过本项目加深http请求、网络通信、接口编写、交互设计等方面知识的理解，请勿用作商业以及其他用途。
 
-**为确保你的代码最新与仓库保持同步，将在每次签到结束强制拉取代码更新**，如需关闭更新，请查看[issue2](https://github.com/miaochenxi/chaoxing-sign-cli/issues/2#issuecomment-962781427)。手动终止检查更新可在每次检查时按下 `Ctrl`+`C` 并确认终止，更多功能正在开发 ...
+**为确保你的代码最新与仓库保持同步，将在每次签到结束强制拉取代码更新**，如需关闭更新，请查看[issue2](https://github.com/miaochenxi/chaoxing-sign-cli/issues/2#issuecomment-962781427)，手动终止检查更新可在每次检查时连按 `Ctrl`+`C` 确认终止，更多功能正在开发 ...
 
 ## 环境 💻
 
@@ -42,6 +42,8 @@ npm start
 ```
 
 ## 使用须知 📄
+
+为了节约性能，只对开始2小时以内的活动签到。同时有多个有效签到活动的话，只签最新的。将结束的课程移入其他文件夹，减少根目录的课程能够提高活动检测速度。
 
 ### 二维码签到
 
@@ -77,8 +79,8 @@ npm start
 |-|-|-|-|-|
 |/|GET|无|无|\< String \>|
 |/login|POST|phone, password|JSON|\< String \>|
-|/activity|POST|uf, _d, vc3, uid|JSON|待填|
-|/uvtoken|POST|uf, _d, vc3, uid|JSON|待填|
+|/activity|POST|uf, _d, vc3, uid|JSON|JSON|
+|/uvtoken|POST|uf, _d, vc3, uid|JSON|\< String \>|
 |/qrcode|POST|uf, _d, vc3, name, aid, uid, fid, enc|JSON|待填|
 |/location|POST|uf, _d, vc3, name, aid, uid, fid, address, lat, lon|JSON|待填|
 |/general|POST|uf, _d, vc3, name, aid, uid, fid|JSON|待填|

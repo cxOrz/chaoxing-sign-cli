@@ -15,6 +15,10 @@ module.exports = {
     URL: 'http://mooc1-1.chaoxing.com/visit/courselistdata',
     METHOD: 'POST'
   },
+  BACKCLAZZDATA: {
+    URL: 'http://mooc1-api.chaoxing.com/mycourse/backclazzdata',
+    METHOD: 'GET'
+  },
   ACTIVELIST: {
     URL: 'https://mobilelearn.chaoxing.com/v2/apis/active/student/activelist',
     METHOD: 'GET'
@@ -31,12 +35,12 @@ module.exports = {
     URL: 'https://pan-yz.chaoxing.com/opt/listres',
     METHOD: 'POST'
   },
-  PANTOKEN:{
+  PANTOKEN: {
     URL: 'https://pan-yz.chaoxing.com/api/token/uservalid',
     METHOD: 'GET'
   },
-  PANUPLOAD:{
-    URL:'https://pan-yz.chaoxing.com/upload',
-    METHOD:'POST'
+  PANUPLOAD: {
+    URL: 'https://pan-yz.chaoxing.com/upload',
+    METHOD: 'POST'
   }
 }
