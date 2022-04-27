@@ -34,21 +34,18 @@ exports.userLogin = async (uname, password) => {
             // console.log(res.headers)
             if (JSON.parse(data).status) {
               console.log('登陆成功')
-              let lv = res.headers['set-cookie'][1].slice(3, 4)
-              if (lv === '1') {
-                params.fid = res.headers['set-cookie'][2].slice(4, res.headers['set-cookie'][2].indexOf(';'))
-                params._uid = res.headers['set-cookie'][3].slice(5, res.headers['set-cookie'][3].indexOf(';'))
-                params.uf = res.headers['set-cookie'][4].slice(3, res.headers['set-cookie'][4].indexOf(';'))
-                params._d = res.headers['set-cookie'][5].slice(3, res.headers['set-cookie'][5].indexOf(';'))
-                params.vc3 = res.headers['set-cookie'][9].slice(4, res.headers['set-cookie'][9].indexOf(';'))
+              let cookies = res.headers['set-cookie']
+              let c_equal, c_semi, itemName, itemValue, rt_cookies
+              const map = new Map()
+              for (let i = 0; i < cookies.length; i++) {
+                c_equal = cookies[i].indexOf('=')
+                c_semi = cookies[i].indexOf(';')
+                itemName = cookies[i].substring(0, c_equal)
+                itemValue = cookies[i].substring(c_equal + 1, c_semi)
+                map.set(itemName, itemValue)
               }
-              else {
-                params.fid = "0"
-                params._uid = res.headers['set-cookie'][4].slice(5, res.headers['set-cookie'][4].indexOf(';'))
-                params.uf = res.headers['set-cookie'][5].slice(3, res.headers['set-cookie'][5].indexOf(';'))
-                params._d = res.headers['set-cookie'][6].slice(3, res.headers['set-cookie'][6].indexOf(';'))
-                params.vc3 = res.headers['set-cookie'][10].slice(4, res.headers['set-cookie'][10].indexOf(';'))
-              }
+              rt_cookies = Object.fromEntries(map.entries())
+              params = Object.assign(params, rt_cookies)
               // console.log(params)
               resolve(params)
             } else {
