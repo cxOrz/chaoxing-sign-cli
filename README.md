@@ -9,7 +9,7 @@
 
 **注意**： 本程序仅为交流学习使用，借助学习通的平台，通过本项目加深http请求、网络通信、接口编写、交互设计等方面知识的理解，请勿用作商业以及其他用途。
 
-**为确保你的代码最新与仓库保持同步，将在每次签到结束强制拉取代码更新**，如需关闭更新，请查看[issue2](https://github.com/***REMOVED***/chaoxing-sign-cli/issues/2#issuecomment-962781427)，手动终止检查更新可在每次检查时连按 `Ctrl`+`C` 确认终止，更多功能正在开发 ...
+**为确保你的代码最新与仓库保持同步，将在每次签到结束强制拉取代码更新**，如需关闭更新，请查看[issue2](https://github.com/cxOrz/chaoxing-sign-cli/issues/2#issuecomment-962781427)，手动终止检查更新可在每次检查时连按 `Ctrl`+`C` 确认终止，更多功能正在开发 ...
 
 ## 环境 💻
 
@@ -17,14 +17,14 @@
 
 安卓手机上可以用 Termux 来运行NodeJS程序，[查看Termux教程](./src/docs/termux.md) 。
 
-苹果手机请查看 [高级](https://github.com/***REMOVED***/chaoxing-sign-cli#%E9%AB%98%E7%BA%A7-) 部分，通过这种方式来使用，当然这种方式也适用于其他。
+苹果手机请查看 [高级](https://github.com/cxOrz/chaoxing-sign-cli#%E9%AB%98%E7%BA%A7-) 部分，通过这种方式来使用，当然这种方式也适用于其他。
 
 ## 部署 🛠
 
 将仓库克隆到本地
 
 ```bash
-git clone https://github.com/***REMOVED***/chaoxing-sign-cli.git
+git clone https://github.com/cxOrz/chaoxing-sign-cli.git
 ```
 
 进入项目文件夹
@@ -92,7 +92,7 @@ npm start
 
 基于 React.js + Material UI 开发前端页面，其中修改了很多 MUI 附带样式，也自己手写了一些，整体设计灵感-->拟态。
 
-访问 [这里](https://github.com/***REMOVED***/chaoxing-sign-ui) 查看图形化客户端具体内容。
+访问 [这里](https://github.com/cxOrz/chaoxing-sign-ui) 查看图形化客户端具体内容。
 
 基本使用步骤：
 1. 将两个项目依赖都装好
