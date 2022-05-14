@@ -41,6 +41,8 @@ cd chaoxing-sign-cli
 npm start
 ```
 
+![](https://636c-cloudbase-1a4211-1252446325.tcb.qcloud.la/chaoxing-sign-cli/how-to-start.gif?)
+
 ## 使用须知 📄
 
 为了节约性能，只对开始2小时以内的活动签到。同时有多个有效签到活动的话，只签最新的。将结束的课程移入其他文件夹，减少根目录的课程能够提高活动检测速度。
