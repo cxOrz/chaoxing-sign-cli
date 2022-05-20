@@ -9,7 +9,7 @@ exports.QrCodeScan = (base64str) => {
         secretId: "", // 在腾讯云开通OCR服务
         secretKey: "", // 并填写 secretId 和 secretKey
       },
-      region: "ap-shanghai",
+      region: "", // 填写你开通的云开发所在的区域，例如 ap-shanghai
       profile: {
         httpProfile: {
           endpoint: "ocr.tencentcloudapi.com",
