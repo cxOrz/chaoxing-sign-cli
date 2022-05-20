@@ -1,13 +1,13 @@
 {
   "name": "chaoxing-sign-cli",
-  "version": "2.3.2",
+  "version": "2.4.3",
   "description": "超星学习通签到命令行工具",
   "main": "index.js",
   "scripts": {
     "start": "(node ./src/index.js && echo \"正在检查更新，若等待时间过长请挂代理...(连按 Ctrl+C 终止)\" && git pull) || (echo \"正在检查更新，若等待时间过长请挂代理...(连按 Ctrl+C 终止)\" && git pull)",
     "serve": "node ./src/serve.js"
   },
-  "repository": "https://github.com/miaochenxi/chaoxing-sign-cli.git",
+  "repository": "https://github.com/cxOrz/chaoxing-sign-cli.git",
   "author": "mcx",
   "license": "MIT",
   "dependencies": {
