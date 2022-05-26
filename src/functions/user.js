@@ -1,13 +1,14 @@
 const http = require('http')
 const https = require('https')
 const zlib = require('zlib')
+const cryptojs = require('../utils/crypto-js.min')
 const { LOGIN_PAGE, LOGIN, COURSELIST, ACCOUNTMANAGE, PANTOKEN } = require("../configs/api")
 const { getStore } = require('../utils/file')
 
 exports.userLogin = async (uname, password) => {
   return new Promise((resolve) => {
     let params = {
-      fid: '-1', pid: '-1', refer: 'http%3A%2F%2Fi.chaoxing.com', _blank: '1', t: 'true',
+      fid: '-1', pid: '-1', refer: 'http%3A%2F%2Fi.chaoxing.com', _blank: '1', t: true,
       vc3: null, _uid: null, _d: null, uf: null
     }
     let data = ''
@@ -54,10 +55,15 @@ exports.userLogin = async (uname, password) => {
             }
           })
         })
-        // 密码进行 Base64 编码
-        password = Buffer.from(password).toString('base64')
+        // 密码DES加密
+        let wordArray = cryptojs.enc.Utf8.parse('u2oh6Vu^HWe40fj')
+        let encryptedPassword = cryptojs.DES.encrypt(password, wordArray, {
+          mode: cryptojs.mode.ECB,
+          padding: cryptojs.pad.Pkcs7
+        })
+        password = encryptedPassword.ciphertext.toString()
         // 填充表单
-        let formdata = `uname=${uname}&password=${password}&fid=-1&t=true&refer=http://i.chaoxing.com`
+        let formdata = `uname=${uname}&password=${password}&fid=-1&t=true&refer=https%253A%252F%252Fi.chaoxing.com&forbidotherlogin=0&validate=`
         req.write(formdata)
         req.end()
       })
