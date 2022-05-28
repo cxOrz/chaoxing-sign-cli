@@ -3,7 +3,7 @@ const Koa = require('koa')
 const bodyparser = require('koa-bodyparser')
 const multiparty = require('multiparty')
 const { userLogin, getAccountInfo, getCourses, getPanToken } = require('./functions/user')
-const { getSignActivity } = require("./functions/activity");
+const { getSignActivity, preSign } = require("./functions/activity");
 const { QRCodeSign } = require('./functions/QRCode');
 const { LocationSign } = require('./functions/location');
 const { GeneralSign } = require('./functions/general');
@@ -42,7 +42,8 @@ router.post('/activity', async (ctx) => {
     ctx.body = 'NoActivity'
     return
   }
-
+  // 对活动进行预签
+  await preSign(ctx.request.body.uf, ctx.request.body._d, ctx.request.body.vc3, activity.aid, activity.classId, activity.courseId, ctx.request.body.uid)
   ctx.body = activity
 })
 

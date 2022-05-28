@@ -1,4 +1,4 @@
-const { getSignActivity } = require("./functions/activity");
+const { getSignActivity, preSign } = require("./functions/activity");
 const { GeneralSign } = require("./functions/general");
 const { LocationSign } = require("./functions/location");
 const { PhotoSign, getObjectIdFromcxPan } = require("./functions/photo");
@@ -45,7 +45,8 @@ const rl = readline.createInterface()
   let activity = await getSignActivity(courses, params.uf, params._d, params._uid, params.vc3)
   if (activity === "NoActivity") process.exit(1)
 
-  // 检测到签到活动
+  // 处理签到
+  await preSign(params.uf, params._d, params.vc3, activity.aid, activity.classId, activity.courseId, params._uid)
   switch (activity.otherId) {
     case 2: {
       // 二维码签到
@@ -81,6 +82,7 @@ const rl = readline.createInterface()
         await PhotoSign(params.uf, params._d, params.vc3, name, activity.aid, params._uid, params.fid, objectId)
       } else {
         // 普通签到
+        await preSign(params.uf, params._d, params.vc3, activity.aid, activity.classId, activity.courseId, params._uid)
         await GeneralSign(params.uf, params._d, params.vc3, name, activity.aid, params._uid, params.fid)
       }
       process.exit(0)

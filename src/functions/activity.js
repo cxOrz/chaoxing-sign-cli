@@ -1,5 +1,5 @@
 const https = require('https')
-const { ACTIVELIST } = require("../configs/api")
+const { ACTIVELIST, PRESIGN } = require("../configs/api")
 
 // 返回签到活动
 exports.getSignActivity = async (courses, uf, _d, UID, vc3) => {
@@ -28,6 +28,8 @@ exports.getSignActivity = async (courses, uf, _d, UID, vc3) => {
                 activity = {
                   aid: data.data.activeList[0].id,
                   name: data.data.activeList[0].nameOne,
+                  courseId: courses[i].courseId,
+                  classId: courses[i].classId,
                   otherId
                 }
                 i = NaN // 设为NaN将结束循环，该值说明获取到了活动。
@@ -46,4 +48,21 @@ exports.getSignActivity = async (courses, uf, _d, UID, vc3) => {
   } else {
     return activity
   }
+}
+
+exports.preSign = async (uf, _d, vc3, activeId, classId, courseId, uid) => {
+  let data = ''
+  return new Promise((resolve) => {
+    https.get(PRESIGN.URL + `?courseId=${courseId}&classId=${classId}&activePrimaryId=${activeId}&general=1&sys=1&ls=1&appType=15&&tid=&uid=${uid}&ut=s`, {
+      headers: {
+        'Cookie': `uf=${uf}; _d=${_d}; UID=${uid}; vc3=${vc3};`
+      }
+    }, (res) => {
+      res.on('data', (chunk) => { data += chunk })
+      res.on('end', () => {
+        console.log(`[预签]已请求`)
+        resolve()
+      })
+    })
+  })
 }
