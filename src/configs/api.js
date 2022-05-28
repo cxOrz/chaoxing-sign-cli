@@ -7,6 +7,10 @@ module.exports = {
     URL: 'http://passport2.chaoxing.com/fanyalogin',
     METHOD: 'POST',
   },
+  PRESIGN: {
+    URL: 'https://mobilelearn.chaoxing.com/newsign/preSign',
+    METHOD: 'GET'
+  },
   PPTSIGN: {
     URL: 'https://mobilelearn.chaoxing.com/pptSign/stuSignajax',
     METHOD: 'GET'
