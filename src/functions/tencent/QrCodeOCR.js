@@ -1,15 +1,15 @@
 const tencentcloud = require("tencentcloud-sdk-nodejs")
-
+const { tencent: { secretId, secretKey } } = require('../../env.json')
 const OcrClient = tencentcloud.ocr.v20181119.Client
 
 exports.QrCodeScan = (base64str) => {
   return new Promise((res, rej) => {
     const client = new OcrClient({
       credential: {
-        secretId: "", // 在腾讯云开通OCR服务
-        secretKey: "", // 并填写 secretId 和 secretKey
+        secretId: secretId,
+        secretKey: secretKey
       },
-      region: "", // 填写你开通的云开发所在的区域，例如 ap-shanghai
+      region: "ap-shanghai",
       profile: {
         httpProfile: {
           endpoint: "ocr.tencentcloudapi.com",
