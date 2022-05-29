@@ -1,6 +1,6 @@
 <h1 align="center">⏰超星学习通签到⏰</h1>
 <p align="center">
-  <img src="https://img.shields.io/badge/nodejs->=v8.5.4-brightgreen.svg" />
+  <img src="https://img.shields.io/badge/nodejs->= v12.16-brightgreen.svg" />
 </p>
 
 基于 Nodejs 实现的一个签到命令行工具。
@@ -103,9 +103,9 @@ npm start
 使用 [腾讯云开发-云函数](https://console.cloud.tencent.com/tcb/scf) 部署接口服务，步骤如下：
 
 1. 在云函数页面，使用默认 HelloWorld 模板新建云函数，并选择最新的 Nodejs 版本。
-2. 下载 [tcb-serverless.zip](https://github.com/cxOrz/chaoxing-sign-cli/releases) 文件，如需配置使用 [腾讯云OCR](https://console.cloud.tencent.com/ocr/overview) 以精准解析二维码，请解压并在 `src\functions\tencent\QrCodeOCR.js` 配置腾讯云的 secretId 和 secretKey，并重新压缩。注意，请直接选中所有文件夹和文件进行压缩（确保打开压缩包显示一堆文件夹和文件，而不是一个总文件夹）。如果使用默认的二维码解析方法，可以不用修改压缩包文件，直接使用即可。
+2. 下载 [tcb-serverless.zip](https://github.com/cxOrz/chaoxing-sign-cli/releases) 文件，如需配置使用 [腾讯云OCR](https://console.cloud.tencent.com/ocr/overview) 以精准解析二维码，请解压并在 `env.json` 配置腾讯云的 secretId 和 secretKey，并重新压缩。注意，请直接选中所有文件夹和文件进行压缩（确保打开压缩包显示一堆文件夹和文件，而不是一个总文件夹）。如果使用默认的二维码解析方法，可以不用修改压缩包文件，直接使用即可。
 3. 点击创建好的云函数，进入**函数代码**页面，在提交方法中选择本地上传ZIP包，上传压缩包。
-4. 保存并安装依赖，至此部署完成。
+4. 保存，安装依赖，至此部署完成。
 
 部署完成后，还有一些必要的设置需要调整：
 

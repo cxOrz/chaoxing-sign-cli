@@ -16,6 +16,7 @@
     "koa": "^2.13.4",
     "koa-bodyparser": "^4.3.0",
     "multiparty": "^4.2.3",
+    "serverless-http": "^3.0.1",
     "tencentcloud-sdk-nodejs": "^4.0.327"
   }
 }
