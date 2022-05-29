@@ -9,6 +9,8 @@ const { LocationSign } = require('./functions/location');
 const { GeneralSign } = require('./functions/general');
 const { PhotoSign, uploadPhoto } = require('./functions/photo')
 const { QrCodeScan } = require('./functions/tencent/QrCodeOCR')
+const { env: { SERVERLESS } } = require('./env.json')
+const serverless = require('serverless-http')
 
 const app = new Koa()
 const router = new Router()
@@ -25,6 +27,7 @@ router.post('/login', async (ctx) => {
     return
   }
   params.name = await getAccountInfo(params.uf, params._d, params._uid, params.vc3)
+  console.log(ctx.request.body)
 
   ctx.body = params
 })
@@ -44,11 +47,13 @@ router.post('/activity', async (ctx) => {
   }
   // 对活动进行预签
   await preSign(ctx.request.body.uf, ctx.request.body._d, ctx.request.body.vc3, activity.aid, activity.classId, activity.courseId, ctx.request.body.uid)
+  console.log(ctx.request.body.uid)
   ctx.body = activity
 })
 
 router.post('/qrcode', async (ctx) => {
   let res = await QRCodeSign(ctx.request.body.enc, ctx.request.body.name, ctx.request.body.fid, ctx.request.body.uid, ctx.request.body.aid, ctx.request.body.uf, ctx.request.body._d, ctx.request.body.vc3)
+  console.log(ctx.request.body.name, ctx.request.body.uid)
   if (res === 'success') {
     ctx.body = 'success'
     return
@@ -59,6 +64,7 @@ router.post('/qrcode', async (ctx) => {
 
 router.post('/location', async (ctx) => {
   let res = await LocationSign(ctx.request.body.uf, ctx.request.body._d, ctx.request.body.vc3, ctx.request.body.name, ctx.request.body.address, ctx.request.body.aid, ctx.request.body.uid, ctx.request.body.lat, ctx.request.body.lon, ctx.request.body.fid)
+  console.log(ctx.request.body.name, ctx.request.body.uid)
   if (res === 'success') {
     ctx.body = 'success'
     return
@@ -69,6 +75,7 @@ router.post('/location', async (ctx) => {
 
 router.post('/general', async (ctx) => {
   let res = await GeneralSign(ctx.request.body.uf, ctx.request.body._d, ctx.request.body.vc3, ctx.request.body.name, ctx.request.body.aid, ctx.request.body.uid, ctx.request.body.fid)
+  console.log(ctx.request.body.name, ctx.request.body.uid)
   if (res === 'success') {
     ctx.body = 'success'
     return
@@ -120,6 +127,7 @@ router.post('/upload', async (ctx) => {
 
 router.post('/photo', async (ctx) => {
   let res = await PhotoSign(ctx.request.body.uf, ctx.request.body._d, ctx.request.body.vc3, ctx.request.body.name, ctx.request.body.aid, ctx.request.body.uid, ctx.request.body.fid, ctx.request.body.objectId)
+  console.log(ctx.request.body.name, ctx.request.body.uid)
   if (res === 'success') {
     ctx.body = 'success'
     return
@@ -173,7 +181,10 @@ app.use(async (ctx, next) => {
 });
 app.use(router.routes())
 
+// 若在服务器，直接运行
+if (!SERVERLESS) app.listen(5000, () => { console.log("API Server: http://localhost:5000") })
 
-app.listen(5000, () => {
-  console.log("API Server: http://localhost:5000")
-})
+// 导出云函数
+exports.main = serverless(app)
+exports.handler = exports.main
+exports.main_handler = exports.main

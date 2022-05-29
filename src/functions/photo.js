@@ -2,6 +2,7 @@ const https = require('https')
 const fs = require('fs')
 const path = require('path')
 const { PPTSIGN, PANCHAOXING, PANLIST, PANUPLOAD } = require('../configs/api')
+const { env: { SERVERLESS } } = require('../env.json')
 
 exports.PhotoSign = async (uf, _d, vc3, name, activeId, uid, fid, objectId) => {
   let data = ''
@@ -77,12 +78,15 @@ exports.getObjectIdFromcxPan = (uf, _d, vc3, uid) => {
 exports.uploadPhoto = (uf, _d, _uid, vc3, token, buffer) => {
   const FormData = require('form-data')
   let form = new FormData()
-  let data = ''
+  let data = '', tempFilePath
 
-  fs.mkdirSync(path.join(__dirname, '../tmp'), { recursive: true })
-  let tempFilePath = path.join(__dirname, '../tmp/temp.jpg')
-  // 若部署在云函数中，注释以上两行，并使用以下路径
-  // let tempFilePath = '/tmp/temp.jpg'
+  // 是否在云函数环境
+  if (SERVERLESS) {
+    tempFilePath = '/tmp/temp.jpg'
+  } else {
+    fs.mkdirSync(path.join(__dirname, '../tmp'), { recursive: true })
+    tempFilePath = path.join(__dirname, '../tmp/temp.jpg')
+  }
 
   fs.writeFileSync(tempFilePath, buffer)
   let readStream = fs.createReadStream(tempFilePath)
