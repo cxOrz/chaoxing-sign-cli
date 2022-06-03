@@ -112,17 +112,9 @@ npm start
 
 至此，云函数部署完成，可通过该函数的触发路径，访问接口服务。
 
-同时，提供 AWS Lambda 版本的压缩包，如果不想在腾讯部署接口，可在 AWS 的云函数部署，它提供每月 100 万次免费请求和 400000 GB 秒的计算时间，但国内访问速度不及腾讯云。该版本压缩包 [aws-lambda.zip](https://github.com/cxOrz/chaoxing-sign-cli/releases) 可供下载。
-
-对于部署到 AWS Lambda 的一些注意事项：
-
-1. 上传代码压缩包和腾讯云类似，参考上文。
-2. 函数配置页面 -> 函数URL：请启用函数URL，并将授权类型设为NONE、配置允许跨域资源共享，允许源、允许标头、允许方法请自定义。
-3. 函数配置页面 -> 常规配置：将超时时间设置在 30-60 秒较合理。
-
-> 无论是使用腾讯云还是AWS，最终的结果是要一个可以访问的接口地址。
-
 ### 展示
+
+演示地址：https://prod.d6afmntd8nh5y.amplifyapp.com （部署在香港，较慢，仅供演示）
 
 ![](https://636c-cloudbase-1a4211-1252446325.tcb.qcloud.la/chaoxing-sign-ui/1.png)
 ![](https://636c-cloudbase-1a4211-1252446325.tcb.qcloud.la/chaoxing-sign-ui/2.png)
