@@ -1,7 +1,14 @@
 const https = require('https')
 const { ACTIVELIST, PRESIGN } = require("../configs/api")
 
-// 返回签到活动
+/**
+ * 返回一个签到信息对象 {aid, name, courseId, classId, otherId}
+ * @param {{courseId:string, classId:string}[]} courses 
+ * @param {string} uf 
+ * @param {string} _d 
+ * @param {string} UID 
+ * @param {string} vc3 
+ */
 exports.getSignActivity = (courses, uf, _d, UID, vc3) => {
   console.log('正在查询有效签到活动，等待时间视网络情况而定...')
   let i = 0, tasks = []
@@ -13,16 +20,21 @@ exports.getSignActivity = (courses, uf, _d, UID, vc3) => {
         i++
       }
     } else {
-      try {
-        tasks.push(aPromise(courses[0], uf, _d, UID, vc3))
-      } catch (err) { }
+      tasks.push(aPromise(courses[0], uf, _d, UID, vc3))
+      // 一次请求五个，全部reject或有一个成功则进行下一次请求
       for (i++; i < courses.length; i++) {
         if (i % 5 === 0 || i === courses.length - 1) {
-          // console.log(await this.promiseAny(tasks))
-          try { resolve(await this.promiseAny(tasks)) } catch (error) { }
+          try {
+            // 任务数组中任意一个成功，则resolve；否则，抛出异常
+            const result = await this.promiseAny(tasks)
+            resolve(result)
+            return
+          } catch (error) { }
+          // 每轮请求任务组之后，清空任务数组供下轮使用
           tasks = []
         } else {
-          try { tasks.push(aPromise(courses[i], uf, _d, UID, vc3)) } catch (err) { }
+          // 课程请求加入任务数组
+          tasks.push(aPromise(courses[i], uf, _d, UID, vc3))
         }
       }
     }
@@ -35,13 +47,20 @@ exports.getSignActivity = (courses, uf, _d, UID, vc3) => {
   })
 }
 
+/**
+ * 
+ * @param {Promise<any>[]} tasks 接收一个 Promise 任务数组
+ * @returns 任务数组中有一个成功则resolve其值；若全部失败，则reject一个异常。
+ */
 exports.promiseAny = (tasks) => {
+  // 记录失败次数
   let length = tasks.length
   return new Promise((resolve, reject) => {
     if (length === 0) {
       reject(new Error('All promises were rejected'))
       return
     }
+    // 遍历Promise数组，任意一个成功则resolve其值；全部失败，则reject一个异常。
     tasks.forEach(promise => {
       promise.then(res => {
         resolve(res)
@@ -57,6 +76,10 @@ exports.promiseAny = (tasks) => {
   })
 }
 
+/**
+ * 返回一个活动请求 Promise 对象，
+ * @returns Promise\<Activity\>
+ */
 function aPromise(course, uf, _d, UID, vc3) {
   return new Promise((resolve, reject) => {
     let data = ''
@@ -93,6 +116,7 @@ function aPromise(course, uf, _d, UID, vc3) {
   })
 }
 
+// 预检请求
 exports.preSign = async (uf, _d, vc3, activeId, classId, courseId, uid) => {
   let data = ''
   return new Promise((resolve) => {
