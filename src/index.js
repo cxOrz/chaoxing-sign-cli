@@ -82,7 +82,6 @@ const rl = readline.createInterface()
         await PhotoSign(params.uf, params._d, params.vc3, name, activity.aid, params._uid, params.fid, objectId)
       } else {
         // 普通签到
-        await preSign(params.uf, params._d, params.vc3, activity.aid, activity.classId, activity.courseId, params._uid)
         await GeneralSign(params.uf, params._d, params.vc3, name, activity.aid, params._uid, params.fid)
       }
       process.exit(0)
