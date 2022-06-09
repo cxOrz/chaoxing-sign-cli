@@ -23,6 +23,9 @@ exports.getSignActivity = (courses, uf, _d, UID, vc3) => {
       tasks.push(aPromise(courses[0], uf, _d, UID, vc3))
       // 一次请求五个，全部reject或有一个成功则进行下一次请求
       for (i++; i < courses.length; i++) {
+        // 课程请求加入任务数组
+        tasks.push(aPromise(courses[i], uf, _d, UID, vc3))
+        // 一轮提交5个，若处于最后一个且此轮还不够5个，提交此轮全部
         if (i % 5 === 0 || i === courses.length - 1) {
           try {
             // 任务数组中任意一个成功，则resolve；否则，抛出异常
@@ -32,9 +35,6 @@ exports.getSignActivity = (courses, uf, _d, UID, vc3) => {
           } catch (error) { }
           // 每轮请求任务组之后，清空任务数组供下轮使用
           tasks = []
-        } else {
-          // 课程请求加入任务数组
-          tasks.push(aPromise(courses[i], uf, _d, UID, vc3))
         }
       }
     }
