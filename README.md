@@ -5,7 +5,7 @@
 
 基于 Nodejs 实现的一个签到命令行工具。
 
-**功能**： 普通签到、拍照签到、手势签到、位置签到、签到码签到、二维码签到（10秒变换不影响），多用户凭据储存。
+**功能**： 普通签到、拍照签到、手势签到、位置签到、签到码签到、二维码签到（10秒变换不影响），多用户凭据储存，IM 协议自动签到。
 
 **为确保你的代码最新与仓库保持同步，将在每次签到结束强制拉取代码更新**，如需关闭更新，请查看[issue2](https://github.com/cxOrz/chaoxing-sign-cli/issues/2#issuecomment-962781427)，手动终止检查更新可在每次检查时连按 `Ctrl`+`C` 确认终止，更多功能正在开发 ...
 
@@ -25,15 +25,20 @@
 git clone https://github.com/cxOrz/chaoxing-sign-cli.git
 ```
 
-进入项目文件夹
+进入项目文件夹，安装依赖
 
 ```bash
-cd chaoxing-sign-cli
+cd chaoxing-sign-cli && npm install
 ```
 
 ## 运行 ⚙
+### 命令解释
+- `npm start`：运行程序，若有签到则进行手动签到，若无则退出程序；
+- `npm run serve`：启动接口服务；
+- `npm run monitor`：监听模式，检测到签到将自动签上，无需人工干预；
 
-执行以下命令即可
+
+一般情况下执行以下命令即可满足基础使用
 
 ```bash
 npm start
