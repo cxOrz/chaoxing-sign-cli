@@ -1,5 +1,5 @@
-const https = require('https')
-const { ACTIVELIST, PRESIGN } = require("../configs/api")
+import https from 'https';
+import { ACTIVELIST, PRESIGN } from "../configs/api.js";
 
 /**
  * 返回一个签到信息对象 {aid, name, courseId, classId, otherId}
@@ -9,13 +9,13 @@ const { ACTIVELIST, PRESIGN } = require("../configs/api")
  * @param {string} UID 
  * @param {string} vc3 
  */
-exports.getSignActivity = (courses, uf, _d, UID, vc3) => {
+export const getSignActivity = (courses, uf, _d, UID, vc3) => {
   console.log('正在查询有效签到活动，等待时间视网络情况而定...')
   let i = 0, tasks = []
   return new Promise(async (resolve) => {
     if (courses.length === 1) {
       try {
-        resolve(await aPromise(courses[0], uf, _d, UID, vc3))
+        resolve(await aPromise(courses[0], uf, _d, UID, vc3));
       } catch (err) {
         i++
       }
@@ -29,7 +29,7 @@ exports.getSignActivity = (courses, uf, _d, UID, vc3) => {
         if (i % 5 === 0 || i === courses.length - 1) {
           try {
             // 任务数组中任意一个成功，则resolve；否则，抛出异常
-            const result = await this.promiseAny(tasks)
+            const result = await promiseAny(tasks)
             resolve(result)
             return
           } catch (error) { }
@@ -52,7 +52,7 @@ exports.getSignActivity = (courses, uf, _d, UID, vc3) => {
  * @param {Promise<any>[]} tasks 接收一个 Promise 任务数组
  * @returns 任务数组中有一个成功则resolve其值；若全部失败，则reject一个异常。
  */
-exports.promiseAny = (tasks) => {
+export const promiseAny = (tasks) => {
   // 记录失败次数
   let length = tasks.length
   return new Promise((resolve, reject) => {
@@ -77,10 +77,11 @@ exports.promiseAny = (tasks) => {
 }
 
 /**
- * 返回一个活动请求 Promise 对象，
- * @returns Promise\<Activity\>
+ * @param {{courseId, classId}} course
+ * 
+ * @returns 返回一个活动请求 Promise 对象
  */
-function aPromise(course, uf, _d, UID, vc3) {
+export function aPromise(course, uf, _d, UID, vc3) {
   return new Promise((resolve, reject) => {
     let data = ''
     https.get(ACTIVELIST.URL + `?fid=0&courseId=${course.courseId}&classId=${course.classId}&_=${new Date().getTime()}`, {
@@ -117,7 +118,7 @@ function aPromise(course, uf, _d, UID, vc3) {
 }
 
 // 预检请求
-exports.preSign = async (uf, _d, vc3, activeId, classId, courseId, uid) => {
+export const preSign = async (uf, _d, vc3, activeId, classId, courseId, uid) => {
   let data = ''
   return new Promise((resolve) => {
     https.get(PRESIGN.URL + `?courseId=${courseId}&classId=${classId}&activePrimaryId=${activeId}&general=1&sys=1&ls=1&appType=15&&tid=&uid=${uid}&ut=s`, {
@@ -125,7 +126,7 @@ exports.preSign = async (uf, _d, vc3, activeId, classId, courseId, uid) => {
         'Cookie': `uf=${uf}; _d=${_d}; UID=${uid}; vc3=${vc3};`
       }
     }, (res) => {
-      res.on('data', (chunk) => { data += chunk })
+      res.on('data', chunk => data += chunk);
       res.on('end', () => {
         console.log(`[预签]已请求`)
         resolve()

@@ -1,11 +1,11 @@
-const http = require('http')
-const https = require('https')
-const zlib = require('zlib')
-const cryptojs = require('../utils/crypto-js.min')
-const { LOGIN_PAGE, LOGIN, COURSELIST, ACCOUNTMANAGE, PANTOKEN } = require("../configs/api")
-const { getStore } = require('../utils/file')
+import http from 'http';
+import https from 'https';
+import zlib from 'zlib';
+import cryptojs from 'crypto-js';
+import { LOGIN_PAGE, LOGIN, COURSELIST, ACCOUNTMANAGE, PANTOKEN, WEBIM } from "../configs/api.js";
+import { getStore } from '../utils/file.js';
 
-exports.userLogin = async (uname, password) => {
+export const userLogin = async (uname, password) => {
   return new Promise((resolve) => {
     let params = {
       fid: '-1', pid: '-1', refer: 'http%3A%2F%2Fi.chaoxing.com', _blank: '1', t: true,
@@ -72,7 +72,7 @@ exports.userLogin = async (uname, password) => {
 }
 
 // 获取全部课程
-exports.getCourses = async (_uid, _d, vc3) => {
+export const getCourses = async (_uid, _d, vc3) => {
   return new Promise((resolve) => {
     let data = ''
     let req = http.request(COURSELIST.URL, {
@@ -125,7 +125,7 @@ exports.getCourses = async (_uid, _d, vc3) => {
 }
 
 // 获取用户名
-exports.getAccountInfo = async (uf, _d, _uid, vc3) => {
+export const getAccountInfo = async (uf, _d, _uid, vc3) => {
   return new Promise((resolve) => {
     let data = ''
     http.get(ACCOUNTMANAGE.URL, {
@@ -147,7 +147,7 @@ exports.getAccountInfo = async (uf, _d, _uid, vc3) => {
 }
 
 // 获取用户鉴权token
-exports.getPanToken = (uf, _d, _uid, vc3) => {
+export const getPanToken = (uf, _d, _uid, vc3) => {
   return new Promise((resolve) => {
     let data = ''
     https.get(PANTOKEN.URL, {
@@ -169,7 +169,7 @@ exports.getPanToken = (uf, _d, _uid, vc3) => {
  * 
  * @returns 用户数量
  */
-exports.printUsers = () => {
+export const printUsers = () => {
   const data = getStore()
   console.log('####################')
   console.log('##    用户列表    ##')
@@ -183,4 +183,55 @@ exports.printUsers = () => {
   }
   console.log('####################')
   return data.users.length
+}
+
+/**
+ * 返回用户列表
+ * 
+ * @returns [ { title: '手机号码', value: 索引 } , ...]
+ */
+export const getLocalUsers = () => {
+  const data = getStore();
+  const arr = [];
+  for (let i = 0; i < data.users.length; i++) {
+    arr.push({
+      title: data.users[i].phone,
+      value: i
+    })
+  }
+  arr.push({ title: '手动登录', value: -1 });
+  return [...arr];
+}
+
+/**
+ * 
+ * @returns 返回的对象包含 myName, myToken, myTuid, myPuid
+ */
+export const getIMParams = (uf, _d, _uid, vc3) => {
+  let htmlPage = ''
+  let params = {
+    myName: '',
+    myToken: '',
+    myTuid: '',
+    myPuid: ''
+  }
+  return new Promise((resolve) => {
+    https.get(WEBIM.URL, {
+      headers: {
+        'Cookie': `uf=${uf}; _d=${_d}; UID=${_uid}; vc3=${vc3};`
+      }
+    }, (res) => {
+      res.on('data', chunk => htmlPage += chunk);
+      res.on('end', () => {
+        let index = htmlPage.indexOf('id="myName"');
+        params.myName = htmlPage.slice(index + 35, htmlPage.indexOf('<', index + 35));
+        index = htmlPage.indexOf('id="myToken"')
+        params.myToken = htmlPage.slice(index + 36, htmlPage.indexOf('<', index + 36));
+        index = htmlPage.indexOf('id="myTuid"')
+        params.myTuid = htmlPage.slice(index + 35, htmlPage.indexOf('<', index + 35));
+        params.myPuid = _uid
+        resolve({ ...params })
+      })
+    })
+  })
 }

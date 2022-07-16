@@ -1,16 +1,16 @@
-const Router = require('@koa/router')
-const Koa = require('koa')
-const bodyparser = require('koa-bodyparser')
-const multiparty = require('multiparty')
-const { userLogin, getAccountInfo, getCourses, getPanToken } = require('./functions/user')
-const { getSignActivity, preSign } = require("./functions/activity");
-const { QRCodeSign } = require('./functions/QRCode');
-const { LocationSign } = require('./functions/location');
-const { GeneralSign } = require('./functions/general');
-const { PhotoSign, uploadPhoto } = require('./functions/photo')
-const { QrCodeScan } = require('./functions/tencent/QrCodeOCR')
-const { env: { SERVERLESS } } = require('./env.json')
-const serverless = require('serverless-http')
+import Router from '@koa/router';
+import Koa from 'koa';
+import bodyparser from 'koa-bodyparser';
+import multiparty from 'multiparty';
+import { userLogin, getAccountInfo, getCourses, getPanToken } from './functions/user.js';
+import { getSignActivity, preSign } from "./functions/activity.js";
+import { QRCodeSign } from './functions/QRCode.js';
+import { LocationSign } from './functions/location.js';
+import { GeneralSign } from './functions/general.js';
+import { PhotoSign, uploadPhoto } from './functions/photo.js';
+import { QrCodeScan } from './functions/tencent/QrCodeOCR.js';
+import ENVJSON from './env.json' assert {type: 'json'};
+import serverless from 'serverless-http';
 
 const app = new Koa()
 const router = new Router()
@@ -182,9 +182,9 @@ app.use(async (ctx, next) => {
 app.use(router.routes())
 
 // 若在服务器，直接运行
-if (!SERVERLESS) app.listen(5000, () => { console.log("API Server: http://localhost:5000") })
+if (!ENVJSON.env.SERVERLESS) app.listen(5000, () => { console.log("API Server: http://localhost:5000") })
 
 // 导出云函数
-exports.main = serverless(app)
-exports.handler = exports.main
-exports.main_handler = exports.main
+export const main = serverless(app)
+export const handler = main
+export const main_handler = main
