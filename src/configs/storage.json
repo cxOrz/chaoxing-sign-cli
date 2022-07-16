@@ -1,3 +1,9 @@
 {
-  "users": []
+  "users": [],
+  "monitor": {
+    "photo": false,
+    "lon": 0,
+    "lat": 0,
+    "address": ""
+  }
 }
