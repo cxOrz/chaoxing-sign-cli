@@ -1,7 +1,7 @@
-const https = require('https')
-const { PPTSIGN } = require('../configs/api')
+import https from 'https';
+import { PPTSIGN } from '../configs/api.js';
 
-exports.GeneralSign = async (uf, _d, vc3, name, activeId, uid, fid) => {
+export const GeneralSign = async (uf, _d, vc3, name, activeId, uid, fid) => {
   let data = ''
   return new Promise((resolve) => {
     https.get(PPTSIGN.URL + `?activeId=${activeId}&uid=${uid}&clientip=&latitude=-1&longitude=-1&appType=15&fid=${fid}&name=${name}`, {

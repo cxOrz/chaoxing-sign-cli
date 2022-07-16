@@ -1,13 +1,13 @@
-const tencentcloud = require("tencentcloud-sdk-nodejs")
-const { tencent: { secretId, secretKey } } = require('../../env.json')
-const OcrClient = tencentcloud.ocr.v20181119.Client
+import tencentcloud from "tencentcloud-sdk-nodejs";
+import ENVJSON from '../../env.json' assert {type: 'json'};
+const OcrClient = tencentcloud.ocr.v20181119.Client;
 
-exports.QrCodeScan = (base64str) => {
+export const QrCodeScan = (base64str) => {
   return new Promise((res, rej) => {
     const client = new OcrClient({
       credential: {
-        secretId: secretId,
-        secretKey: secretKey
+        secretId: ENVJSON.tencent.secretId,
+        secretKey: ENVJSON.tencent.secretKey
       },
       region: "ap-shanghai",
       profile: {

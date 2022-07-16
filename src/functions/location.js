@@ -1,7 +1,7 @@
-const https = require('https')
-const { PPTSIGN } = require('../configs/api')
+import https from 'https';
+import { PPTSIGN } from '../configs/api.js';
 
-exports.LocationSign = async (uf, _d, vc3, name, address, activeId, uid, lat, lon, fid) => {
+export const LocationSign = async (uf, _d, vc3, name, address, activeId, uid, lat, lon, fid) => {
   let data = ''
   return new Promise((resolve) => {
     https.get(PPTSIGN.URL + `?name=${name}&address=${address}&activeId=${activeId}&uid=${uid}&clientip=&latitude=${lat}&longitude=${lon}&fid=${fid}&appType=15&ifTiJiao=1`, {
