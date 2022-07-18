@@ -3,7 +3,7 @@ import https from 'https';
 import zlib from 'zlib';
 import cryptojs from 'crypto-js';
 import { LOGIN_PAGE, LOGIN, COURSELIST, ACCOUNTMANAGE, PANTOKEN, WEBIM } from "../configs/api.js";
-import { getStore } from '../utils/file.js';
+import { getJsonObject } from '../utils/file.js';
 
 export const userLogin = async (uname, password) => {
   return new Promise((resolve) => {
@@ -170,7 +170,7 @@ export const getPanToken = (uf, _d, _uid, vc3) => {
  * @returns 用户数量
  */
 export const printUsers = () => {
-  const data = getStore()
+  const data = getJsonObject('configs/storage.json')
   console.log('####################')
   console.log('##    用户列表    ##')
   console.log('####################')
@@ -191,7 +191,7 @@ export const printUsers = () => {
  * @returns [ { title: '手机号码', value: 索引 } , ...]
  */
 export const getLocalUsers = () => {
-  const data = getStore();
+  const data = getJsonObject('configs/storage.json');
   const arr = [];
   for (let i = 0; i < data.users.length; i++) {
     arr.push({
