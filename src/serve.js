@@ -9,8 +9,9 @@ import { LocationSign } from './functions/location.js';
 import { GeneralSign } from './functions/general.js';
 import { PhotoSign, uploadPhoto } from './functions/photo.js';
 import { QrCodeScan } from './functions/tencent/QrCodeOCR.js';
-import ENVJSON from './env.json' assert {type: 'json'};
+import { getJsonObject } from './utils/file.js';
 import serverless from 'serverless-http';
+const ENVJSON  = getJsonObject('env.json');
 
 const app = new Koa()
 const router = new Router()

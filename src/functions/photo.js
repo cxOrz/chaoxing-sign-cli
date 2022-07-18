@@ -2,11 +2,11 @@ import https from 'https';
 import fs from 'fs';
 import path from 'path';
 import { PPTSIGN, PANCHAOXING, PANLIST, PANUPLOAD } from '../configs/api.js';
-import ENVJSON from '../env.json' assert {type: "json"};
 import { fileURLToPath } from 'url';
-const { SERVERLESS } = ENVJSON.env.SERVERLESS;
+import { getJsonObject } from '../utils/file.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const ENVJSON = getJsonObject('env.json');
 
 export const PhotoSign = async (uf, _d, vc3, name, activeId, uid, fid, objectId) => {
   let data = ''
@@ -85,7 +85,7 @@ export const uploadPhoto = async (uf, _d, _uid, vc3, token, buffer) => {
   let data = '', tempFilePath
 
   // 是否在云函数环境
-  if (SERVERLESS) {
+  if (ENVJSON.env.SERVERLESS) {
     tempFilePath = '/tmp/temp.jpg'
   } else {
     fs.mkdirSync(path.join(__dirname, '../tmp'), { recursive: true })
