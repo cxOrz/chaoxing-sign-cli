@@ -1,6 +1,7 @@
 import tencentcloud from "tencentcloud-sdk-nodejs";
-import ENVJSON from '../../env.json' assert {type: 'json'};
+import { getJsonObject } from '../../utils/file.js';
 const OcrClient = tencentcloud.ocr.v20181119.Client;
+const ENVJSON  = getJsonObject('env.json');
 
 export const QrCodeScan = (base64str) => {
   return new Promise((res, rej) => {

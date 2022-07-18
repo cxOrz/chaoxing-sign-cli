@@ -13,7 +13,7 @@ export const storeUser = (phone, params) => {
     date: new Date().getTime()
   }
 
-  const data = getStore()
+  const data = getJsonObject('configs/storage.json');
   const file = path.join(__dirname, '../configs/storage.json')
   let i = 0
 
@@ -32,6 +32,6 @@ export const storeUser = (phone, params) => {
   filehandle.writeFile(file, JSON.stringify(data), 'utf8', () => { })
 }
 
-export const getStore = () => {
-  return JSON.parse(filehandle.readFileSync(path.join(__dirname, '../configs/storage.json'), 'utf8'))
+export const getJsonObject = (fileURL) => {
+  return JSON.parse(filehandle.readFileSync(path.join(__dirname, '../' + fileURL), 'utf8'))
 }

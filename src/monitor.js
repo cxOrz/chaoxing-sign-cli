@@ -7,7 +7,7 @@ import { aPromise, preSign } from './functions/activity.js';
 import { GeneralSign } from "./functions/general.js";
 import { LocationSign } from "./functions/location.js";
 import { PhotoSign, getObjectIdFromcxPan } from "./functions/photo.js";
-import { getStore } from './utils/file.js';
+import { getJsonObject } from './utils/file.js';
 import { getIMParams, userLogin } from './functions/user.js';
 import { blue, red } from 'kolorist';
 const __filename = fileURLToPath(import.meta.url);
@@ -74,7 +74,7 @@ async function fetchParams() {
 }
 
 async function configure() {
-  const config = getStore();
+  const config = getJsonObject('configs/storage.json');
   let local = false;
   console.log(blue('自动签到支持 [普通/手势/拍照/签到码/位置]'))
   if (config.monitor.address !== "") {

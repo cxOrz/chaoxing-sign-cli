@@ -6,7 +6,7 @@ import { LocationSign } from "./functions/location.js";
 import { PhotoSign, getObjectIdFromcxPan } from "./functions/photo.js";
 import { QRCodeSign } from "./functions/QRCode.js";
 import { userLogin, getCourses, getAccountInfo, getLocalUsers } from "./functions/user.js";
-import { getStore, storeUser } from './utils/file.js';
+import { getJsonObject, storeUser } from './utils/file.js';
 
 const PromptsOptions = {
   onCancel: () => {
@@ -31,7 +31,7 @@ const PromptsOptions = {
       storeUser(uname, params) // 储存到本地
     } else {
       // 使用本地储存的参数
-      params = getStore().users[userItem].params;
+      params = getJsonObject('configs/storage.json').users[userItem].params;
     }
   }
 
