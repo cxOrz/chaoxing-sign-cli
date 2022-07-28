@@ -23,11 +23,18 @@ class Monitor {
   static COMING_SIGN_PREFIX = '080040024a2b0a2912';
   static CONFIRM = '["CABAAVgA"]';
   static ChatIDHex = '';
+  static UNKNOWN_PREFIX_LV2_LV0 = '0800123d0a0e63782d64657623637873747564791209';
+  static UNKNOWN_PREFIX_LV1 = '0800123c0a0e63782d64657623637873747564791208';
 
-  generateLoginHex(IM_Params) {
+  generateLoginHex(IM_Params, lv) {
     const timestampHex = utf8ToHex(new Date().getTime().toString());
-    return ("0800123c0a0e63782d64657623637873747564791208" +
-      utf8ToHex(IM_Params.myTuid) + "1a0b656173656d6f622e636f6d2213776562696d5f" +
+
+    switch (lv) {
+      case '1': lv = Monitor.UNKNOWN_PREFIX_LV1; break;
+      default: lv = Monitor.UNKNOWN_PREFIX_LV2_LV0;
+    }
+
+    return (lv + utf8ToHex(IM_Params.myTuid) + "1a0b656173656d6f622e636f6d2213776562696d5f" +
       timestampHex + "1a8501247424" + utf8ToHex(IM_Params.myToken) +
       "40034ac00108101205332e302e30280030004a0d" + timestampHex +
       "6205776562696d6a13776562696d5f" + timestampHex + "728501247424" +
@@ -165,7 +172,7 @@ async function Sign(name, params, config, activity) {
   const config = await configure();
 
   const monitor = new Monitor();
-  const loginHex = monitor.generateLoginHex(IM_Params);
+  const loginHex = monitor.generateLoginHex(IM_Params, params.lv);
 
   console.log(blue('[监听中]'));
 
