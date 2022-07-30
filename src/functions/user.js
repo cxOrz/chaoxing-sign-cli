@@ -4,6 +4,7 @@ import zlib from 'zlib';
 import cryptojs from 'crypto-js';
 import { LOGIN_PAGE, LOGIN, COURSELIST, ACCOUNTMANAGE, PANTOKEN, WEBIM } from "../configs/api.js";
 import { getJsonObject } from '../utils/file.js';
+import { blue } from 'kolorist';
 
 export const userLogin = async (uname, password) => {
   return new Promise((resolve) => {
@@ -115,7 +116,14 @@ export const getCourses = async (_uid, _d, vc3) => {
           })
         }
         // console.log(arr)
-        resolve(arr)
+        // 若无课程，返回NoCourse，输出提示
+        if (arr.length === 0) {
+          resolve('NoCourse');
+          console.log(`${blue('[提示]')}无课程可查.`)
+        } else {
+          resolve(arr);
+        }
+        return;
       })
     })
     let formdata = `courseType=1&courseFolderId=0&courseFolderSize=0`
