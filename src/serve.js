@@ -11,7 +11,7 @@ import { PhotoSign, uploadPhoto } from './functions/photo.js';
 import { QrCodeScan } from './functions/tencent/QrCodeOCR.js';
 import { getJsonObject } from './utils/file.js';
 import serverless from 'serverless-http';
-const ENVJSON  = getJsonObject('env.json');
+const ENVJSON = getJsonObject('env.json');
 
 const app = new Koa()
 const router = new Router()
@@ -36,9 +36,9 @@ router.post('/login', async (ctx) => {
 router.post('/activity', async (ctx) => {
   let courses = await getCourses(ctx.request.body.uid, ctx.request.body._d, ctx.request.body.vc3)
   // 身份凭证过期
-  if (courses === 'AuthRequired') {
-    ctx.body = 'AuthRequired'
-    return
+  if (courses === 'AuthRequired' || courses === 'NoCourse') {
+    ctx.body = courses;
+    return;
   }
   let activity = await getSignActivity(courses, ctx.request.body.uf, ctx.request.body._d, ctx.request.body.uid, ctx.request.body.vc3)
   // 无活动
@@ -175,6 +175,7 @@ app.use(async (ctx, next) => {
   await next()
 })
 app.use(async (ctx, next) => {
+  ctx.set("Access-Control-Max-Age", "300")
   if (ctx.method === 'OPTIONS') {
     ctx.body = ''
   }
