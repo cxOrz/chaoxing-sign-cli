@@ -93,23 +93,29 @@ export function aPromise(course, uf, _d, UID, vc3) {
       res.on('end', () => {
         // console.log(data)
         data = JSON.parse(data)
-        if (data.data.activeList.length != 0) {
-          let otherId = Number(data.data.activeList[0].otherId)
-          // 判断是否有效签到活动
-          if ((otherId >= 0 && otherId <= 5) && data.data.activeList[0].status == 1) {
-            // 活动开始超过一小时则忽略
-            if ((new Date().getTime() - data.data.activeList[0].startTime) / 1000 < 7200) {
-              console.log(`检测到活动：${data.data.activeList[0].nameOne}`)
-              resolve({
-                aid: data.data.activeList[0].id,
-                name: data.data.activeList[0].nameOne,
-                courseId: course.courseId,
-                classId: course.classId,
-                otherId
-              })
-              return
+        // 判断是否请求成功
+        if (data.data !== null) {
+          if (data.data.activeList.length != 0) {
+            let otherId = Number(data.data.activeList[0].otherId)
+            // 判断是否有效签到活动
+            if ((otherId >= 0 && otherId <= 5) && data.data.activeList[0].status == 1) {
+              // 活动开始超过一小时则忽略
+              if ((new Date().getTime() - data.data.activeList[0].startTime) / 1000 < 7200) {
+                console.log(`检测到活动：${data.data.activeList[0].nameOne}`)
+                resolve({
+                  aid: data.data.activeList[0].id,
+                  name: data.data.activeList[0].nameOne,
+                  courseId: course.courseId,
+                  classId: course.classId,
+                  otherId
+                })
+                return
+              }
             }
           }
+        } else {
+          console.log('请求频繁，请待会再试!');
+          resolve("TooMany");
         }
         reject('Not Available')
       })
