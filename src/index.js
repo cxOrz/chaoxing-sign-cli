@@ -44,7 +44,7 @@ const PromptsOptions = {
   if (courses === "AuthRequired" || courses === "NoCourse") process.exit(1);
   // 获取进行中的签到活动
   let activity = await getSignActivity(courses, params.uf, params._d, params._uid, params.vc3)
-  if (activity === "NoActivity") process.exit(1)
+  if (activity === "NoActivity" || activity === "TooMany") process.exit(1)
 
   // 处理签到，先进行预签
   await preSign(params.uf, params._d, params.vc3, activity.aid, activity.classId, activity.courseId, params._uid)
