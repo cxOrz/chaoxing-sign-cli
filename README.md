@@ -32,11 +32,12 @@ cd chaoxing-sign-cli && npm install
 ```
 
 ## 运行 ⚙
+
 ### 命令解释
+
 - `npm start`：运行程序，若有签到则进行手动签到，若无则退出程序；
 - `npm run serve`：启动接口服务；
 - `npm run monitor`：监听模式，检测到签到将自动签上，无需人工干预；
-
 
 一般情况下执行以下命令即可满足基础使用
 
@@ -74,7 +75,13 @@ npm start
 
 以上内容介绍了最基本的用法，接下来介绍一些稍高级一些的使用方法。
 
-### 运行接口服务
+### 图形化界面
+
+基于 React.js + Material UI 开发前端页面，其中修改了很多 MUI 附带样式，也自己手写了一些，整体设计灵感-->拟态。
+
+访问 [这里](https://github.com/cxOrz/chaoxing-sign-ui) 查看图形化页面如何部署，使用图形化页面需要先部署接口才能正常工作。
+
+### 接口服务
 
 首先运行 `npm install` 或者 `yarn`，安装依赖。
 
@@ -92,36 +99,34 @@ npm start
 |/photo|POST|uf, _d, vc3, name, aid, uid, fid, objectId|JSON|待填|
 |/upload|POST|uf, _d, vc3, uid, file, ?_token|multipart/form-data|待填|
 |/qrocr|POST|file|multipart/form-data|\< String \>|
-
-### 图形化界面
-
-基于 React.js + Material UI 开发前端页面，其中修改了很多 MUI 附带样式，也自己手写了一些，整体设计灵感-->拟态。
-
-访问 [这里](https://github.com/cxOrz/chaoxing-sign-ui) 查看图形化页面如何部署，使用图形化页面需要先部署接口才能正常工作。
+|/monitor/status|POST|phone|JSON|JSON|
+|/monitor/start|POST|phone, uf, _d, vc3, uid, lv, fid|JSON|JSON|
+|/monitor/stop|POST|phone|JSON|JSON|
 
 ### 最佳实践
 
-在这里介绍部署接口的最佳方式，图形化页面的最佳实践请到其仓库查看。
+在这里介绍部署接口的最佳方式，图形化页面的最佳实践请到它对应的仓库查看。
 
-使用 [腾讯云开发-云函数](https://console.cloud.tencent.com/tcb/scf) 部署接口服务，步骤如下：
+部署在服务器，这里以 Ubuntu 22.04 为例，步骤如下：
 
-1. 在云函数页面，使用默认 HelloWorld 模板新建云函数，并选择最新的 Nodejs 版本。
-2. 下载 [tcb-serverless.zip](https://github.com/cxOrz/chaoxing-sign-cli/releases) 文件，如需配置使用 [腾讯云OCR](https://console.cloud.tencent.com/ocr/overview) 以精准解析二维码，请解压并在 `env.json` 配置腾讯云的 secretId 和 secretKey，并重新压缩。注意，请直接选中所有文件夹和文件进行压缩（确保打开压缩包显示一堆文件夹和文件，而不是一个总文件夹）。如果使用默认的二维码解析方法，可以不用修改压缩包文件，直接使用即可。
-3. 点击创建好的云函数，进入**函数代码**页面，在提交方法中选择本地上传ZIP包，上传压缩包。
-4. 保存，安装依赖，至此部署完成。
+1. 安装 Node 环境，推荐使用 LTS 版本
+2. 克隆代码，安装依赖
+3. 配置项目中的 env.json 文件（可选）
+4. 最后，使用 GNU Screen 或者 PM2 运行项目
 
-部署完成后，还有一些必要的设置需要调整：
+还有一些事情必需知道：
 
-- 选择创建的云函数，进入函数配置页面，将**超时时间**设为 `20` 秒，在 10-30 秒的范围内较合理。
-- 在云开发CloudBase-环境-访问服务中，开启HTTP访问服务。新建触发路径，选择一个域名，触发路径可写为 `/chaoxing`，在关联资源选择云函数和刚刚创建的函数，确认并等待完成。完成后即可通过触发路径，访问接口服务。
+- 目前任何云函数，都无法实现监听，如果要在 UI 端使用监听功能，请部署在服务器，并且在运行接口服务之前，先运行一次 `npm run monitor` 来配置默认信息，填写完成后看到 "监听中" ，即可终止程序，信息已经写入本地。然后就可以运行 `npm run serve` 了。
+- 此项目可以运行在 AWS Lambda，腾讯云函数暂时不支持，如需在 Lambda 运行，请务必在运行前修改 env.json 中的 `SERVERLESS` 为 `true`。
+- 如过使用腾讯文字识别，请在 env.json 中配置 secretId 和 secretKey。
 
-至此，云函数部署完成，可通过该函数的触发路径，访问接口服务。
+至此，部署完成，可通过域名或服务器 IP 访问接口的默认路径 `/` ，看到欢迎页面。
 
 ### 展示
 
-演示地址：https://prod.d6afmntd8nh5y.amplifyapp.com （部署在香港，较慢，仅供演示）
+演示地址：https://prod.d6afmntd8nh5y.amplifyapp.com （部署在香港，较慢，功能阉割版仅供演示）
 
-![](https://636c-cloudbase-1a4211-1252446325.tcb.qcloud.la/chaoxing-sign-ui/1.png)
+![](https://636c-cloudbase-1a4211-1252446325.tcb.qcloud.la/chaoxing-sign-ui/1.png?)
 ![](https://636c-cloudbase-1a4211-1252446325.tcb.qcloud.la/chaoxing-sign-ui/2.png)
 
 ## 贡献

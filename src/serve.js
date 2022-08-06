@@ -10,11 +10,17 @@ import { GeneralSign } from './functions/general.js';
 import { PhotoSign, uploadPhoto } from './functions/photo.js';
 import { QrCodeScan } from './functions/tencent/QrCodeOCR.js';
 import { getJsonObject } from './utils/file.js';
+import { spawn } from 'child_process';
 import serverless from 'serverless-http';
+import path from 'path';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const ENVJSON = getJsonObject('env.json');
 
 const app = new Koa()
 const router = new Router()
+const processMap = new Map()
 
 router.get('/', async (ctx) => {
   ctx.body = `<h1 style="text-align: center">Welcome, chaoxing-sign-cli API service is running.</h1>`
@@ -166,6 +172,56 @@ router.post('/qrocr', async (ctx) => {
     form.parse(ctx.req)
   })
   ctx.body = result
+})
+
+// 200:监听中，201:未监听，202:登录失败
+router.post('/monitor/status', (ctx) => {
+  // 状态为正在监听
+  if (processMap.get(ctx.request.body.phone)) {
+    ctx.body = '{"code":200,"msg":"Monitoring"}';
+  } else {
+    ctx.body = '{"code":201,"msg":"Suspended"}';
+  }
+})
+
+router.post('/monitor/stop', (ctx) => {
+  const process_monitor = processMap.get(ctx.request.body.phone);
+  if (process_monitor !== undefined) {
+    process_monitor.kill('SIGKILL');
+    processMap.delete(ctx.request.body.phone);
+  }
+  ctx.body = '{"code":201,"msg":"Suspended"}';
+})
+
+router.post('/monitor/start', async (ctx) => {
+  if (processMap.get(ctx.request.body.phone) !== undefined) {
+    ctx.body = '{"code":200,"msg":"Already started"}';
+    return;
+  }
+  const process_monitor = spawn('node', ['monitor.js', '--auth',
+    ctx.request.body.uf, ctx.request.body._d,
+    ctx.request.body.vc3, ctx.request.body.uid,
+    ctx.request.body.lv, ctx.request.body.fid], {
+    cwd: __dirname,
+    stdio: [null, null, null, 'ipc']
+  });
+  const response = await new Promise((resolve) => {
+    process_monitor.on('message', (msg) => {
+      switch (msg) {
+        case 'success': {
+          processMap.set(ctx.request.body.phone, process_monitor);
+          resolve('{"code":200,"msg":"Started Successfully"}');
+          break;
+        }
+        case 'authfail': {
+          process_monitor.kill();
+          resolve('{"code":202,"msg":"Authencation Failed"}');
+          break;
+        }
+      }
+    });
+  });
+  ctx.body = response;
 })
 
 app.use(bodyparser())
