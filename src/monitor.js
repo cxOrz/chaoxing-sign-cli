@@ -26,9 +26,11 @@ class Monitor {
   static UNKNOWN_PREFIX_LV2_LV0 = '0800123d0a0e63782d64657623637873747564791209';
   static UNKNOWN_PREFIX_LV1 = '0800123c0a0e63782d64657623637873747564791208';
 
+  // 生成登录请求数据包
   generateLoginHex(IM_Params, lv) {
     const timestampHex = utf8ToHex(new Date().getTime().toString());
 
+    // 兼容三种账号类型
     switch (lv) {
       case '1': lv = Monitor.UNKNOWN_PREFIX_LV1; break;
       default: lv = Monitor.UNKNOWN_PREFIX_LV2_LV0;
@@ -41,20 +43,24 @@ class Monitor {
       utf8ToHex(IM_Params.myToken) + "50005800");
   }
 
+  // 生成活动请求数据包
   generateGetActivityHex() {
     return '080040004a2b1a29120f' + Monitor.ChatIDHex + '1a16636f6e666572656e63652e656173656d6f622e636f6d5800';
   }
 
+  // 生成请求保持连接数据包
   generateKeepAliveHex() {
     return '080040004a3510d09580acd5a2d2a90e1a29120f' + Monitor.ChatIDHex + '1a16636f6e666572656e63652e656173656d6f622e636f6d5800';
   }
 
 }
 
+// 提取活动数据的JSON部分
 function parseActivityHexJSON(hexStr) {
   hexStr = hexStr.substring(hexStr.lastIndexOf('7b22617474'), hexStr.lastIndexOf('4a02'));
   return JSON.parse(hexToUtf8(hexStr));
 }
+// 提取聊天群组ID
 function getchatIdHex(hexStr) {
   return hexStr.substring(hexStr.indexOf('29120f') + 6, hexStr.indexOf('1a16636f'))
 }
@@ -82,6 +88,8 @@ async function fetchParams() {
 
 async function configure() {
   const config = getJsonObject('configs/storage.json');
+  if (process.argv[2] === '--auth') return config.monitor;
+
   let local = false;
   console.log(blue('自动签到支持 [普通/手势/拍照/签到码/位置]'))
   if (config.monitor.address !== "") {
@@ -165,8 +173,19 @@ async function Sign(name, params, config, activity) {
 
 // 开始运行
 (async () => {
-  // 登录，获取凭证
-  let params = await fetchParams();
+  let params = {};
+  // 若凭证由命令参数传来，直接赋值；否则，直接用户名密码登录获取凭证
+  if (process.argv[2] === '--auth') {
+    params.uf = process.argv[3];
+    params._d = process.argv[4];
+    params.vc3 = process.argv[5];
+    params._uid = process.argv[6];
+    params.lv = process.argv[7];
+    params.fid = process.argv[8];
+  } else {
+    params = await fetchParams();
+    if (params === 'AuthFailed') process.exit(0);
+  }
   let IM_Params = await getIMParams(params.uf, params._d, params._uid, params.vc3);
   // 配置默认签到信息
   const config = await configure();
@@ -179,13 +198,17 @@ async function Sign(name, params, config, activity) {
   while (true) {
     await new Promise((resolve) => {
       const ws = new WebSocket(Monitor.WebSocketURL);
-      ws.on('message', async (data) => {
+      let data = null;
+      ws.on('message', async (rawData) => {
         // console.log(data.toString())
-        if (data.toString() == 'o') {
+        data = rawData.toString();
+        if (data === 'o') {
           // 发送登录数据包
           ws.send(`["${hexToBase64(loginHex)}"]`)
-        } else if (data.toString().charAt(0) == 'a') {
-          const temp = base64toHex(data.toString().split('"')[1])
+        } else if (data.charAt(0) === 'a') {
+          // 向父进程发送连接正常消息
+          if (process.send) process.send('success');
+          const temp = base64toHex(data.split('"')[1])
           // 有签到活动，发送请求获取签到内容
           if (temp.startsWith(Monitor.COMING_SIGN_PREFIX)) {
             Monitor.ChatIDHex = getchatIdHex(temp)
@@ -209,6 +232,8 @@ async function Sign(name, params, config, activity) {
             ws.terminate();
             resolve();
           }
+        } else if (data.charAt(0) === 'c') {
+          if (process.send) process.send('authfail');
         }
       })
     })
