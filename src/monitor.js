@@ -57,7 +57,7 @@ class Monitor {
 
 // 提取活动数据的JSON部分
 function parseActivityHexJSON(hexStr) {
-  hexStr = hexStr.substring(hexStr.lastIndexOf('7b22617474'), hexStr.lastIndexOf('4a02'));
+  hexStr = hexStr.substring(hexStr.lastIndexOf('7b22617474'), hexStr.lastIndexOf('226174746163686d656e7454797065223a31357d') + 40);
   return JSON.parse(hexToUtf8(hexStr));
 }
 // 提取聊天群组ID
@@ -203,7 +203,7 @@ async function Sign(name, params, config, activity) {
       let data = null;
       ws.on('message', async (rawData) => {
         data = rawData.toString();
-        console.log(data);
+        // console.log(data);
         if (data === 'o') {
           // 发送登录数据包
           ws.send(`["${hexToBase64(loginHex[errors.length])}"]`)
