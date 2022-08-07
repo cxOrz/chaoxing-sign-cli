@@ -215,8 +215,8 @@ async function Sign(name, params, config, activity) {
           if (temp.startsWith(Monitor.COMING_SIGN_PREFIX)) {
             Monitor.ChatIDHex = getchatIdHex(temp)
             ws.send(`["${hexToBase64(monitor.generateGetActivityHex())}"]`)
-          } else if (temp.includes('226174797065223a32')) {
-            // 当前内容包含 "atype":2 ，说明是签到信息
+          } else if (temp.includes('7369676e')) {
+            // 当前内容包含 sign ，说明是签到信息
             const IM_activity = parseActivityHexJSON(temp);
 
             // 获取网页版签到信息，内容更全
