@@ -23,20 +23,20 @@ class Monitor {
   static COMING_SIGN_PREFIX = '080040024a2b0a2912';
   static CONFIRM = '["CABAAVgA"]';
   static ChatIDHex = '';
-  static UNKNOWN_PREFIX_LV2_LV0 = '0800123d0a0e63782d64657623637873747564791209';
-  static UNKNOWN_PREFIX_LV1 = '0800123c0a0e63782d64657623637873747564791208';
+  static UNKNOWN_PREFIX_0 = '0800123c0a0e63782d64657623637873747564791208';
+  static UNKNOWN_PREFIX_1 = '0800123d0a0e63782d64657623637873747564791209';
 
   // 生成登录请求数据包
-  generateLoginHex(IM_Params, lv) {
+  generateLoginHex(IM_Params, mode) {
     const timestampHex = utf8ToHex(new Date().getTime().toString());
 
     // 兼容三种账号类型
-    switch (lv) {
-      case '1': lv = Monitor.UNKNOWN_PREFIX_LV1; break;
-      default: lv = Monitor.UNKNOWN_PREFIX_LV2_LV0;
+    switch (mode) {
+      case 0: mode = Monitor.UNKNOWN_PREFIX_0; break;
+      default: mode = Monitor.UNKNOWN_PREFIX_1;
     }
 
-    return (lv + utf8ToHex(IM_Params.myTuid) + "1a0b656173656d6f622e636f6d2213776562696d5f" +
+    return (mode + utf8ToHex(IM_Params.myTuid) + "1a0b656173656d6f622e636f6d2213776562696d5f" +
       timestampHex + "1a8501247424" + utf8ToHex(IM_Params.myToken) +
       "40034ac00108101205332e302e30280030004a0d" + timestampHex +
       "6205776562696d6a13776562696d5f" + timestampHex + "728501247424" +
@@ -191,20 +191,22 @@ async function Sign(name, params, config, activity) {
   const config = await configure();
 
   const monitor = new Monitor();
-  const loginHex = monitor.generateLoginHex(IM_Params, params.lv);
+  // 两种 loginhex ，第一种登录失败，尝试第二种
+  const loginHex = [monitor.generateLoginHex(IM_Params, 0), monitor.generateLoginHex(IM_Params, 1)];
 
   console.log(blue('[监听中]'));
 
-  while (true) {
-    await new Promise((resolve) => {
+  const errors = []; // 记录错误次数
+  while (errors.length < 2) {
+    await new Promise((resolve, reject) => {
       const ws = new WebSocket(Monitor.WebSocketURL);
       let data = null;
       ws.on('message', async (rawData) => {
-        // console.log(data.toString())
         data = rawData.toString();
+        console.log(data);
         if (data === 'o') {
           // 发送登录数据包
-          ws.send(`["${hexToBase64(loginHex)}"]`)
+          ws.send(`["${hexToBase64(loginHex[errors.length])}"]`)
         } else if (data.charAt(0) === 'a') {
           // 向父进程发送连接正常消息
           if (process.send) process.send('success');
@@ -213,8 +215,8 @@ async function Sign(name, params, config, activity) {
           if (temp.startsWith(Monitor.COMING_SIGN_PREFIX)) {
             Monitor.ChatIDHex = getchatIdHex(temp)
             ws.send(`["${hexToBase64(monitor.generateGetActivityHex())}"]`)
-          } else if (temp.includes('2261696422')) {
-            // 当前内容包含 "aid" ，说明是签到信息
+          } else if (temp.includes('226174797065223a32')) {
+            // 当前内容包含 "atype":2 ，说明是签到信息
             const IM_activity = parseActivityHexJSON(temp);
 
             // 获取网页版签到信息，内容更全
@@ -233,9 +235,14 @@ async function Sign(name, params, config, activity) {
             resolve();
           }
         } else if (data.charAt(0) === 'c') {
-          if (process.send) process.send('authfail');
+          // 本次是第二次错误，再向子进程发送登录失败信息
+          if (process.send && errors.length === 1) process.send('authfail');
+          reject('authfail');
         }
       })
-    })
+    }).catch((err) => {
+      errors.push(err);
+    });
   }
+  console.log('失败次数到达2次，程序终止')
 })();

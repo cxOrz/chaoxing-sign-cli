@@ -126,7 +126,7 @@ npm start
 
 演示地址：https://prod.d6afmntd8nh5y.amplifyapp.com （部署在香港，较慢，功能阉割版仅供演示）
 
-![](https://636c-cloudbase-1a4211-1252446325.tcb.qcloud.la/chaoxing-sign-ui/1.png?)
+![](https://636c-cloudbase-1a4211-1252446325.tcb.qcloud.la/chaoxing-sign-ui/1.png)
 ![](https://636c-cloudbase-1a4211-1252446325.tcb.qcloud.la/chaoxing-sign-ui/2.png)
 
 ## 贡献
