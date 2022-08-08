@@ -66,77 +66,16 @@ function getchatIdHex(hexStr) {
 }
 
 async function fetchParams() {
-  const response = await prompts([
-    {
-      type: 'text',
-      name: 'uname',
-      message: '手机号码'
-    },
-    {
-      type: 'password',
-      name: 'password',
-      message: '密码'
-    }
-  ], {
-    onCancel: () => {
-      console.log(red('✖') + ' 操作取消')
-      process.exit(0);
-    }
-  })
-  return (await userLogin(response.uname, response.password));
+  return (await userLogin('',''));
 }
 
 async function configure() {
   const config = getJsonObject('configs/storage.json');
-  if (process.argv[2] === '--auth') return config.monitor;
-
-  let local = false;
   console.log(blue('自动签到支持 [普通/手势/拍照/签到码/位置]'))
-  if (config.monitor.address !== "") {
-    local = (await prompts({
-      type: 'confirm',
-      name: 'local',
-      message: '是否用本地缓存的签到信息?',
-      initial: true
-    })).local
-  }
-  if (!local) {
-    const response = await prompts([
-      {
-        type: 'confirm',
-        name: 'photo',
-        message: '普通和拍照签到无法区分，是否将拍照按普通签?',
-        initial: true
-      },
-      {
-        type: 'text',
-        name: 'lon',
-        message: '位置签到经度',
-        initial: '113.516288'
-      },
-      {
-        type: 'text',
-        name: 'lat',
-        message: '位置签到纬度',
-        initial: '34.817038'
-      },
-      {
-        type: 'text',
-        name: 'address',
-        message: '详细地址'
-      }
-    ], {
-      onCancel: () => {
-        console.log(red('✖') + ' 操作取消')
-        process.exit(0);
-      }
-    })
-    config.monitor.photo = response.photo;
-    config.monitor.lon = response.lon;
-    config.monitor.lat = response.lat;
-    config.monitor.address = response.address;
-    fs.writeFile(path.join(__dirname, './configs/storage.json'), JSON.stringify(config), 'utf8', () => { });
-  }
+  config.monitor.photo = false
+  config.monitor.lon = '120.20440031502531'
+  config.monitor.lat = '35.97766933071033'
+  config.monitor.address = '青岛理工大学'
   return { ...config.monitor };
 }
 
@@ -225,8 +164,14 @@ async function Sign(name, params, config, activity) {
               courseId: IM_activity.att_chat_course.courseInfo.courseid
             }, params.uf, params._d, params._uid, params.vc3);
 
+            console.log("等待⌛️20秒");
+            setTimeout(function(){
+            console.log( (new Date()).toString() );
             // 签到
-            await Sign(IM_Params.myName, params, config, web_activity);
+              //await 
+            Sign(IM_Params.myName, params, config, web_activity);
+            //延迟一秒执行
+            },20000);
 
             // // 当获取到消息内容后，请求保持连接
             // ws.send(`["${hexToBase64(monitor.generateKeepAliveHex())}"]`)
