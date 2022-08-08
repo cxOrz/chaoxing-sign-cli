@@ -2,11 +2,8 @@ import https from 'https';
 import fs from 'fs';
 import path from 'path';
 import { PPTSIGN, PANCHAOXING, PANLIST, PANUPLOAD } from '../configs/api.js';
-import { fileURLToPath } from 'url';
-import { getJsonObject } from '../utils/file.js';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const ENVJSON = getJsonObject('env.json');
+import { tmpdir } from 'os';
+import { randomBytes } from 'crypto';
 
 export const PhotoSign = async (uf, _d, vc3, name, activeId, uid, fid, objectId) => {
   let data = ''
@@ -82,22 +79,16 @@ export const getObjectIdFromcxPan = (uf, _d, vc3, uid) => {
 export const uploadPhoto = async (uf, _d, _uid, vc3, token, buffer) => {
   const FormData = (await import('form-data')).default
   let form = new FormData()
-  let data = '', tempFilePath
+  let tempFilePath = path.join(tmpdir(), randomBytes(16).toString('hex') + '.jpg');
 
-  // 是否在云函数环境
-  if (ENVJSON.env.SERVERLESS) {
-    tempFilePath = '/tmp/temp.jpg'
-  } else {
-    fs.mkdirSync(path.join(__dirname, '../tmp'), { recursive: true })
-    tempFilePath = path.join(__dirname, '../tmp/temp.jpg')
-  }
-
+  // form-data 库只支持文件流，所以只能先写入文件再从文件读了
   fs.writeFileSync(tempFilePath, buffer)
   let readStream = fs.createReadStream(tempFilePath)
   form.append('file', readStream)
   form.append('puid', _uid)
 
   return new Promise((resolve) => {
+    let data = ''
     // 上传文件
     let request = https.request(PANUPLOAD.URL + '?_token=' + token, {
       method: PANUPLOAD.METHOD,
@@ -110,7 +101,8 @@ export const uploadPhoto = async (uf, _d, _uid, vc3, token, buffer) => {
         data += chunk
       })
       res.on('end', () => {
-        resolve(data)
+        fs.unlink(tempFilePath, () => { });
+        resolve(data);
       })
     })
     form.pipe(request)
