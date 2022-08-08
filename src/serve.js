@@ -164,7 +164,6 @@ router.post('/qrocr', async (ctx) => {
       try {
         res = await QrCodeScan(base64str)
         resolve(res.CodeResults[0].Url.split('=').pop())
-        console.log(res)
       } catch (error) {
         resolve('识别失败')
       }
