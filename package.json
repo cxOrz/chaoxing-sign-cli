@@ -1,6 +1,6 @@
 {
   "name": "chaoxing-sign-cli",
-  "version": "3.4.5",
+  "version": "3.6.0",
   "description": "超星学习通签到命令行工具",
   "main": "index.js",
   "scripts": {
@@ -23,6 +23,6 @@
     "prompts": "^2.4.2",
     "serverless-http": "^3.0.1",
     "tencentcloud-sdk-nodejs": "^4.0.327",
-    "ws": "^8.8.0"
+    "ws": "^8.8.1"
   }
 }
