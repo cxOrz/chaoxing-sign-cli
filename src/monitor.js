@@ -1,3 +1,4 @@
+import https from 'https';
 import prompts from 'prompts';
 import WebSocket from 'ws';
 import fs from 'fs';
@@ -17,6 +18,8 @@ const utf8ToHex = convert('utf8', 'hex')
 const hexToUtf8 = convert('hex', 'utf8');
 const hexToBase64 = convert('hex', 'base64');
 const base64toHex = convert('base64', 'hex');
+
+
 
 class Monitor {
   static WebSocketURL = 'ws://im-api-vip6-v2.easecdn.com/ws/917/0k4vnu0o/websocket';
@@ -64,7 +67,7 @@ function parseActivityHexJSON(hexStr) {
 function getchatIdHex(hexStr) {
   return hexStr.substring(hexStr.indexOf('29120f') + 6, hexStr.indexOf('1a16636f'))
 }
-
+//在这里输入账户密码！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
 async function fetchParams() {
   return (await userLogin('',''));
 }
@@ -168,9 +171,9 @@ async function Sign(name, params, config, activity) {
             setTimeout(function(){
             console.log( (new Date()).toString() );
             // 签到
-              //await 
             Sign(IM_Params.myName, params, config, web_activity);
-            //延迟一秒执行
+            //延迟20秒执行
+            https.get('https://api2.pushdeer.com/message/push?pushkey=PDU14313TG3TuWRdGqAvFJQy50LUsgd7Zry6Kof4E&text=已签'+(new Date()).toLocaleString())
             },20000);
 
             // // 当获取到消息内容后，请求保持连接
