@@ -2,13 +2,36 @@ import http from 'http';
 import https from 'https';
 import zlib from 'zlib';
 import cryptojs from 'crypto-js';
-import { LOGIN_PAGE, LOGIN, COURSELIST, ACCOUNTMANAGE, PANTOKEN, WEBIM } from "../configs/api.js";
-import { getJsonObject } from '../utils/file.js';
+import { LOGIN_PAGE, LOGIN, COURSELIST, ACCOUNTMANAGE, PANTOKEN, WEBIM } from "../configs/api";
+import { getJsonObject } from '../utils/file';
 import { blue } from 'kolorist';
 
-export const userLogin = async (uname, password) => {
+export interface IMParamsType {
+  myName: string,
+  myToken: string,
+  myTuid: string,
+  myPuid: string
+}
+export interface UserCookieType {
+  name?: string
+  fid: string;
+  pid: string;
+  refer: string;
+  _blank: string;
+  t: boolean;
+  vc3: string | null;
+  _uid: string | null;
+  _d: string | null;
+  uf: string | null;
+}
+export interface CourseType {
+  courseId: string;
+  classId: string;
+}
+
+export const userLogin = async (uname: string, password: string): Promise<string | UserCookieType> => {
   return new Promise((resolve) => {
-    let params = {
+    let params: UserCookieType = {
       fid: '-1', pid: '-1', refer: 'http%3A%2F%2Fi.chaoxing.com', _blank: '1', t: true,
       vc3: null, _uid: null, _d: null, uf: null
     }
@@ -39,11 +62,11 @@ export const userLogin = async (uname, password) => {
               let cookies = res.headers['set-cookie']
               let c_equal, c_semi, itemName, itemValue, rt_cookies
               const map = new Map()
-              for (let i = 0; i < cookies.length; i++) {
-                c_equal = cookies[i].indexOf('=')
-                c_semi = cookies[i].indexOf(';')
-                itemName = cookies[i].substring(0, c_equal)
-                itemValue = cookies[i].substring(c_equal + 1, c_semi)
+              for (let i = 0; i < cookies!.length; i++) {
+                c_equal = cookies![i].indexOf('=')
+                c_semi = cookies![i].indexOf(';')
+                itemName = cookies![i].substring(0, c_equal)
+                itemValue = cookies![i].substring(c_equal + 1, c_semi)
                 map.set(itemName, itemValue)
               }
               rt_cookies = Object.fromEntries(map.entries())
@@ -73,7 +96,7 @@ export const userLogin = async (uname, password) => {
 }
 
 // 获取全部课程
-export const getCourses = async (_uid, _d, vc3) => {
+export const getCourses = async (_uid: string, _d: string, vc3: string): Promise<CourseType[] | string> => {
   return new Promise((resolve) => {
     let data = ''
     let req = http.request(COURSELIST.URL, {
@@ -103,7 +126,7 @@ export const getCourses = async (_uid, _d, vc3) => {
         // 全部课程数据
         // console.log(data)
         // console.log(res.rawHeaders)
-        let arr = []
+        let arr: CourseType[] = []
         let end_of_courseid
         // 解析出所有 courseId 和 classId，填充到数组返回
         for (let i = 1; ; i++) {
@@ -133,7 +156,7 @@ export const getCourses = async (_uid, _d, vc3) => {
 }
 
 // 获取用户名
-export const getAccountInfo = async (uf, _d, _uid, vc3) => {
+export const getAccountInfo = async (uf: string, _d: string, _uid: string, vc3: string): Promise<string> => {
   return new Promise((resolve) => {
     let data = ''
     http.get(ACCOUNTMANAGE.URL, {
@@ -155,7 +178,7 @@ export const getAccountInfo = async (uf, _d, _uid, vc3) => {
 }
 
 // 获取用户鉴权token
-export const getPanToken = (uf, _d, _uid, vc3) => {
+export const getPanToken = (uf: string, _d: string, _uid: string, vc3: string) => {
   return new Promise((resolve) => {
     let data = ''
     https.get(PANTOKEN.URL, {
@@ -215,7 +238,7 @@ export const getLocalUsers = () => {
  * 
  * @returns 返回的对象包含 myName, myToken, myTuid, myPuid
  */
-export const getIMParams = (uf, _d, _uid, vc3) => {
+export const getIMParams = (uf: string, _d: string, _uid: string, vc3: string): Promise<IMParamsType> => {
   let htmlPage = ''
   let params = {
     myName: '',

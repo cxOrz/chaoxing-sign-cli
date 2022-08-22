@@ -3,16 +3,14 @@ import WebSocket from 'ws';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { aPromise, preSign } from './functions/activity.js';
-import { GeneralSign } from "./functions/general.js";
-import { LocationSign } from "./functions/location.js";
-import { PhotoSign, getObjectIdFromcxPan } from "./functions/photo.js";
-import { getJsonObject } from './utils/file.js';
-import { getIMParams, userLogin } from './functions/user.js';
+import { Activity, aPromise, preSign } from './functions/activity';
+import { GeneralSign } from "./functions/general";
+import { LocationSign } from "./functions/location";
+import { PhotoSign, getObjectIdFromcxPan } from "./functions/photo";
+import { getJsonObject } from './utils/file';
+import { getIMParams, IMParamsType, userLogin } from './functions/user';
 import { blue, red } from 'kolorist';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const convert = (from, to) => str => Buffer.from(str, from).toString(to)
+const convert = (from: any, to: any) => (str: string) => Buffer.from(str, from).toString(to);
 const utf8ToHex = convert('utf8', 'hex')
 const hexToUtf8 = convert('hex', 'utf8');
 const hexToBase64 = convert('hex', 'base64');
@@ -27,7 +25,7 @@ class Monitor {
   static UNKNOWN_PREFIX_1 = '0800123d0a0e63782d64657623637873747564791209';
 
   // 生成登录请求数据包
-  generateLoginHex(IM_Params, mode) {
+  generateLoginHex(IM_Params: IMParamsType, mode: string | number) {
     const timestampHex = utf8ToHex(new Date().getTime().toString());
 
     // 兼容三种账号类型
@@ -56,12 +54,12 @@ class Monitor {
 }
 
 // 提取活动数据的JSON部分
-function parseActivityHexJSON(hexStr) {
+function parseActivityHexJSON(hexStr: string) {
   hexStr = hexStr.substring(hexStr.lastIndexOf('7b22617474'), hexStr.lastIndexOf('226174746163686d656e7454797065223a31357d') + 40);
   return JSON.parse(hexToUtf8(hexStr));
 }
 // 提取聊天群组ID
-function getchatIdHex(hexStr) {
+function getchatIdHex(hexStr: string) {
   return hexStr.substring(hexStr.indexOf('29120f') + 6, hexStr.indexOf('1a16636f'))
 }
 
@@ -140,7 +138,7 @@ async function configure() {
   return { ...config.monitor };
 }
 
-async function Sign(name, params, config, activity) {
+async function Sign(name: string, params: any, config: any, activity: Activity) {
   await preSign(params.uf, params._d, params.vc3, activity.aid, activity.classId, activity.courseId, params._uid)
   switch (activity.otherId) {
     case 2: {
@@ -173,7 +171,7 @@ async function Sign(name, params, config, activity) {
 
 // 开始运行
 (async () => {
-  let params = {};
+  let params: any = {};
   // 若凭证由命令参数传来，直接赋值；否则，直接用户名密码登录获取凭证
   if (process.argv[2] === '--auth') {
     params.uf = process.argv[3];
@@ -198,7 +196,7 @@ async function Sign(name, params, config, activity) {
 
   const errors = []; // 记录错误次数
   while (errors.length < 2) {
-    await new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       const ws = new WebSocket(Monitor.WebSocketURL);
       let data = null;
       ws.on('message', async (rawData) => {
@@ -226,7 +224,8 @@ async function Sign(name, params, config, activity) {
             }, params.uf, params._d, params._uid, params.vc3);
 
             // 签到
-            await Sign(IM_Params.myName, params, config, web_activity);
+            if (typeof web_activity === 'string') console.log(web_activity);
+            else await Sign(IM_Params.myName, params, config, web_activity);
 
             // // 当获取到消息内容后，请求保持连接
             // ws.send(`["${hexToBase64(monitor.generateKeepAliveHex())}"]`)
