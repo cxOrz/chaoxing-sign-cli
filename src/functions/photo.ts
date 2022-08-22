@@ -1,11 +1,11 @@
 import https from 'https';
 import fs from 'fs';
 import path from 'path';
-import { PPTSIGN, PANCHAOXING, PANLIST, PANUPLOAD } from '../configs/api.js';
+import { PPTSIGN, PANCHAOXING, PANLIST, PANUPLOAD } from '../configs/api';
 import { tmpdir } from 'os';
 import { randomBytes } from 'crypto';
 
-export const PhotoSign = async (uf, _d, vc3, name, activeId, uid, fid, objectId) => {
+export const PhotoSign = async (uf: string, _d: string, vc3: string, name: string, activeId: string | number, uid: string, fid: string, objectId: unknown) => {
   let data = ''
   return new Promise((resolve) => {
     https.get(PPTSIGN.URL + `?activeId=${activeId}&uid=${uid}&clientip=&useragent=&latitude=-1&longitude=-1&appType=15&fid=${fid}&objectId=${objectId}&name=${name}`, {
@@ -20,7 +20,7 @@ export const PhotoSign = async (uf, _d, vc3, name, activeId, uid, fid, objectId)
           resolve('success')
           return
         } else {
-          console.log(data)
+          // console.log(data)
           resolve(data)
         }
       })
@@ -29,7 +29,7 @@ export const PhotoSign = async (uf, _d, vc3, name, activeId, uid, fid, objectId)
 }
 
 // 在Termux或其他终端中使用，从云盘获取图片
-export const getObjectIdFromcxPan = (uf, _d, vc3, uid) => {
+export const getObjectIdFromcxPan = (uf: string, _d: string, vc3: string, uid: string) => {
   let data = ''
   return new Promise((resolve) => {
     https.get(PANCHAOXING.URL, {
@@ -76,7 +76,7 @@ export const getObjectIdFromcxPan = (uf, _d, vc3, uid) => {
 }
 
 // 直接上传图片获得objectId，在UI项目里使用
-export const uploadPhoto = async (uf, _d, _uid, vc3, token, buffer) => {
+export const uploadPhoto = async (uf: string, _d: string, _uid: string, vc3: string, token: string, buffer: Buffer) => {
   const FormData = (await import('form-data')).default
   let form = new FormData()
   let tempFilePath = path.join(tmpdir(), randomBytes(16).toString('hex') + '.jpg');

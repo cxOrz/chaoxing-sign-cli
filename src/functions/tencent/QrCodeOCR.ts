@@ -1,9 +1,9 @@
-import tencentcloud from "tencentcloud-sdk-nodejs";
-import { getJsonObject } from '../../utils/file.js';
+const tencentcloud = require("tencentcloud-sdk-nodejs");
 const OcrClient = tencentcloud.ocr.v20181119.Client;
-const ENVJSON  = getJsonObject('env.json');
+import { getJsonObject } from '../../utils/file';
+const ENVJSON = getJsonObject('env.json');
 
-export const QrCodeScan = (base64str) => {
+export const QrCodeScan = (base64str: string) => {
   return new Promise((res, rej) => {
     const client = new OcrClient({
       credential: {
@@ -20,9 +20,9 @@ export const QrCodeScan = (base64str) => {
     client.QrcodeOCR({
       "ImageBase64": base64str
     }).then(
-      (data) => {
+      (data: any) => {
         res(data)
-      }, (err) => {
+      }, (err: any) => {
         rej(err)
       }
     )

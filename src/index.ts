@@ -1,12 +1,12 @@
-import { blue } from 'kolorist';
+import { blue, red } from 'kolorist';
 import prompts from 'prompts';
-import { getSignActivity, preSign } from "./functions/activity.js";
-import { GeneralSign } from "./functions/general.js";
-import { LocationSign } from "./functions/location.js";
-import { PhotoSign, getObjectIdFromcxPan } from "./functions/photo.js";
-import { QRCodeSign } from "./functions/QRCode.js";
-import { userLogin, getCourses, getAccountInfo, getLocalUsers } from "./functions/user.js";
-import { getJsonObject, storeUser } from './utils/file.js';
+import { getSignActivity, preSign } from "./functions/activity";
+import { GeneralSign } from "./functions/general";
+import { LocationSign } from "./functions/location";
+import { PhotoSign, getObjectIdFromcxPan } from "./functions/photo";
+import { QRCodeSign } from "./functions/QRCode";
+import { userLogin, getCourses, getAccountInfo, getLocalUsers } from "./functions/user";
+import { getJsonObject, storeUser } from './utils/file';
 
 const PromptsOptions = {
   onCancel: () => {
@@ -40,14 +40,14 @@ const PromptsOptions = {
   console.log(blue(`你好，${name}`))
 
   // 获取所有课程
-  let courses = await getCourses(params._uid, params._d, params.vc3)
+  let courses: any = await getCourses(params._uid, params._d, params.vc3)
   if (courses === "AuthRequired" || courses === "NoCourse") process.exit(1);
   // 获取进行中的签到活动
   let activity = await getSignActivity(courses, params.uf, params._d, params._uid, params.vc3)
-  if (activity === "NoActivity" || activity === "TooMany") process.exit(1)
+  if (typeof activity === 'string') process.exit(1);
+  else await preSign(params.uf, params._d, params.vc3, activity.aid, activity.classId, activity.courseId, params._uid)
 
   // 处理签到，先进行预签
-  await preSign(params.uf, params._d, params.vc3, activity.aid, activity.classId, activity.courseId, params._uid)
   switch (activity.otherId) {
     case 2: {
       // 二维码签到
@@ -78,7 +78,7 @@ const PromptsOptions = {
       if (photo) {
         // 拍照签到
         console.log('访问 https://pan-yz.chaoxing.com 并在根目录上传你想要提交的照片，格式为jpg或png，命名为 0.jpg 或 0.png');
-        await prompts({ type: 'confirm', message: '已上传完毕?' })
+        await prompts({ name: 'complete', type: 'confirm', message: '已上传完毕?' })
         // 获取照片objectId
         let objectId = await getObjectIdFromcxPan(params.uf, params._d, params.vc3, params._uid)
         await PhotoSign(params.uf, params._d, params.vc3, name, activity.aid, params._uid, params.fid, objectId)

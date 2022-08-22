@@ -1,17 +1,23 @@
 import https from 'https';
-import { ACTIVELIST, PRESIGN } from "../configs/api.js";
+import { ACTIVELIST, PRESIGN } from "../configs/api";
+import { CourseType } from './user';
+
+export interface Activity {
+  aid: number,
+  name: string,
+  courseId: string,
+  classId: string,
+  otherId: number
+}
 
 /**
  * 返回一个签到信息对象 {aid, name, courseId, classId, otherId}
  * @param {{courseId:string, classId:string}[]} courses 
- * @param {string} uf 
- * @param {string} _d 
- * @param {string} UID 
- * @param {string} vc3 
  */
-export const getSignActivity = (courses, uf, _d, UID, vc3) => {
+export const getSignActivity = (courses: CourseType[],
+  uf: string, _d: string, UID: string, vc3: string): Promise<string | Activity> => {
   console.log('正在查询有效签到活动，等待时间视网络情况而定...')
-  let i = 0, tasks = []
+  let i = 0, tasks: Promise<any>[] = []
   return new Promise(async (resolve) => {
     if (courses.length === 1) {
       try {
@@ -52,7 +58,7 @@ export const getSignActivity = (courses, uf, _d, UID, vc3) => {
  * @param {Promise<any>[]} tasks 接收一个 Promise 任务数组
  * @returns 任务数组中有一个成功则resolve其值；若全部失败，则reject一个异常。
  */
-export const promiseAny = (tasks) => {
+export const promiseAny = (tasks: Promise<any>[]): Promise<any> => {
   // 记录失败次数
   let length = tasks.length
   return new Promise((resolve, reject) => {
@@ -81,9 +87,9 @@ export const promiseAny = (tasks) => {
  * 
  * @returns 返回一个活动请求 Promise 对象
  */
-export function aPromise(course, uf, _d, UID, vc3) {
+export function aPromise(course: any, uf: string, _d: string, UID: string, vc3: string): Promise<string | Activity> {
   return new Promise((resolve, reject) => {
-    let data = ''
+    let data: any = ''
     https.get(ACTIVELIST.URL + `?fid=0&courseId=${course.courseId}&classId=${course.classId}&_=${new Date().getTime()}`, {
       headers: {
         'Cookie': `uf=${uf}; _d=${_d}; UID=${UID}; vc3=${vc3};`,
@@ -124,9 +130,9 @@ export function aPromise(course, uf, _d, UID, vc3) {
 }
 
 // 预检请求
-export const preSign = async (uf, _d, vc3, activeId, classId, courseId, uid) => {
+export const preSign = async (uf: string, _d: string, vc3: string, activeId: string | number, classId: string, courseId: string, uid: string) => {
   let data = ''
-  return new Promise((resolve) => {
+  return new Promise<void>((resolve) => {
     https.get(PRESIGN.URL + `?courseId=${courseId}&classId=${classId}&activePrimaryId=${activeId}&general=1&sys=1&ls=1&appType=15&&tid=&uid=${uid}&ut=s`, {
       headers: {
         'Cookie': `uf=${uf}; _d=${_d}; UID=${uid}; vc3=${vc3};`
