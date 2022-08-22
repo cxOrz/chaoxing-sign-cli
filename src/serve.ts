@@ -2,20 +2,16 @@ import Router from '@koa/router';
 import Koa from 'koa';
 import bodyparser from 'koa-bodyparser';
 import multiparty from 'multiparty';
-import { userLogin, getAccountInfo, getCourses, getPanToken } from './functions/user.js';
-import { getSignActivity, preSign } from "./functions/activity.js";
-import { QRCodeSign } from './functions/QRCode.js';
-import { LocationSign } from './functions/location.js';
-import { GeneralSign } from './functions/general.js';
-import { PhotoSign, uploadPhoto } from './functions/photo.js';
-import { QrCodeScan } from './functions/tencent/QrCodeOCR.js';
-import { getJsonObject } from './utils/file.js';
+import { userLogin, getAccountInfo, getCourses, getPanToken } from './functions/user';
+import { getSignActivity, preSign } from "./functions/activity";
+import { QRCodeSign } from './functions/QRCode';
+import { LocationSign } from './functions/location';
+import { GeneralSign } from './functions/general';
+import { PhotoSign, uploadPhoto } from './functions/photo';
+import { QrCodeScan } from './functions/tencent/QrCodeOCR';
+import { getJsonObject } from './utils/file';
 import { spawn } from 'child_process';
 import serverless from 'serverless-http';
-import path from 'path';
-import { fileURLToPath } from 'url';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 const ENVJSON = getJsonObject('env.json');
 
 const app = new Koa()
@@ -29,11 +25,12 @@ router.get('/', async (ctx) => {
 router.post('/login', async (ctx) => {
   let params = await userLogin(ctx.request.body.phone, ctx.request.body.password)
   // 登陆失败
-  if (params === 'AuthFailed') {
-    ctx.body = 'AuthFailed'
+  if (typeof params === 'string') {
+    ctx.body = params
     return
   }
-  params.name = await getAccountInfo(params.uf, params._d, params._uid, params.vc3)
+  params.name = (params.uf && params._d && params._uid && params.vc3) ?
+    await getAccountInfo(params.uf, params._d, params._uid, params.vc3) : '获取失败'
   console.log(ctx.request.body)
 
   ctx.body = params
@@ -42,20 +39,20 @@ router.post('/login', async (ctx) => {
 router.post('/activity', async (ctx) => {
   let courses = await getCourses(ctx.request.body.uid, ctx.request.body._d, ctx.request.body.vc3)
   // 身份凭证过期
-  if (courses === 'AuthRequired' || courses === 'NoCourse') {
+  if (typeof courses === 'string') {
     ctx.body = courses;
     return;
   }
-  let activity = await getSignActivity(courses, ctx.request.body.uf, ctx.request.body._d, ctx.request.body.uid, ctx.request.body.vc3)
+  let activity = await getSignActivity(courses, ctx.request.body.uf, ctx.request.body._d, ctx.request.body.uid, ctx.request.body.vc3);
   // 无活动
-  if (activity === 'NoActivity') {
-    ctx.body = 'NoActivity'
-    return
+  if (typeof activity === 'string') {
+    ctx.body = activity;
+    return;
   }
   // 对活动进行预签
-  await preSign(ctx.request.body.uf, ctx.request.body._d, ctx.request.body.vc3, activity.aid, activity.classId, activity.courseId, ctx.request.body.uid)
-  console.log(ctx.request.body.uid)
-  ctx.body = activity
+  await preSign(ctx.request.body.uf, ctx.request.body._d, ctx.request.body.vc3, activity.aid, activity.classId, activity.courseId, ctx.request.body.uid);
+  console.log(ctx.request.body.uid);
+  ctx.body = activity;
 })
 
 router.post('/qrcode', async (ctx) => {
@@ -98,15 +95,15 @@ router.post('/uvtoken', async (ctx) => {
 
 router.post('/upload', async (ctx) => {
   let form = new multiparty.Form()
-  let fields = {}
-  let data = []
+  let fields: any = {}
+  let data: any[] = []
 
   let result = await new Promise((resolve) => {
     // 解析到part时，判断是否为文件
-    form.on('part', (part) => {
+    form.on('part', (part: any) => {
       if (part.filename !== undefined) {
         // 存入data数组
-        part.on('data', (chunk) => {
+        part.on('data', (chunk: any) => {
           data.push(chunk)
         })
         // 存完继续
@@ -116,13 +113,13 @@ router.post('/upload', async (ctx) => {
       }
     })
     // 解析遇到文本时
-    form.on('field', (name, str) => {
+    form.on('field', (name: string, str: string) => {
       fields[name] = str
     })
     // 解析完成后
     form.on('close', async () => {
       let buffer = Buffer.concat(data)
-      let res = await uploadPhoto(fields['uf'], fields['_d'], fields['_uid'], fields['vc3'], ctx.query._token, buffer)
+      let res = await uploadPhoto(fields['uf'], fields['_d'], fields['_uid'], fields['vc3'], ctx.query._token as string, buffer)
       resolve(res)
       console.log(res)
     })
@@ -145,11 +142,11 @@ router.post('/photo', async (ctx) => {
 
 router.post('/qrocr', async (ctx) => {
   let form = new multiparty.Form()
-  let data = []
+  let data: any[] = []
   let result = await new Promise((resolve) => {
-    form.on('part', (part) => {
+    form.on('part', (part: any) => {
       if (part.filename !== undefined) {
-        part.on('data', (chunk) => {
+        part.on('data', (chunk: any) => {
           data.push(chunk)
         })
         part.on('close', () => {
@@ -160,7 +157,7 @@ router.post('/qrocr', async (ctx) => {
     form.on('close', async () => {
       let buffer = Buffer.concat(data)
       let base64str = buffer.toString('base64')
-      let res
+      let res: any
       try {
         res = await QrCodeScan(base64str)
         resolve(res.CodeResults[0].Url.split('=').pop())
@@ -197,7 +194,7 @@ router.post('/monitor/start', async (ctx) => {
     ctx.body = '{"code":200,"msg":"Already started"}';
     return;
   }
-  const process_monitor = spawn('node', ['monitor.js', '--auth',
+  const process_monitor = spawn('ts-node', ['monitor.ts', '--auth',
     ctx.request.body.uf, ctx.request.body._d,
     ctx.request.body.vc3, ctx.request.body.uid,
     ctx.request.body.lv, ctx.request.body.fid], {

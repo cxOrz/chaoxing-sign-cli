@@ -1,12 +1,10 @@
 import filehandle from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+
 /**
  * 储存用户凭证
  */
-export const storeUser = (phone, params) => {
+export const storeUser = (phone: string, params: any) => {
   const user = {
     phone: phone,
     params: params,
@@ -32,6 +30,6 @@ export const storeUser = (phone, params) => {
   filehandle.writeFile(file, JSON.stringify(data), 'utf8', () => { })
 }
 
-export const getJsonObject = (fileURL) => {
+export const getJsonObject = (fileURL: string) => {
   return JSON.parse(filehandle.readFileSync(path.join(__dirname, '../' + fileURL), 'utf8'))
 }

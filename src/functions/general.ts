@@ -1,7 +1,7 @@
 import https from 'https';
-import { PPTSIGN } from '../configs/api.js';
+import { PPTSIGN } from '../configs/api';
 
-export const GeneralSign = async (uf, _d, vc3, name, activeId, uid, fid) => {
+export const GeneralSign = async (uf: string, _d: string, vc3: string, name: string, activeId: string | number, uid: string, fid: string) => {
   let data = ''
   return new Promise((resolve) => {
     https.get(PPTSIGN.URL + `?activeId=${activeId}&uid=${uid}&clientip=&latitude=-1&longitude=-1&appType=15&fid=${fid}&name=${name}`, {
