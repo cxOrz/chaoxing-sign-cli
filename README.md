@@ -1,7 +1,8 @@
 <h1 align="center">⏰超星学习通签到⏰</h1>
-<p align="center">
-  <img src="https://img.shields.io/badge/nodejs->= v12.16-brightgreen.svg" />
-</p>
+
+![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
+![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
+![Licence](https://img.shields.io/github/license/cxOrz/chaoxing-sign-cli?style=for-the-badge)
 
 基于 Nodejs 实现的一个签到命令行工具。
 
@@ -11,7 +12,7 @@
 
 ## 环境 💻
 
-可在任意运行 [NodeJS](https://nodejs.org/en/) > v12.16 的平台签到，Windows、MacOS、Linux ... 
+可在任意运行 [NodeJS](https://nodejs.org/en/) > v16.14 的平台签到，Windows、MacOS、Linux ... 
 
 安卓手机上可以用 Termux 来运行NodeJS程序，[查看Termux教程](./src/docs/termux.md) 。
 
@@ -116,9 +117,14 @@ npm start
 
 还有一些事情必需知道：
 
-- 目前任何云函数，都无法实现监听，如果要在 UI 端使用监听功能，请部署在服务器，并且在运行接口服务之前，先运行一次 `npm run monitor` 来配置默认信息，填写完成后看到 "监听中" ，即可终止程序，信息已经写入本地。然后就可以运行 `npm run serve` 了。
-- 此项目可以运行在 AWS Lambda，腾讯云函数暂时不支持，如需在 Lambda 运行，请务必在运行前修改 env.json 中的 `SERVERLESS` 为 `true`。
+- 目前任何云函数，都无法完美实现监听，如果要在 UI 端使用监听功能，请部署在服务器，并且在运行接口服务之前，先运行一次 `npm run monitor` 来配置默认信息，填写完成后看到 "监听中" ，即可终止程序，信息已经写入本地。然后就可以运行 `npm run serve` 了。
+- 此项目可以运行在 AWS Lambda 和 腾讯云函数上运行（均已测试）。如有需求运行在 Serverless 容器，请务必在运行前确保 env.json 中的 `SERVERLESS` 为 `true`。
 - 如过使用腾讯文字识别，请在 env.json 中配置 secretId 和 secretKey。
+- 如使用腾讯云函数，请仔细按云函数文档操作，对代码稍作调整，并配置云函数启动文件 scf_bootstrap 内容为如下命令 
+``` bash
+#!/bin/bash
+/var/lang/node16/bin/node -r ts-node/register src/serve.ts
+```
 
 至此，部署完成，可通过域名或服务器 IP 访问接口的默认路径 `/` ，看到欢迎页面。
 
