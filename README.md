@@ -1,4 +1,4 @@
-<h1 align="center">⏰超星学习通签到⏰</h1>
+<h1 align="center">:herb:超星学习通签到:herb:</h1>
 
 ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
@@ -46,11 +46,9 @@ cd chaoxing-sign-cli && npm install
 npm start
 ```
 
-![](https://636c-cloudbase-1a4211-1252446325.tcb.qcloud.la/chaoxing-sign-cli/how-to-start.gif?)
-
 ## 使用须知 📄
 
-为了节约性能，只对开始2小时以内的活动签到。同时有多个有效签到活动的话，只签最新的。将结束的课程移入其他文件夹，减少根目录的课程能够提高活动检测速度。
+为了节约资源，只对2小时以内的活动签到。若同时有多个有效签到活动，只签最新发布的。将结束的课程移入其他文件夹，减少根目录的课程能够提高活动检测速度。
 
 ### 二维码签到
 
@@ -58,15 +56,15 @@ npm start
 
 ![识别二维码得到字符串](./src/docs/qr.png)
 
-复制其中的 `enc` 参数，注意不要复制多余内容和空格，例如 1D0A628CK317F44CCC378M5KD92，复制该值，询问时填入。若使用 UI 仓库的项目(查看`高级`)，则可直接选择图片提交。
+复制其中的 `enc` 参数，不要复制多余内容和空格，例如 `1D0A628CK317F44CCC378M5KD92`，复制该值，询问时填入。若使用 UI 仓库的项目(查看`高级`)，可以直接选择图片并自动解析得到enc参数。
 
 ### 位置签到
 
-根据运行时的提示输入**经纬度**和**详细地址**，经纬度可在这里自己获取 [百度拾取坐标系统](https://api.map.baidu.com/lbsapi/getpoint/index.html)，点击某位置，经纬度将出现在网页右上方，复制该值，询问时填入。详细地址样例：河南省郑州市中原区华中师范大学附属郑州万科城小学，该地址将显示在教师端。
+根据运行时的提示输入**经纬度**和**详细地址**，经纬度在这里获取 [百度拾取坐标系统](https://api.map.baidu.com/lbsapi/getpoint/index.html)，点击某位置，经纬度将出现在网页右上方，复制该值，询问时填入。详细地址样例：河南省郑州市中原区华中师范大学附属郑州万科城小学，该地址将显示在教师端。
 
 ### 拍照签到
 
-需要事先准备一张用来提交的照片。浏览器访问超星云盘：https://pan-yz.chaoxing.com ，在根目录上传一张你准备的照片，命名为 `0.jpg` 或 `0.png` 。若使用 UI 仓库的项目(查看`高级`)，则可直接选择图片提交。
+需要事先准备一张用来提交的照片。浏览器访问超星云盘：https://pan-yz.chaoxing.com ，在根目录上传一张你准备的照片，命名为 `0.jpg` 或 `0.png` 。若使用 UI 仓库的项目(查看`高级`)，不需要上传云盘，可以直接选择图片提交签到。
 
 ### 普通签到&手势签到&签到码签到
 
@@ -78,7 +76,7 @@ npm start
 
 ### 图形化界面
 
-基于 React.js + Material UI 开发前端页面，其中修改了很多 MUI 附带样式，也自己手写了一些，整体设计灵感-->拟态。
+基于 React.js + Material UI 开发前端页面，整体设计灵感来自拟态。
 
 访问 [这里](https://github.com/cxOrz/chaoxing-sign-ui) 查看图形化页面如何部署，使用图形化页面需要先部署接口才能正常工作。
 
@@ -87,6 +85,9 @@ npm start
 首先运行 `npm install` 或者 `yarn`，安装依赖。
 
 运行 `npm run serve` 将启动接口服务，接下来描述每个接口的参数以及调用方式：
+
+<details>
+<summary>展开接口详情</summary>
 
 |路径|请求方式|参数|内容类型|返回内容|
 |-|-|-|-|-|
@@ -103,6 +104,8 @@ npm start
 |/monitor/status|POST|phone|JSON|JSON|
 |/monitor/start|POST|phone, uf, _d, vc3, uid, lv, fid|JSON|JSON|
 |/monitor/stop|POST|phone|JSON|JSON|
+
+</details>
 
 ### 最佳实践
 
