@@ -2,7 +2,6 @@
   "name": "chaoxing-sign-cli",
   "version": "3.6.1",
   "description": "超星学习通签到命令行工具",
-  "main": "index.js",
   "scripts": {
     "start": "(ts-node ./src/index.ts && echo \"正在检查更新，若等待时间过长请挂代理...(连按 Ctrl+C 终止)\" && git pull) || (echo \"正在检查更新，若等待时间过长请挂代理...(连按 Ctrl+C 终止)\" && git pull)",
     "serve": "ts-node ./src/serve.ts",
