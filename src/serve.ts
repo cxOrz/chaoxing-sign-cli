@@ -194,7 +194,7 @@ router.post('/monitor/start', async (ctx) => {
     ctx.body = '{"code":200,"msg":"Already started"}';
     return;
   }
-  const process_monitor = spawn('ts-node', ['monitor.ts', '--auth',
+  const process_monitor = spawn('node', ['-r', 'ts-node/register', 'monitor.ts', '--auth',
     ctx.request.body.uf, ctx.request.body._d,
     ctx.request.body.vc3, ctx.request.body.uid,
     ctx.request.body.lv, ctx.request.body.fid], {
