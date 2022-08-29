@@ -120,14 +120,21 @@ npm start
 
 还有一些事情必需知道：
 
-- 目前任何云函数，都无法完美实现监听，如果要在 UI 端使用监听功能，请部署在服务器，并且在运行接口服务之前，先运行一次 `npm run monitor` 来配置默认信息，填写完成后看到 "监听中" ，即可终止程序，信息已经写入本地。然后就可以运行 `npm run serve` 了。
-- 此项目可以运行在 AWS Lambda 和 腾讯云函数上运行（均已测试）。如有需求运行在 Serverless 容器，请务必在运行前确保 env.json 中的 `SERVERLESS` 为 `true`。
-- 如过使用腾讯文字识别，请在 env.json 中配置 secretId 和 secretKey。
-- 如使用腾讯云函数，请仔细按云函数文档操作，对代码稍作调整，并配置云函数启动文件 scf_bootstrap 内容为如下命令 
+- 如果要在服务器使用监听功能，在运行接口服务之前，先运行一次 `npm run monitor` 来配置默认信息，填写完成后看到 "监听中"，即可终止程序，信息已经写入本地。然后就可以运行 `npm run serve` 了。
+- 如果使用腾讯文字识别来解析二维码，请在 env.json 中配置 secretId 和 secretKey。
+- 不建议使用本项目构建的 Docker 镜像，一切均为默认设置，局限性较大。如要求不高，简单签个到，请随意。
+
+<details>
+<summary>使用云函数注意事项</summary>
+
+1. 此项目可以运行在 AWS Lambda 和 腾讯云函数上运行（均不支持监听）。如有需求运行在 Serverless 容器，请修改 env.json 中的 `SERVERLESS` 为 `true`。
+2. 如使用腾讯云函数，请仔细按云函数文档操作，对代码稍作调整，并配置云函数启动文件 scf_bootstrap 内容为如下命令
 ``` bash
 #!/bin/bash
 /var/lang/node16/bin/node -r ts-node/register src/serve.ts
 ```
+
+</details>
 
 至此，部署完成，可通过域名或服务器 IP 访问接口的默认路径 `/` ，看到欢迎页面。
 
