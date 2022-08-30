@@ -54,8 +54,10 @@ class Monitor {
 }
 
 // 提取活动数据的JSON部分
-function parseActivityHexJSON(hexStr: string) {
-  hexStr = hexStr.substring(hexStr.lastIndexOf('7b22617474'), hexStr.lastIndexOf('226174746163686d656e7454797065223a31357d') + 40);
+function parseCourseInfoHexJSON(hexStr: string) {
+  let courseinfo_start = hexStr.lastIndexOf('22636f75727365496e666f223a') + 26;
+  let courseinfo_end = hexStr.indexOf('7d', courseinfo_start) + 2;
+  hexStr = hexStr.substring(courseinfo_start, courseinfo_end);
   return JSON.parse(hexToUtf8(hexStr));
 }
 // 提取聊天群组ID
@@ -215,12 +217,12 @@ async function Sign(name: string, params: any, config: any, activity: Activity) 
             ws.send(`["${hexToBase64(monitor.generateGetActivityHex())}"]`)
           } else if (temp.includes('7369676e')) {
             // 当前内容包含 sign ，说明是签到信息
-            const IM_activity = parseActivityHexJSON(temp);
+            const IM_CourseInfo = parseCourseInfoHexJSON(temp);
 
             // 获取网页版签到信息，内容更全
             const web_activity = await aPromise({
-              classId: IM_activity.att_chat_course.courseInfo.classid,
-              courseId: IM_activity.att_chat_course.courseInfo.courseid
+              classId: IM_CourseInfo.classid,
+              courseId: IM_CourseInfo.courseid
             }, params.uf, params._d, params._uid, params.vc3);
 
             // 签到
