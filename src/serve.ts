@@ -10,7 +10,7 @@ import { GeneralSign } from './functions/general';
 import { PhotoSign, uploadPhoto } from './functions/photo';
 import { QrCodeScan } from './functions/tencent/QrCodeOCR';
 import { getJsonObject } from './utils/file';
-import { spawn } from 'child_process';
+import { fork } from 'child_process';
 import serverless from 'serverless-http';
 const ENVJSON = getJsonObject('env.json');
 
@@ -194,7 +194,7 @@ router.post('/monitor/start', async (ctx) => {
     ctx.body = '{"code":200,"msg":"Already started"}';
     return;
   }
-  const process_monitor = spawn('node', ['-r', 'ts-node/register', 'monitor.ts', '--auth',
+  const process_monitor = fork('monitor.ts', ['--auth',
     ctx.request.body.uf, ctx.request.body._d,
     ctx.request.body.vc3, ctx.request.body.uid,
     ctx.request.body.lv, ctx.request.body.fid], {
