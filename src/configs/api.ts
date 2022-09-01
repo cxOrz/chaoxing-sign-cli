@@ -14,6 +14,10 @@ export const PPTSIGN = {
   URL: 'https://mobilelearn.chaoxing.com/pptSign/stuSignajax',
   METHOD: 'GET'
 }
+export const PPTACTIVEINFO = {
+  URL: 'https://mobilelearn.chaoxing.com/v2/apis/active/getPPTActiveInfo',
+  METHOD: 'GET'
+}
 export const COURSELIST = {
   URL: 'http://mooc1-1.chaoxing.com/visit/courselistdata',
   METHOD: 'POST'
@@ -49,4 +53,16 @@ export const PANUPLOAD = {
 export const WEBIM = {
   URL: 'https://im.chaoxing.com/webim/me',
   METHOD: 'GET'
+}
+
+// 无课程的群聊的一些 API
+export const CHAT_GROUP = {
+  PRESTUSIGN: {
+    URL: 'https://mobilelearn.chaoxing.com/sign/preStuSign',
+    METHOD: 'GET'
+  },
+  SIGN: {
+    URL: 'https://mobilelearn.chaoxing.com/sign/stuSignajax',
+    METHOD: 'GET'
+  }
 }
