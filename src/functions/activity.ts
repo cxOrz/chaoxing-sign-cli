@@ -1,5 +1,5 @@
 import https from 'https';
-import { ACTIVELIST, PRESIGN } from "../configs/api";
+import { ACTIVELIST, PRESIGN } from "../configs/api"
 import { CourseType } from './user';
 
 export interface Activity {
@@ -98,7 +98,7 @@ export function aPromise(course: any, uf: string, _d: string, UID: string, vc3: 
       res.on('data', (chunk) => { data += chunk })
       res.on('end', () => {
         // console.log(data)
-        data = JSON.parse(data)
+        data = JSON.parseJSON(data)
         // 判断是否请求成功
         if (data.data !== null) {
           if (data.data.activeList.length != 0) {
