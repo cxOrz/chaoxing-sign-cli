@@ -4,10 +4,10 @@ import prompts from 'prompts';
 import WebSocket from 'ws';
 import fs from 'fs';
 import path from 'path';
-import { Activity, aPromise, preSign } from './functions/activity';
-import { GeneralSign } from "./functions/general";
-import { LocationSign } from "./functions/location";
-import { PhotoSign, getObjectIdFromcxPan } from "./functions/photo";
+import { Activity, getPPTActiveInfo, preSign, preSign2, speculateType } from './functions/activity';
+import { GeneralSign, GeneralSign_2 } from "./functions/general";
+import { LocationSign, LocationSign_2 } from "./functions/location";
+import { PhotoSign, getObjectIdFromcxPan, PhotoSign_2 } from "./functions/photo";
 import { getJsonObject } from './utils/file';
 import { getIMParams, IMParamsType, userLogin } from './functions/user';
 import { blue, red } from 'kolorist';
@@ -18,7 +18,7 @@ const hexToBase64 = convert('hex', 'base64');
 const base64toHex = convert('base64', 'hex');
 
 class Monitor {
-  static WebSocketURL = 'ws://im-api-vip6-v2.easecdn.com/ws/917/0k4vnu0o/websocket';
+  static WebSocketURL = 'wss://im-api-vip6-v2.easecdn.com/ws/468/c4lxie22/websocket';
   static COMING_SIGN_PREFIX = '080040024a2b0a2912';
   static CONFIRM = '["CABAAVgA"]';
   static ChatIDHex = '';
@@ -55,11 +55,24 @@ class Monitor {
 }
 
 // 提取活动数据的JSON部分
-function parseCourseInfoHexJSON(hexStr: string) {
-  let courseinfo_start = hexStr.lastIndexOf('22636f75727365496e666f223a') + 26;
-  let courseinfo_end = hexStr.indexOf('7d', courseinfo_start) + 2;
-  hexStr = hexStr.substring(courseinfo_start, courseinfo_end);
-  return JSON.parseJSON(hexToUtf8(hexStr));
+function parseCourseInfo(hexStr: string) {
+  const textStr = hexToUtf8(hexStr);
+  const position = textStr.lastIndexOf('/preSign?') + 9;
+  let data = [];
+  let data_start = textStr.indexOf('courseId=', position) + 9;
+  let data_end = textStr.indexOf('&', data_start);
+  data.push(textStr.substring(data_start, data_end));
+  data_start = textStr.indexOf('classId=', position) + 8;
+  data_end = textStr.indexOf('&', data_start);
+  data.push(textStr.substring(data_start, data_end));
+  data_start = textStr.indexOf('activePrimaryId=', position) + 16;
+  // -1+16=15，说明未检索到 activePrimaryId，似乎是群聊签到，尝试 activeId
+  if (data_start === 15) {
+    data_start = textStr.indexOf('activeId=', position) + 9;
+  }
+  data_end = textStr.indexOf('&', data_start);
+  data.push(textStr.substring(data_start, data_end));
+  return ({ courseId: data[0], classId: data[1], aid: data[2] });
 }
 // 提取聊天群组ID
 function getchatIdHex(hexStr: string) {
@@ -141,8 +154,32 @@ async function configure() {
   return { ...config.monitor };
 }
 
-async function Sign(name: string, params: any, config: any, activity: Activity) {
-  await preSign(params.uf, params._d, params.vc3, activity.aid, activity.classId, activity.courseId, params._uid)
+async function Sign(realname: string, params: any, config: any, activity: Activity) {
+  // 群聊签到，无课程
+  if (activity.courseId === 'null') {
+    let page = await preSign2(params.uf, params._d, params.vc3, activity.aid, Monitor.ChatIDHex, params._uid, params.tuid);
+    let activityType = speculateType(page);
+    switch (activityType) {
+      case 'general': {
+        if (config.photo) {
+          await GeneralSign_2(params.uf, params._d, params.vc3, activity.aid, params._uid);
+        } else {
+          let objectId = await getObjectIdFromcxPan(params.uf, params._d, params.vc3, params._uid);
+          await PhotoSign_2(params.uf, params._d, params.vc3, activity.aid, params._uid, objectId);
+        }
+        break;
+      }
+      case 'location': {
+        await LocationSign_2(params.uf, params._d, params.vc3, config.address, activity.aid, params._uid, config.lat, config.lon); break;
+      }
+      case 'qr': {
+        console.log(red('二维码签到，无法自动签到！')); break;
+      }
+    }
+    return;
+  }
+
+  await preSign(params.uf, params._d, params.vc3, activity.aid, activity.classId, activity.courseId, params._uid);
   switch (activity.otherId) {
     case 2: {
       // 二维码签到
@@ -150,23 +187,23 @@ async function Sign(name: string, params: any, config: any, activity: Activity) 
     }
     case 4: {
       // 位置签到
-      await LocationSign(params.uf, params._d, params.vc3, name, config.address, activity.aid, params._uid, config.lat, config.lon, params.fid); break;
+      await LocationSign(params.uf, params._d, params.vc3, realname, config.address, activity.aid, params._uid, config.lat, config.lon, params.fid); break;
     }
     case 3: {
       // 手势签到
-      await GeneralSign(params.uf, params._d, params.vc3, name, activity.aid, params._uid, params.fid); break;
+      await GeneralSign(params.uf, params._d, params.vc3, realname, activity.aid, params._uid, params.fid); break;
     }
     case 5: {
       // 签到码签到
-      await GeneralSign(params.uf, params._d, params.vc3, name, activity.aid, params._uid, params.fid); break;
+      await GeneralSign(params.uf, params._d, params.vc3, realname, activity.aid, params._uid, params.fid); break;
     }
     case 0: {
       // photo == true 就按照普通签
       if (config.photo) {
-        await GeneralSign(params.uf, params._d, params.vc3, name, activity.aid, params._uid, params.fid); break;
+        await GeneralSign(params.uf, params._d, params.vc3, realname, activity.aid, params._uid, params.fid); break;
       } else {
         let objectId = await getObjectIdFromcxPan(params.uf, params._d, params.vc3, params._uid);
-        await PhotoSign(params.uf, params._d, params.vc3, name, activity.aid, params._uid, params.fid, objectId); break;
+        await PhotoSign(params.uf, params._d, params.vc3, realname, activity.aid, params._uid, params.fid, objectId); break;
       }
     }
   }
@@ -188,6 +225,7 @@ async function Sign(name: string, params: any, config: any, activity: Activity) 
     if (params === 'AuthFailed') process.exit(0);
   }
   let IM_Params = await getIMParams(params.uf, params._d, params._uid, params.vc3);
+  params.tuid = IM_Params.myTuid;
   // 配置默认签到信息
   const config = await configure();
 
@@ -218,17 +256,15 @@ async function Sign(name: string, params: any, config: any, activity: Activity) 
             ws.send(`["${hexToBase64(monitor.generateGetActivityHex())}"]`)
           } else if (temp.includes('7369676e')) {
             // 当前内容包含 sign ，说明是签到信息
-            const IM_CourseInfo = parseCourseInfoHexJSON(temp);
-
-            // 获取网页版签到信息，内容更全
-            const web_activity = await aPromise({
-              classId: IM_CourseInfo.classid,
-              courseId: IM_CourseInfo.courseid
-            }, params.uf, params._d, params._uid, params.vc3);
-
+            const IM_CourseInfo = parseCourseInfo(temp);
+            const otherid = await getPPTActiveInfo(IM_CourseInfo.aid, params.uf, params._d, params._uid, params.vc3)
             // 签到
-            if (typeof web_activity === 'string') console.log(web_activity);
-            else await Sign(IM_Params.myName, params, config, web_activity);
+            await Sign(IM_Params.myName, params, config, {
+              classId: IM_CourseInfo.classId,
+              courseId: IM_CourseInfo.courseId,
+              aid: Number(IM_CourseInfo.aid),
+              otherId: otherid
+            });
 
             // // 当获取到消息内容后，请求保持连接
             // ws.send(`["${hexToBase64(monitor.generateKeepAliveHex())}"]`)
