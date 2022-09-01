@@ -1,3 +1,5 @@
+import { extendGlobalThis } from './utils/helper';
+extendGlobalThis(globalThis);
 import { blue, red } from 'kolorist';
 import prompts from 'prompts';
 import { getSignActivity, preSign } from "./functions/activity";

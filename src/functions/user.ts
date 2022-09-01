@@ -57,7 +57,7 @@ export const userLogin = async (uname: string, password: string): Promise<string
           res.on('data', (chunk) => { data += chunk })
           res.on('end', () => {
             // console.log(res.headers)
-            if (JSON.parse(data).status) {
+            if (JSON.parseJSON(data).status) {
               console.log('登陆成功')
               let cookies = res.headers['set-cookie']
               let c_equal, c_semi, itemName, itemValue, rt_cookies

@@ -1,3 +1,5 @@
+import { extendGlobalThis } from './utils/helper';
+extendGlobalThis(globalThis)
 import Router from '@koa/router';
 import Koa from 'koa';
 import bodyparser from 'koa-bodyparser';

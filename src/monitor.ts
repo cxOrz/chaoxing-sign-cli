@@ -1,8 +1,9 @@
+import { extendGlobalThis } from './utils/helper';
+extendGlobalThis(globalThis)
 import prompts from 'prompts';
 import WebSocket from 'ws';
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { Activity, aPromise, preSign } from './functions/activity';
 import { GeneralSign } from "./functions/general";
 import { LocationSign } from "./functions/location";
@@ -58,7 +59,7 @@ function parseCourseInfoHexJSON(hexStr: string) {
   let courseinfo_start = hexStr.lastIndexOf('22636f75727365496e666f223a') + 26;
   let courseinfo_end = hexStr.indexOf('7d', courseinfo_start) + 2;
   hexStr = hexStr.substring(courseinfo_start, courseinfo_end);
-  return JSON.parse(hexToUtf8(hexStr));
+  return JSON.parseJSON(hexToUtf8(hexStr));
 }
 // 提取聊天群组ID
 function getchatIdHex(hexStr: string) {
