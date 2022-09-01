@@ -1,11 +1,11 @@
 import https from 'https';
 import fs from 'fs';
 import path from 'path';
-import { PPTSIGN, PANCHAOXING, PANLIST, PANUPLOAD } from '../configs/api';
+import { PPTSIGN, PANCHAOXING, PANLIST, PANUPLOAD, CHAT_GROUP } from '../configs/api';
 import { tmpdir } from 'os';
 import { randomBytes } from 'crypto';
 
-export const PhotoSign = async (uf: string, _d: string, vc3: string, name: string, activeId: string | number, uid: string, fid: string, objectId: unknown) => {
+export const PhotoSign = async (uf: string, _d: string, vc3: string, name: string, activeId: string | number, uid: string, fid: string, objectId: string) => {
   let data = ''
   return new Promise((resolve) => {
     https.get(PPTSIGN.URL + `?activeId=${activeId}&uid=${uid}&clientip=&useragent=&latitude=-1&longitude=-1&appType=15&fid=${fid}&objectId=${objectId}&name=${name}`, {
@@ -28,10 +28,33 @@ export const PhotoSign = async (uf: string, _d: string, vc3: string, name: strin
   })
 }
 
+export const PhotoSign_2 = (uf: string, _d: string, vc3: string, activeId: string | number, uid: string, objectId: string) => {
+  let data = ''
+  return new Promise((resolve) => {
+    https.get(CHAT_GROUP.SIGN.URL + `?activeId=${activeId}&uid=${uid}&clientip=&useragent=&latitude=-1&longitude=-1&fid=0&objectId=${objectId}`, {
+      headers: {
+        'Cookie': `uf=${uf}; _d=${_d}; UID=${uid}; vc3=${vc3};`
+      }
+    }, (res) => {
+      res.on('data', (chunk) => { data += chunk })
+      res.on('end', () => {
+        if (data === 'success') {
+          console.log(`[拍照]签到成功`)
+          resolve('success')
+          return
+        } else {
+          // console.log(data)
+          resolve(data)
+        }
+      })
+    })
+  })
+}
+
 // 在Termux或其他终端中使用，从云盘获取图片
 export const getObjectIdFromcxPan = (uf: string, _d: string, vc3: string, uid: string) => {
   let data = ''
-  return new Promise((resolve) => {
+  return new Promise<string>((resolve) => {
     https.get(PANCHAOXING.URL, {
       headers: {
         'Cookie': `uf=${uf}; _d=${_d}; UID=${uid}; vc3=${vc3};`

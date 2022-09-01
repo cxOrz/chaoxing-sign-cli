@@ -1,10 +1,11 @@
 import https from 'https';
-import { ACTIVELIST, PRESIGN } from "../configs/api"
+import { ACTIVELIST, CHAT_GROUP, PPTACTIVEINFO, PRESIGN } from "../configs/api"
+import { promiseAny } from '../utils/helper';
 import { CourseType } from './user';
 
 export interface Activity {
   aid: number,
-  name: string,
+  name?: string,
   courseId: string,
   classId: string,
   otherId: number
@@ -54,37 +55,7 @@ export const getSignActivity = (courses: CourseType[],
 }
 
 /**
- * 
- * @param {Promise<any>[]} tasks 接收一个 Promise 任务数组
- * @returns 任务数组中有一个成功则resolve其值；若全部失败，则reject一个异常。
- */
-export const promiseAny = (tasks: Promise<any>[]): Promise<any> => {
-  // 记录失败次数
-  let length = tasks.length
-  return new Promise((resolve, reject) => {
-    if (length === 0) {
-      reject(new Error('All promises were rejected'))
-      return
-    }
-    // 遍历Promise数组，任意一个成功则resolve其值；全部失败，则reject一个异常。
-    tasks.forEach(promise => {
-      promise.then(res => {
-        resolve(res)
-        return
-      }, reason => {
-        length--
-        if (length === 0) {
-          reject(new Error('All promises were rejected'))
-          return
-        }
-      })
-    })
-  })
-}
-
-/**
  * @param {{courseId, classId}} course
- * 
  * @returns 返回一个活动请求 Promise 对象
  */
 export function aPromise(course: any, uf: string, _d: string, UID: string, vc3: string): Promise<string | Activity> {
@@ -120,16 +91,36 @@ export function aPromise(course: any, uf: string, _d: string, UID: string, vc3: 
             }
           }
         } else {
-          console.log('请求频繁，请待会再试!');
-          resolve("TooMany");
+          console.log('请求似乎有些频繁，获取数据为空!');
+          resolve("Too Frequent");
         }
+        // 此课程最新活动并非有效签到
         reject('Not Available')
       })
     })
   })
 }
 
-// 预检请求
+/**
+ * 根据 activeId 请求获得 otherId
+ */
+export function getPPTActiveInfo(activeId: string, uf: string, _d: string, UID: string, vc3: string) {
+  let data = ''
+  return new Promise<number>((resolve) => {
+    https.get(PPTACTIVEINFO.URL + `?activeId=` + activeId, {
+      headers: {
+        'Cookie': `uf=${uf}; _d=${_d}; UID=${UID}; vc3=${vc3};`
+      }
+    }, (res) => {
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        resolve(JSON.parseJSON(data).data.otherId)
+      })
+    })
+  })
+}
+
+// 预签到请求
 export const preSign = async (uf: string, _d: string, vc3: string, activeId: string | number, classId: string, courseId: string, uid: string) => {
   let data = ''
   return new Promise<void>((resolve) => {
@@ -145,4 +136,36 @@ export const preSign = async (uf: string, _d: string, vc3: string, activeId: str
       })
     })
   })
+}
+
+export const preSign2 = (uf: string, _d: string, vc3: string, activeId: string | number, chatId: string, uid: string, tuid: string) => {
+  let data = ''
+  return new Promise<string>((resolve) => {
+    https.get(CHAT_GROUP.PRESTUSIGN.URL + `?activeId=${activeId}&code=&uid=${uid}&courseId=null&classId=0&general=0&chatId=${chatId}&appType=0&tid=${tuid}&atype=null&sys=0`, {
+      headers: {
+        'Cookie': `uf=${uf}; _d=${_d}; UID=${uid}; vc3=${vc3};`
+      }
+    }, (res) => {
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        console.log(`[预签]已请求`)
+        resolve(data)
+      })
+    })
+  })
+}
+
+/**
+ * 推测签到类型
+ */
+export const speculateType = (text: string) => {
+  //位置
+  if (text.includes('位置')) {
+    return 'location';
+  } else if (text.includes('二维码')) {
+    // 二维码
+    return 'qr';
+  }
+  // 普通、拍照、手势
+  return 'general';
 }
