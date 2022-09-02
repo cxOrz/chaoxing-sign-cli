@@ -11,6 +11,7 @@ import { PhotoSign, getObjectIdFromcxPan, PhotoSign_2 } from "./functions/photo"
 import { getJsonObject } from './utils/file';
 import { getIMParams, IMParamsType, userLogin } from './functions/user';
 import { blue, red } from 'kolorist';
+import { sendEmail } from './utils/mailer';
 const convert = (from: any, to: any) => (str: string) => Buffer.from(str, from).toString(to);
 const utf8ToHex = convert('utf8', 'hex')
 const hexToUtf8 = convert('hex', 'utf8');
@@ -138,6 +139,46 @@ async function configure() {
         type: 'text',
         name: 'address',
         message: '详细地址'
+      },
+      {
+        type: 'confirm',
+        name: 'mail',
+        message: '是否启用邮件通知?',
+        initial: false
+      },
+      {
+        type: prev => prev ? 'text' : null,
+        name: 'host',
+        message: 'SMTP服务器',
+        initial: 'smtp.qq.com'
+      },
+      {
+        type: prev => prev ? 'confirm' : null,
+        name: 'ssl',
+        message: '是否启用SSL',
+        initial: true
+      },
+      {
+        type: prev => prev ? 'number' : null,
+        name: 'port',
+        message: '端口号',
+        initial: 465
+      },
+      {
+        type: prev => prev ? 'text' : null,
+        name: 'user',
+        message: '邮件账号',
+        initial: 'xxxxxxxxx@qq.com'
+      },
+      {
+        type: prev => prev ? 'text' : null,
+        name: 'pass',
+        message: '授权码(密码)'
+      },
+      {
+        type: prev => prev ? 'text' : null,
+        name: 'to',
+        message: '接收邮箱'
       }
     ], {
       onCancel: () => {
@@ -149,12 +190,19 @@ async function configure() {
     config.monitor.lon = response.lon;
     config.monitor.lat = response.lat;
     config.monitor.address = response.address;
+    config.mailing.host = response.host;
+    config.mailing.ssl = response.ssl;
+    config.mailing.port = response.port;
+    config.mailing.user = response.user;
+    config.mailing.pass = response.pass;
+    config.mailing.to = response.to;
     fs.writeFile(path.join(__dirname, './configs/storage.json'), JSON.stringify(config), 'utf8', () => { });
   }
-  return { ...config.monitor };
+  return { mailing: { ...config.mailing }, monitor: { ...config.monitor } };
 }
 
 async function Sign(realname: string, params: any, config: any, activity: Activity) {
+  let result = 'fail';
   // 群聊签到，无课程
   if (activity.courseId === 'null') {
     let page = await preSign2(params.uf, params._d, params.vc3, activity.aid, Monitor.ChatIDHex, params._uid, params.tuid);
@@ -162,21 +210,21 @@ async function Sign(realname: string, params: any, config: any, activity: Activi
     switch (activityType) {
       case 'general': {
         if (config.photo) {
-          await GeneralSign_2(params.uf, params._d, params.vc3, activity.aid, params._uid);
+          result = await GeneralSign_2(params.uf, params._d, params.vc3, activity.aid, params._uid);
         } else {
           let objectId = await getObjectIdFromcxPan(params.uf, params._d, params.vc3, params._uid);
-          await PhotoSign_2(params.uf, params._d, params.vc3, activity.aid, params._uid, objectId);
+          result = await PhotoSign_2(params.uf, params._d, params.vc3, activity.aid, params._uid, objectId);
         }
         break;
       }
       case 'location': {
-        await LocationSign_2(params.uf, params._d, params.vc3, config.address, activity.aid, params._uid, config.lat, config.lon); break;
+        result = await LocationSign_2(params.uf, params._d, params.vc3, config.address, activity.aid, params._uid, config.lat, config.lon); break;
       }
       case 'qr': {
         console.log(red('二维码签到，无法自动签到！')); break;
       }
     }
-    return;
+    return result;
   }
 
   await preSign(params.uf, params._d, params.vc3, activity.aid, activity.classId, activity.courseId, params._uid);
@@ -187,26 +235,27 @@ async function Sign(realname: string, params: any, config: any, activity: Activi
     }
     case 4: {
       // 位置签到
-      await LocationSign(params.uf, params._d, params.vc3, realname, config.address, activity.aid, params._uid, config.lat, config.lon, params.fid); break;
+      result = await LocationSign(params.uf, params._d, params.vc3, realname, config.address, activity.aid, params._uid, config.lat, config.lon, params.fid); break;
     }
     case 3: {
       // 手势签到
-      await GeneralSign(params.uf, params._d, params.vc3, realname, activity.aid, params._uid, params.fid); break;
+      result = await GeneralSign(params.uf, params._d, params.vc3, realname, activity.aid, params._uid, params.fid); break;
     }
     case 5: {
       // 签到码签到
-      await GeneralSign(params.uf, params._d, params.vc3, realname, activity.aid, params._uid, params.fid); break;
+      result = await GeneralSign(params.uf, params._d, params.vc3, realname, activity.aid, params._uid, params.fid); break;
     }
     case 0: {
       // photo == true 就按照普通签
       if (config.photo) {
-        await GeneralSign(params.uf, params._d, params.vc3, realname, activity.aid, params._uid, params.fid); break;
+        result = await GeneralSign(params.uf, params._d, params.vc3, realname, activity.aid, params._uid, params.fid); break;
       } else {
         let objectId = await getObjectIdFromcxPan(params.uf, params._d, params.vc3, params._uid);
-        await PhotoSign(params.uf, params._d, params.vc3, realname, activity.aid, params._uid, params.fid, objectId); break;
+        result = await PhotoSign(params.uf, params._d, params.vc3, realname, activity.aid, params._uid, params.fid, objectId); break;
       }
     }
   }
+  return result;
 }
 
 // 开始运行
@@ -259,12 +308,13 @@ async function Sign(realname: string, params: any, config: any, activity: Activi
             const IM_CourseInfo = parseCourseInfo(temp);
             const otherid = await getPPTActiveInfo(IM_CourseInfo.aid, params.uf, params._d, params._uid, params.vc3)
             // 签到
-            await Sign(IM_Params.myName, params, config, {
+            const result = await Sign(IM_Params.myName, params, config.monitor, {
               classId: IM_CourseInfo.classId,
               courseId: IM_CourseInfo.courseId,
               aid: Number(IM_CourseInfo.aid),
               otherId: otherid
             });
+            if (config.mailing.to !== '') sendEmail(IM_CourseInfo.aid, params._uid, IM_Params.myName, result);
 
             // // 当获取到消息内容后，请求保持连接
             // ws.send(`["${hexToBase64(monitor.generateKeepAliveHex())}"]`)

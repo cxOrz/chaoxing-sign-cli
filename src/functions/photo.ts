@@ -5,7 +5,7 @@ import { PPTSIGN, PANCHAOXING, PANLIST, PANUPLOAD, CHAT_GROUP } from '../configs
 import { tmpdir } from 'os';
 import { randomBytes } from 'crypto';
 
-export const PhotoSign = async (uf: string, _d: string, vc3: string, name: string, activeId: string | number, uid: string, fid: string, objectId: string) => {
+export const PhotoSign = async (uf: string, _d: string, vc3: string, name: string, activeId: string | number, uid: string, fid: string, objectId: string): Promise<string> => {
   let data = ''
   return new Promise((resolve) => {
     https.get(PPTSIGN.URL + `?activeId=${activeId}&uid=${uid}&clientip=&useragent=&latitude=-1&longitude=-1&appType=15&fid=${fid}&objectId=${objectId}&name=${name}`, {
@@ -28,7 +28,7 @@ export const PhotoSign = async (uf: string, _d: string, vc3: string, name: strin
   })
 }
 
-export const PhotoSign_2 = (uf: string, _d: string, vc3: string, activeId: string | number, uid: string, objectId: string) => {
+export const PhotoSign_2 = (uf: string, _d: string, vc3: string, activeId: string | number, uid: string, objectId: string): Promise<string> => {
   let data = ''
   return new Promise((resolve) => {
     https.get(CHAT_GROUP.SIGN.URL + `?activeId=${activeId}&uid=${uid}&clientip=&useragent=&latitude=-1&longitude=-1&fid=0&objectId=${objectId}`, {
