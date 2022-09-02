@@ -185,6 +185,13 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-18.7.9.tgz#180bfc495c91dc62573967edf047e15dbdce1491"
   integrity sha512-0N5Y1XAdcl865nDdjbO0m3T6FdmQ4ijE89/urOHLREyTXbpMWbSafx9y7XIsgWGtwUP2iYTinLyyW3FatAxBLQ==
 
+"@types/nodemailer@^6.4.5":
+  version "6.4.5"
+  resolved "https://registry.yarnpkg.com/@types/nodemailer/-/nodemailer-6.4.5.tgz#09011ac73259245475d1688e4ba101860567dc39"
+  integrity sha512-zuP3nBRQHI6M2PkXnGGy1Ww4VB+MyYHGgnfV2T+JR9KLkeWqPJuyVUgLpKXuFnA/b7pZaIDFh2sV4759B7jK1g==
+  dependencies:
+    "@types/node" "*"
+
 "@types/prompts@^2.0.14":
   version "2.0.14"
   resolved "https://registry.yarnpkg.com/@types/prompts/-/prompts-2.0.14.tgz#10cb8899844bb0771cabe57c1becaaaca9a3b521"
@@ -634,6 +641,11 @@ node-fetch@^2.2.0:
   integrity sha512-ZjMPFEfVx5j+y2yF35Kzx5sF7kDzxuDj6ziH4FFbOp87zKDZNx8yExJIb05OGF4Nlt9IHFIMBkRl41VdvcNdbQ==
   dependencies:
     whatwg-url "^5.0.0"
+
+nodemailer@^6.7.8:
+  version "6.7.8"
+  resolved "https://registry.yarnpkg.com/nodemailer/-/nodemailer-6.7.8.tgz#9f1af9911314960c0b889079e1754e8d9e3f740a"
+  integrity sha512-2zaTFGqZixVmTxpJRCFC+Vk5eGRd/fYtvIR+dl5u9QXLTQWGIf48x/JXvo58g9sa0bU6To04XUv554Paykum3g==
 
 object-inspect@^1.9.0:
   version "1.12.2"
