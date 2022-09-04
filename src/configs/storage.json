@@ -1,7 +1,7 @@
 {
   "users": [],
   "monitor": {
-    "photo": false,
+    "photo": true,
     "lon": 0,
     "lat": 0,
     "address": ""

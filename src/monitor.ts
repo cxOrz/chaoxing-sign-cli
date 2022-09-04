@@ -103,7 +103,10 @@ async function fetchParams() {
 
 async function configure() {
   const config = getJsonObject('configs/storage.json');
-  if (process.argv[2] === '--auth') return config.monitor;
+  if (process.argv[2] === '--auth') return ({
+    mailing: { ...config.mailing },
+    monitor: { ...config.monitor }
+  });
 
   let local = false;
   console.log(blue('自动签到支持 [普通/手势/拍照/签到码/位置]'))
@@ -198,7 +201,10 @@ async function configure() {
     config.mailing.to = response.to;
     fs.writeFile(path.join(__dirname, './configs/storage.json'), JSON.stringify(config), 'utf8', () => { });
   }
-  return { mailing: { ...config.mailing }, monitor: { ...config.monitor } };
+  return ({
+    mailing: { ...config.mailing },
+    monitor: { ...config.monitor }
+  });
 }
 
 async function Sign(realname: string, params: any, config: any, activity: Activity) {
