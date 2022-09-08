@@ -108,12 +108,6 @@ async function configure() {
   if (!local) {
     const response = await prompts([
       {
-        type: 'confirm',
-        name: 'photo',
-        message: '普通和拍照签到无法区分，是否将拍照按普通签?',
-        initial: true
-      },
-      {
         type: 'text',
         name: 'lon',
         message: '位置签到经度',
@@ -171,7 +165,6 @@ async function configure() {
         message: '接收邮箱'
       }
     ], PromptsOptions)
-    config.monitor.photo = response.photo;
     config.monitor.lon = response.lon;
     config.monitor.lat = response.lat;
     config.monitor.address = response.address;
@@ -197,12 +190,11 @@ async function Sign(realname: string, params: any, config: any, activity: Activi
     let activityType = speculateType(page);
     switch (activityType) {
       case 'general': {
-        if (config.photo) {
-          result = await GeneralSign_2(params.uf, params._d, params.vc3, activity.aid, params._uid);
-        } else {
-          let objectId = await getObjectIdFromcxPan(params.uf, params._d, params.vc3, params._uid);
-          result = await PhotoSign_2(params.uf, params._d, params.vc3, activity.aid, params._uid, objectId);
-        }
+        result = await GeneralSign_2(params.uf, params._d, params.vc3, activity.aid, params._uid); break;
+      }
+      case 'photo': {
+        let objectId = await getObjectIdFromcxPan(params.uf, params._d, params.vc3, params._uid);
+        result = await PhotoSign_2(params.uf, params._d, params.vc3, activity.aid, params._uid, objectId);
         break;
       }
       case 'location': {
@@ -234,8 +226,7 @@ async function Sign(realname: string, params: any, config: any, activity: Activi
       result = await GeneralSign(params.uf, params._d, params.vc3, realname, activity.aid, params._uid, params.fid); break;
     }
     case 0: {
-      // photo == true 就按照普通签
-      if (config.photo) {
+      if (activity.ifphoto === 0) {
         result = await GeneralSign(params.uf, params._d, params.vc3, realname, activity.aid, params._uid, params.fid); break;
       } else {
         let objectId = await getObjectIdFromcxPan(params.uf, params._d, params.vc3, params._uid);
@@ -307,7 +298,7 @@ async function Sign(realname: string, params: any, config: any, activity: Activi
           } else if (temp.includes('7369676e')) {
             // 当前内容包含 sign ，说明是签到信息
             const IM_CourseInfo = parseCourseInfo(temp);
-            const otherid = await getPPTActiveInfo(IM_CourseInfo.aid, params.uf, params._d, params._uid, params.vc3)
+            const PPTActiveInfo = await getPPTActiveInfo(IM_CourseInfo.aid, params.uf, params._d, params._uid, params.vc3);
 
             // 签到 & 发邮件
             if (IM_Params !== 'AuthFailed') {
@@ -315,9 +306,10 @@ async function Sign(realname: string, params: any, config: any, activity: Activi
                 classId: IM_CourseInfo.classId,
                 courseId: IM_CourseInfo.courseId,
                 aid: Number(IM_CourseInfo.aid),
-                otherId: otherid
+                otherId: PPTActiveInfo.otherId,
+                ifphoto: PPTActiveInfo.ifphoto
               });
-              if (config.mailing.to !== '') sendEmail(IM_CourseInfo.aid, params._uid, IM_Params.myName, result);
+              if (config.mailing.to) sendEmail(IM_CourseInfo.aid, params._uid, IM_Params.myName, result, config.mailing);
             }
 
             // // 当获取到消息内容后，请求保持连接
