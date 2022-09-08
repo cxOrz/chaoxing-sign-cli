@@ -8,7 +8,8 @@ export interface Activity {
   name?: string,
   courseId: string,
   classId: string,
-  otherId: number
+  otherId: number,
+  ifphoto?: number
 }
 
 /**
@@ -106,7 +107,7 @@ export function aPromise(course: any, uf: string, _d: string, UID: string, vc3: 
  */
 export function getPPTActiveInfo(activeId: string, uf: string, _d: string, UID: string, vc3: string) {
   let data = ''
-  return new Promise<number>((resolve) => {
+  return new Promise<any>((resolve) => {
     https.get(PPTACTIVEINFO.URL + `?activeId=` + activeId, {
       headers: {
         'Cookie': `uf=${uf}; _d=${_d}; UID=${UID}; vc3=${vc3};`
@@ -114,7 +115,7 @@ export function getPPTActiveInfo(activeId: string, uf: string, _d: string, UID: 
     }, (res) => {
       res.on('data', chunk => data += chunk);
       res.on('end', () => {
-        resolve(JSON.parseJSON(data).data.otherId)
+        resolve(JSON.parseJSON(data).data)
       })
     })
   })
@@ -159,13 +160,13 @@ export const preSign2 = (uf: string, _d: string, vc3: string, activeId: string |
  * 推测签到类型
  */
 export const speculateType = (text: string) => {
-  //位置
-  if (text.includes('位置')) {
+  if (text.includes('拍照')) {
+    return 'photo'
+  } else if (text.includes('位置')) {
     return 'location';
   } else if (text.includes('二维码')) {
-    // 二维码
     return 'qr';
   }
-  // 普通、拍照、手势
+  // 普通、手势
   return 'general';
 }
