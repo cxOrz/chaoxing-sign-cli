@@ -111,7 +111,7 @@ export const getCourses = async (_uid: string, _d: string, vc3: string): Promise
     }, (res) => {
       if (res.statusCode === 302) {
         console.log('身份过期，程序将关闭，请你使用手动填写用户名密码的方式登录！手动登录后身份信息刷新，之后可继续使用本地凭证！\n')
-        resolve("AuthRequired")
+        resolve("AuthFailed")
         return
       }
       // 解决gzip乱码问题
@@ -238,14 +238,14 @@ export const getLocalUsers = () => {
  * 
  * @returns 返回的对象包含 myName, myToken, myTuid, myPuid
  */
-export const getIMParams = (uf: string, _d: string, _uid: string, vc3: string): Promise<IMParamsType> => {
-  let htmlPage = ''
+export const getIMParams = (uf: string, _d: string, _uid: string, vc3: string): Promise<IMParamsType | 'AuthFailed'> => {
+  let htmlPage = '';
   let params = {
     myName: '',
     myToken: '',
     myTuid: '',
     myPuid: ''
-  }
+  };
   return new Promise((resolve) => {
     https.get(WEBIM.URL, {
       headers: {
@@ -254,14 +254,19 @@ export const getIMParams = (uf: string, _d: string, _uid: string, vc3: string): 
     }, (res) => {
       res.on('data', chunk => htmlPage += chunk);
       res.on('end', () => {
+        if (htmlPage === '') {
+          console.log('身份凭证似乎过期，请手动登录');
+          resolve('AuthFailed');
+          return;
+        }
         let index = htmlPage.indexOf('id="myName"');
         params.myName = htmlPage.slice(index + 35, htmlPage.indexOf('<', index + 35));
-        index = htmlPage.indexOf('id="myToken"')
+        index = htmlPage.indexOf('id="myToken"');
         params.myToken = htmlPage.slice(index + 36, htmlPage.indexOf('<', index + 36));
-        index = htmlPage.indexOf('id="myTuid"')
+        index = htmlPage.indexOf('id="myTuid"');
         params.myTuid = htmlPage.slice(index + 35, htmlPage.indexOf('<', index + 35));
-        params.myPuid = _uid
-        resolve({ ...params })
+        params.myPuid = _uid;
+        resolve({ ...params });
       })
     })
   })

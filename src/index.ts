@@ -43,7 +43,7 @@ const PromptsOptions = {
 
   // 获取所有课程
   let courses: any = await getCourses(params._uid, params._d, params.vc3)
-  if (courses === "AuthRequired" || courses === "NoCourse") process.exit(1);
+  if (courses === "AuthFailed" || courses === "NoCourse") process.exit(1);
   // 获取进行中的签到活动
   let activity = await getSignActivity(courses, params.uf, params._d, params._uid, params.vc3)
   if (typeof activity === 'string') process.exit(1);
