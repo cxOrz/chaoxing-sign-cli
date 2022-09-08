@@ -6,12 +6,5 @@
     "lat": 0,
     "address": ""
   },
-  "mailing": {
-    "host": "",
-    "ssl": true,
-    "port": 465,
-    "user": "",
-    "pass": "",
-    "to": ""
-  }
+  "mailing": {}
 }

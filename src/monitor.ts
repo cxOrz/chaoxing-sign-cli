@@ -8,8 +8,8 @@ import { Activity, getPPTActiveInfo, preSign, preSign2, speculateType } from './
 import { GeneralSign, GeneralSign_2 } from "./functions/general";
 import { LocationSign, LocationSign_2 } from "./functions/location";
 import { PhotoSign, getObjectIdFromcxPan, PhotoSign_2 } from "./functions/photo";
-import { getJsonObject } from './utils/file';
-import { getIMParams, IMParamsType, userLogin } from './functions/user';
+import { getJsonObject, storeUser } from './utils/file';
+import { getIMParams, getLocalUsers, IMParamsType, userLogin } from './functions/user';
 import { blue, red } from 'kolorist';
 import { sendEmail } from './utils/mailer';
 const convert = (from: any, to: any) => (str: string) => Buffer.from(str, from).toString(to);
@@ -17,6 +17,13 @@ const utf8ToHex = convert('utf8', 'hex')
 const hexToUtf8 = convert('hex', 'utf8');
 const hexToBase64 = convert('hex', 'base64');
 const base64toHex = convert('base64', 'hex');
+
+const PromptsOptions = {
+  onCancel: () => {
+    console.log(red('✖') + ' 操作取消')
+    process.exit(0);
+  }
+}
 
 class Monitor {
   static WebSocketURL = 'wss://im-api-vip6-v2.easecdn.com/ws/468/c4lxie22/websocket';
@@ -80,27 +87,6 @@ function getchatIdHex(hexStr: string) {
   return hexStr.substring(hexStr.indexOf('29120f') + 6, hexStr.indexOf('1a16636f'))
 }
 
-async function fetchParams() {
-  const response = await prompts([
-    {
-      type: 'text',
-      name: 'uname',
-      message: '手机号码'
-    },
-    {
-      type: 'password',
-      name: 'password',
-      message: '密码'
-    }
-  ], {
-    onCancel: () => {
-      console.log(red('✖') + ' 操作取消')
-      process.exit(0);
-    }
-  })
-  return (await userLogin(response.uname, response.password));
-}
-
 async function configure() {
   const config = getJsonObject('configs/storage.json');
   if (process.argv[2] === '--auth') return ({
@@ -116,8 +102,9 @@ async function configure() {
       name: 'local',
       message: '是否用本地缓存的签到信息?',
       initial: true
-    })).local
+    }, PromptsOptions)).local
   }
+  // 若不使用本地，则配置并写入本地
   if (!local) {
     const response = await prompts([
       {
@@ -183,12 +170,7 @@ async function configure() {
         name: 'to',
         message: '接收邮箱'
       }
-    ], {
-      onCancel: () => {
-        console.log(red('✖') + ' 操作取消')
-        process.exit(0);
-      }
-    })
+    ], PromptsOptions)
     config.monitor.photo = response.photo;
     config.monitor.lon = response.lon;
     config.monitor.lat = response.lat;
@@ -276,10 +258,23 @@ async function Sign(realname: string, params: any, config: any, activity: Activi
     params.lv = process.argv[7];
     params.fid = process.argv[8];
   } else {
-    params = await fetchParams();
-    if (params === 'AuthFailed') process.exit(0);
+    // 打印本地用户列表，并返回用户数量
+    let userItem = (await prompts({ type: 'select', name: 'userItem', message: '选择用户', choices: getLocalUsers(), initial: 0 }, PromptsOptions)).userItem;
+    // 手动登录
+    if (userItem === -1) {
+      let phone = (await prompts({ type: 'text', name: 'phone', message: '手机号' }, PromptsOptions)).phone;
+      let password = (await prompts({ type: 'password', name: 'password', message: '密码' }, PromptsOptions)).password;
+      // 登录获取各参数
+      params = await userLogin(phone, password);
+      if (params === "AuthFailed") process.exit(1);
+      storeUser(phone, params); // 储存到本地
+    } else {
+      // 使用本地储存的参数
+      params = getJsonObject('configs/storage.json').users[userItem].params;
+    }
   }
   let IM_Params = await getIMParams(params.uf, params._d, params._uid, params.vc3);
+  if (IM_Params === 'AuthFailed') process.exit(0);
   params.tuid = IM_Params.myTuid;
   // 配置默认签到信息
   const config = await configure();
@@ -313,14 +308,17 @@ async function Sign(realname: string, params: any, config: any, activity: Activi
             // 当前内容包含 sign ，说明是签到信息
             const IM_CourseInfo = parseCourseInfo(temp);
             const otherid = await getPPTActiveInfo(IM_CourseInfo.aid, params.uf, params._d, params._uid, params.vc3)
-            // 签到
-            const result = await Sign(IM_Params.myName, params, config.monitor, {
-              classId: IM_CourseInfo.classId,
-              courseId: IM_CourseInfo.courseId,
-              aid: Number(IM_CourseInfo.aid),
-              otherId: otherid
-            });
-            if (config.mailing.to !== '') sendEmail(IM_CourseInfo.aid, params._uid, IM_Params.myName, result);
+
+            // 签到 & 发邮件
+            if (IM_Params !== 'AuthFailed') {
+              const result = await Sign(IM_Params.myName, params, config.monitor, {
+                classId: IM_CourseInfo.classId,
+                courseId: IM_CourseInfo.courseId,
+                aid: Number(IM_CourseInfo.aid),
+                otherId: otherid
+              });
+              if (config.mailing.to !== '') sendEmail(IM_CourseInfo.aid, params._uid, IM_Params.myName, result);
+            }
 
             // // 当获取到消息内容后，请求保持连接
             // ws.send(`["${hexToBase64(monitor.generateKeepAliveHex())}"]`)
