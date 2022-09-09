@@ -9,7 +9,8 @@ export interface Activity {
   courseId: string,
   classId: string,
   otherId: number,
-  ifphoto?: number
+  ifphoto?: number,
+  chatID?: string
 }
 
 /**
@@ -139,7 +140,7 @@ export const preSign = async (uf: string, _d: string, vc3: string, activeId: str
   })
 }
 
-export const preSign2 = (uf: string, _d: string, vc3: string, activeId: string | number, chatId: string, uid: string, tuid: string) => {
+export const preSign2 = (uf: string, _d: string, vc3: string, activeId: string | number, chatId: string | undefined, uid: string, tuid: string) => {
   let data = ''
   return new Promise<string>((resolve) => {
     https.get(CHAT_GROUP.PRESTUSIGN.URL + `?activeId=${activeId}&code=&uid=${uid}&courseId=null&classId=0&general=0&chatId=${chatId}&appType=0&tid=${tuid}&atype=null&sys=0`, {
