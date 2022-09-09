@@ -3,9 +3,13 @@
   "version": "3.6.2",
   "description": "超星学习通签到命令行工具",
   "scripts": {
-    "start": "(ts-node ./src/index.ts && echo \"正在检查更新，若等待时间过长请挂代理...(连按 Ctrl+C 终止)\" && git pull) || (echo \"正在检查更新，若等待时间过长请挂代理...(连按 Ctrl+C 终止)\" && git pull)",
-    "serve": "ts-node ./src/serve.ts",
-    "monitor": "ts-node ./src/monitor.ts"
+    "build": "tsc",
+    "start": "(node ./build/index.js && echo \"正在检查更新，若等待时间过长请挂代理...(连按 Ctrl+C 终止)\" && git pull) || (echo \"正在检查更新，若等待时间过长请挂代理...(连按 Ctrl+C 终止)\" && git pull)",
+    "serve": "node ./build/serve.js",
+    "monitor": "node ./build/monitor.js",
+    "dev-start": "ts-node ./src/index.ts",
+    "dev-serve": "ts-node ./src/serve.ts",
+    "dev-monitor": "ts-node ./src/monitor.ts"
   },
   "repository": "https://github.com/cxOrz/chaoxing-sign-cli.git",
   "author": "mcx",

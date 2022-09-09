@@ -36,14 +36,20 @@ cd chaoxing-sign-cli && npm install
 
 ### 命令解释
 
-- `npm start`：运行程序，若有签到则进行手动签到，若无则退出程序；
+- `npm run build`：转译源码，输出到 build 文件夹；必须先转译才能运行程序；
+- `npm run start`：运行程序，若有签到则手动完成，若无则退出程序；
 - `npm run serve`：启动接口服务；
 - `npm run monitor`：监听模式，检测到签到将自动签上，无需人工干预；
 
-一般情况下执行以下命令即可满足基础使用
+### 基本使用方式
 
+更新仓库代码之后，先转译
 ```bash
-npm start
+npm run build
+```
+转译完成，后续运行直至下次更新仓库代码，不需要再转译，可以直接运行
+```bash
+npm run start
 ```
 
 ## 使用须知 📄
@@ -86,8 +92,6 @@ npm start
 
 ### 接口服务
 
-首先运行 `npm install` 或者 `yarn`，安装依赖。
-
 运行 `npm run serve` 将启动接口服务，接下来描述每个接口的参数以及调用方式：
 
 <details>
@@ -118,20 +122,22 @@ npm start
 部署在服务器，步骤如下：
 
 1. 安装 Node 环境，推荐使用 LTS 版本
-2. 克隆代码，安装依赖
-3. 配置项目中的 env.json 文件（可选）
-4. 最后，使用 GNU Screen 或者 PM2 运行接口服务
+2. 克隆代码 `git clone https://github.com/cxOrz/chaoxing-sign-cli.git`
+3. 进入项目目录，安装依赖 `npm install` 或 `yarn`
+4. 配置项目的 env.json 文件（可选）
+5. 转译源码 `npm run build`（在修改任何文件后，务必转译源码使之生效）
+6. 最后，使用 GNU Screen 或者 PM2 运行接口服务
 
 还有一些事情必需知道：
 
 - 如果要在服务器使用监听功能，在运行接口服务之前，先运行一次 `npm run monitor` 来配置默认信息，填写完成后看到 "监听中"，即可终止程序，信息已经写入本地。然后就可以运行 `npm run serve` 了。
-- 如果使用腾讯文字识别来解析二维码，请在 env.json 中配置 secretId 和 secretKey。
+- 如果使用腾讯文字识别来解析二维码，请在 `env.json` 文件中配置 secretId 和 secretKey，然后重新转译代码。
 - 本项目构建的 Docker 镜像，一切均为默认设置，局限性较大。如要求不高，简单签个到，请随意。
 
 <details>
 <summary>使用云函数注意事项</summary>
 
-1. 此项目可以运行在 AWS Lambda 和 腾讯云函数上运行（均不支持监听）。如有需求运行在 Serverless 容器，请修改 env.json 中的 `SERVERLESS` 为 `true`。
+1. 此项目可以运行在 AWS Lambda 和 腾讯云函数上运行（均不支持监听）。如有需求运行在 Serverless 容器，请修改 `env.json` 中的 `SERVERLESS` 为 `true`，然后重新转译代码。
 2. 如使用腾讯云函数，请仔细按云函数文档操作，对代码稍作调整，并配置云函数启动文件 scf_bootstrap 内容为如下命令
 ``` bash
 #!/bin/bash
