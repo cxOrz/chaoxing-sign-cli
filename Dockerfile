@@ -6,10 +6,10 @@ WORKDIR /app
 
 COPY ["package.json", "yarn.lock", "./"]
 
-RUN corepack enable && yarn
+RUN corepack enable && yarn && yarn build
 
 COPY . .
 
 EXPOSE 5000
 
-CMD [ "node", "-r", "ts-node/register", "src/serve.ts" ]
+CMD [ "node", "build/serve.js" ]
