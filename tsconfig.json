@@ -13,8 +13,17 @@
       // different options with a single tsconfig.json.
     }
   },
+  "include": [
+    "./src",
+    "./types",
+    "./src/env.json",
+    "./src/configs/storage.json"
+  ],
   "compilerOptions": {
     "module": "CommonJS",
+    "removeComments": true,
+    "resolveJsonModule": true,
+    "outDir": "build",
     "types": [
       "node"
     ]
