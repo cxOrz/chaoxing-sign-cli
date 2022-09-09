@@ -1,6 +1,6 @@
 {
   "name": "chaoxing-sign-cli",
-  "version": "3.6.2",
+  "version": "3.8.9",
   "description": "超星学习通签到命令行工具",
   "scripts": {
     "build": "tsc",
@@ -18,6 +18,7 @@
     "@koa/router": "^12.0.0",
     "crypto-js": "^4.1.1",
     "form-data": "^4.0.0",
+    "jsdom": "^20.0.0",
     "koa": "^2.13.4",
     "koa-bodyparser": "^4.3.0",
     "kolorist": "^1.5.1",
@@ -30,6 +31,7 @@
   },
   "devDependencies": {
     "@types/crypto-js": "^4.1.1",
+    "@types/jsdom": "^20.0.0",
     "@types/koa": "^2.13.5",
     "@types/koa-bodyparser": "^4.3.7",
     "@types/koa__router": "^8.0.11",
