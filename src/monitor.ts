@@ -237,7 +237,10 @@ async function Sign(realname: string, params: any, config: any, activity: Activi
     }
   }
   let IM_Params = await getIMParams(params.uf, params._d, params._uid, params.vc3);
-  if (IM_Params === 'AuthFailed') process.exit(0);
+  if (IM_Params === 'AuthFailed') {
+    if (process.send) process.send('authfail');
+    process.exit(0);
+  }
   params.tuid = IM_Params.myTuid;
   // 配置默认签到信息
   const config = await configure();
@@ -251,6 +254,9 @@ async function Sign(realname: string, params: any, config: any, activity: Activi
 
   console.log(blue('[监听中]'));
   conn.listen({
+    onOpened: () => {
+      if (process.send) process.send('success');
+    },
     onClosed: () => {
       console.log('[监听停止]');
       process.exit(0);
