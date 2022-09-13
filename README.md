@@ -26,10 +26,11 @@
 git clone https://github.com/cxOrz/chaoxing-sign-cli.git
 ```
 
-进入项目文件夹，安装依赖
+进入项目文件夹，并安装依赖
 
 ```bash
-cd chaoxing-sign-cli && npm install
+cd chaoxing-sign-cli
+npm install
 ```
 
 ## 运行 ⚙
@@ -47,7 +48,7 @@ cd chaoxing-sign-cli && npm install
 ```bash
 npm run build
 ```
-转译完成，后续运行直至下次更新仓库代码，不需要再转译，可以直接运行
+转译完成，后续运行直至下次变更代码，不需要再转译，可以直接运行
 ```bash
 npm run start
 ```
@@ -138,10 +139,10 @@ npm run start
 <summary>使用云函数注意事项</summary>
 
 1. 此项目可以运行在 AWS Lambda 和 腾讯云函数上运行（均不支持监听）。如有需求运行在 Serverless 容器，请修改 `env.json` 中的 `SERVERLESS` 为 `true`，然后重新转译代码。
-2. 如使用腾讯云函数，请仔细按云函数文档操作，对代码稍作调整，并配置云函数启动文件 scf_bootstrap 内容为如下命令
+2. 如使用腾讯云函数，请仔细按云函数文档操作，对代码稍作调整，安装依赖、转译源码，并配置云函数启动文件 scf_bootstrap 内容为如下命令
 ``` bash
 #!/bin/bash
-/var/lang/node16/bin/node -r ts-node/register src/serve.ts
+/var/lang/node16/bin/node build/serve.js
 ```
 
 </details>
