@@ -162,7 +162,10 @@ router.post('/qrocr', async (ctx) => {
       let res: any
       try {
         res = await QrCodeScan(base64str)
-        resolve(res.CodeResults[0].Url.split('=').pop())
+        const url = res.CodeResults[0].Url;
+        const enc_start = url.indexOf('enc=') + 4;
+        const result = url.substring(enc_start, url.indexOf('&', enc_start));
+        resolve(result);
       } catch (error) {
         resolve('识别失败')
       }
