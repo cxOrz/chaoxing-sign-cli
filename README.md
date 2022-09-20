@@ -1,4 +1,4 @@
-<h1 align="center">:herb:超星学习通签到:herb:</h1>
+<h1 align="center">🌿超星学习通签到🌿</h1>
 
 ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
