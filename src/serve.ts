@@ -1,5 +1,5 @@
 import { extendGlobalThis } from './utils/helper';
-extendGlobalThis(globalThis)
+extendGlobalThis(globalThis);
 import Router from '@koa/router';
 import Koa from 'koa';
 import bodyparser from 'koa-bodyparser';
@@ -204,6 +204,7 @@ router.post('/monitor/start', async (ctx) => {
     ctx.request.body.vc3, ctx.request.body.uid,
     ctx.request.body.lv, ctx.request.body.fid], {
     cwd: __dirname,
+    detached: false,
     stdio: [null, null, null, 'ipc']
   });
   const response = await new Promise((resolve) => {
