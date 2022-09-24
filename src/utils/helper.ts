@@ -3,7 +3,7 @@
  * @param {Promise<any>[]} tasks 接收一个 Promise 任务数组
  * @returns 任务数组中有一个成功则resolve其值；若全部失败，则reject一个异常。
  */
- export const promiseAny = (tasks: Promise<any>[]): Promise<any> => {
+export const promiseAny = (tasks: Promise<any>[]): Promise<any> => {
   // 记录失败次数
   let length = tasks.length
   return new Promise((resolve, reject) => {
@@ -29,10 +29,10 @@
 
 /**
  * 
- * @param {number} timeout 作为等待时间
+ * @param {number} timeout 作为等待时间，单位是秒
  */
 function delay(timeout: number = 0) {
-  return new Promise<void>(res => setTimeout(() => res(), timeout));
+  return new Promise<void>(res => setTimeout(() => res(), timeout * 1000));
 }
 
 function parseJSON(text: string): any {
