@@ -1,6 +1,7 @@
 {
   "users": [],
   "monitor": {
+    "delay": 0,
     "lon": 0,
     "lat": 0,
     "address": ""

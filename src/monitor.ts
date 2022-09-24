@@ -10,7 +10,7 @@ const JSDOM = new jsdom.JSDOM('', { url: 'https://im.chaoxing.com/webim/me' });
 globalThis.navigator = JSDOM.window.navigator;
 globalThis.location = JSDOM.window.location;
 const webIM = require('./utils/websdk3.1.4.js').default;
-import { extendGlobalThis } from './utils/helper';
+import { delay, extendGlobalThis } from './utils/helper';
 extendGlobalThis(globalThis);
 import { Activity, getPPTActiveInfo, preSign, preSign2, speculateType } from './functions/activity';
 import { GeneralSign, GeneralSign_2 } from "./functions/general";
@@ -97,6 +97,12 @@ async function configure() {
         message: '详细地址'
       },
       {
+        type: 'number',
+        name: 'delay',
+        message: '签到延时（单位：秒）',
+        initial: 0
+      },
+      {
         type: 'confirm',
         name: 'mail',
         message: '是否启用邮件通知?',
@@ -137,6 +143,7 @@ async function configure() {
         message: '接收邮箱'
       }
     ], PromptsOptions)
+    config.monitor.delay = response.delay;
     config.monitor.lon = response.lon;
     config.monitor.lat = response.lat;
     config.monitor.address = response.address;
@@ -272,6 +279,7 @@ async function Sign(realname: string, params: any, config: any, activity: Activi
 
         // 签到 & 发邮件
         if (IM_Params !== 'AuthFailed') {
+          await delay(config.monitor.delay);
           const result = await Sign(IM_Params.myName, params, config.monitor, {
             classId: IM_CourseInfo.classId,
             courseId: IM_CourseInfo.courseId,
