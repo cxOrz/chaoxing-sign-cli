@@ -16,15 +16,15 @@ export const QrCodeScan = (base64str: string) => {
           endpoint: "ocr.tencentcloudapi.com",
         },
       },
-    })
+    });
     client.QrcodeOCR({
       "ImageBase64": base64str
     }).then(
       (data: any) => {
-        res(data)
+        res(data);
       }, (err: any) => {
-        rej(err)
+        rej(err);
       }
-    )
-  })
-}
+    );
+  });
+};
