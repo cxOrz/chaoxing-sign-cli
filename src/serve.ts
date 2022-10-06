@@ -12,34 +12,34 @@ import { GeneralSign } from './functions/general';
 import { PhotoSign, uploadPhoto } from './functions/photo';
 import { QrCodeScan } from './functions/tencent/QrCodeOCR';
 import { getJsonObject } from './utils/file';
-import { fork } from 'child_process';
+import { ChildProcess, fork } from 'child_process';
 import serverless from 'serverless-http';
 const ENVJSON = getJsonObject('env.json');
 
-const app = new Koa()
-const router = new Router()
-const processMap = new Map()
+const app = new Koa();
+const router = new Router();
+const processMap = new Map<string, ChildProcess>();
 
 router.get('/', async (ctx) => {
-  ctx.body = `<h1 style="text-align: center">Welcome, chaoxing-sign-cli API service is running.</h1>`
-})
+  ctx.body = `<h1 style="text-align: center">Welcome, chaoxing-sign-cli API service is running.</h1>`;
+});
 
 router.post('/login', async (ctx) => {
-  let params = await userLogin(ctx.request.body.phone, ctx.request.body.password)
+  let params = await userLogin(ctx.request.body.phone, ctx.request.body.password);
   // 登陆失败
   if (typeof params === 'string') {
-    ctx.body = params
-    return
+    ctx.body = params;
+    return;
   }
   params.name = (params.uf && params._d && params._uid && params.vc3) ?
-    await getAccountInfo(params.uf, params._d, params._uid, params.vc3) : '获取失败'
-  console.log(ctx.request.body)
+    await getAccountInfo(params.uf, params._d, params._uid, params.vc3) : '获取失败';
+  console.log(ctx.request.body);
 
-  ctx.body = params
-})
+  ctx.body = params;
+});
 
 router.post('/activity', async (ctx) => {
-  let courses = await getCourses(ctx.request.body.uid, ctx.request.body._d, ctx.request.body.vc3)
+  let courses = await getCourses(ctx.request.body.uid, ctx.request.body._d, ctx.request.body.vc3);
   // 身份凭证过期
   if (typeof courses === 'string') {
     ctx.body = courses;
@@ -55,50 +55,50 @@ router.post('/activity', async (ctx) => {
   await preSign(ctx.request.body.uf, ctx.request.body._d, ctx.request.body.vc3, activity.aid, activity.classId, activity.courseId, ctx.request.body.uid);
   console.log(ctx.request.body.uid);
   ctx.body = activity;
-})
+});
 
 router.post('/qrcode', async (ctx) => {
-  let res = await QRCodeSign(ctx.request.body.enc, ctx.request.body.name, ctx.request.body.fid, ctx.request.body.uid, ctx.request.body.aid, ctx.request.body.uf, ctx.request.body._d, ctx.request.body.vc3)
-  console.log(ctx.request.body.name, ctx.request.body.uid)
+  let res = await QRCodeSign(ctx.request.body.enc, ctx.request.body.name, ctx.request.body.fid, ctx.request.body.uid, ctx.request.body.aid, ctx.request.body.uf, ctx.request.body._d, ctx.request.body.vc3);
+  console.log(ctx.request.body.name, ctx.request.body.uid);
   if (res === 'success') {
-    ctx.body = 'success'
-    return
+    ctx.body = 'success';
+    return;
   } else {
-    ctx.body = res
+    ctx.body = res;
   }
-})
+});
 
 router.post('/location', async (ctx) => {
-  let res = await LocationSign(ctx.request.body.uf, ctx.request.body._d, ctx.request.body.vc3, ctx.request.body.name, ctx.request.body.address, ctx.request.body.aid, ctx.request.body.uid, ctx.request.body.lat, ctx.request.body.lon, ctx.request.body.fid)
-  console.log(ctx.request.body.name, ctx.request.body.uid)
+  let res = await LocationSign(ctx.request.body.uf, ctx.request.body._d, ctx.request.body.vc3, ctx.request.body.name, ctx.request.body.address, ctx.request.body.aid, ctx.request.body.uid, ctx.request.body.lat, ctx.request.body.lon, ctx.request.body.fid);
+  console.log(ctx.request.body.name, ctx.request.body.uid);
   if (res === 'success') {
-    ctx.body = 'success'
-    return
+    ctx.body = 'success';
+    return;
   } else {
-    ctx.body = res
+    ctx.body = res;
   }
-})
+});
 
 router.post('/general', async (ctx) => {
-  let res = await GeneralSign(ctx.request.body.uf, ctx.request.body._d, ctx.request.body.vc3, ctx.request.body.name, ctx.request.body.aid, ctx.request.body.uid, ctx.request.body.fid)
-  console.log(ctx.request.body.name, ctx.request.body.uid)
+  let res = await GeneralSign(ctx.request.body.uf, ctx.request.body._d, ctx.request.body.vc3, ctx.request.body.name, ctx.request.body.aid, ctx.request.body.uid, ctx.request.body.fid);
+  console.log(ctx.request.body.name, ctx.request.body.uid);
   if (res === 'success') {
-    ctx.body = 'success'
-    return
+    ctx.body = 'success';
+    return;
   } else {
-    ctx.body = res
+    ctx.body = res;
   }
-})
+});
 
 router.post('/uvtoken', async (ctx) => {
-  let res = await getPanToken(ctx.request.body.uf, ctx.request.body._d, ctx.request.body.uid, ctx.request.body.vc3)
-  ctx.body = res
-})
+  let res = await getPanToken(ctx.request.body.uf, ctx.request.body._d, ctx.request.body.uid, ctx.request.body.vc3);
+  ctx.body = res;
+});
 
 router.post('/upload', async (ctx) => {
-  let form = new multiparty.Form()
-  let fields: any = {}
-  let data: any[] = []
+  let form = new multiparty.Form();
+  let fields: any = {};
+  let data: any[] = [];
 
   let result = await new Promise((resolve) => {
     // 解析到part时，判断是否为文件
@@ -106,74 +106,74 @@ router.post('/upload', async (ctx) => {
       if (part.filename !== undefined) {
         // 存入data数组
         part.on('data', (chunk: any) => {
-          data.push(chunk)
-        })
+          data.push(chunk);
+        });
         // 存完继续
         part.on('close', () => {
-          part.resume()
-        })
+          part.resume();
+        });
       }
-    })
+    });
     // 解析遇到文本时
     form.on('field', (name: string, str: string) => {
-      fields[name] = str
-    })
+      fields[name] = str;
+    });
     // 解析完成后
     form.on('close', async () => {
-      let buffer = Buffer.concat(data)
-      let res = await uploadPhoto(fields['uf'], fields['_d'], fields['_uid'], fields['vc3'], ctx.query._token as string, buffer)
-      resolve(res)
-      console.log(res)
-    })
+      let buffer = Buffer.concat(data);
+      let res = await uploadPhoto(fields['uf'], fields['_d'], fields['_uid'], fields['vc3'], ctx.query._token as string, buffer);
+      resolve(res);
+      console.log(res);
+    });
     // 解析请求表单
-    form.parse(ctx.req)
-  })
-  ctx.body = result
-})
+    form.parse(ctx.req);
+  });
+  ctx.body = result;
+});
 
 router.post('/photo', async (ctx) => {
-  let res = await PhotoSign(ctx.request.body.uf, ctx.request.body._d, ctx.request.body.vc3, ctx.request.body.name, ctx.request.body.aid, ctx.request.body.uid, ctx.request.body.fid, ctx.request.body.objectId)
-  console.log(ctx.request.body.name, ctx.request.body.uid)
+  let res = await PhotoSign(ctx.request.body.uf, ctx.request.body._d, ctx.request.body.vc3, ctx.request.body.name, ctx.request.body.aid, ctx.request.body.uid, ctx.request.body.fid, ctx.request.body.objectId);
+  console.log(ctx.request.body.name, ctx.request.body.uid);
   if (res === 'success') {
-    ctx.body = 'success'
-    return
+    ctx.body = 'success';
+    return;
   } else {
-    ctx.body = res
+    ctx.body = res;
   }
-})
+});
 
 router.post('/qrocr', async (ctx) => {
-  let form = new multiparty.Form()
-  let data: any[] = []
+  let form = new multiparty.Form();
+  let data: any[] = [];
   let result = await new Promise((resolve) => {
     form.on('part', (part: any) => {
       if (part.filename !== undefined) {
         part.on('data', (chunk: any) => {
-          data.push(chunk)
-        })
+          data.push(chunk);
+        });
         part.on('close', () => {
-          part.resume()
-        })
+          part.resume();
+        });
       }
-    })
+    });
     form.on('close', async () => {
-      let buffer = Buffer.concat(data)
-      let base64str = buffer.toString('base64')
-      let res: any
+      let buffer = Buffer.concat(data);
+      let base64str = buffer.toString('base64');
+      let res: any;
       try {
-        res = await QrCodeScan(base64str)
+        res = await QrCodeScan(base64str);
         const url = res.CodeResults[0].Url;
         const enc_start = url.indexOf('enc=') + 4;
         const result = url.substring(enc_start, url.indexOf('&', enc_start));
         resolve(result);
       } catch (error) {
-        resolve('识别失败')
+        resolve('识别失败');
       }
-    })
-    form.parse(ctx.req)
-  })
-  ctx.body = result
-})
+    });
+    form.parse(ctx.req);
+  });
+  ctx.body = result;
+});
 
 // 200:监听中，201:未监听，202:登录失败
 router.post('/monitor/status', (ctx) => {
@@ -183,7 +183,7 @@ router.post('/monitor/status', (ctx) => {
   } else {
     ctx.body = '{"code":201,"msg":"Suspended"}';
   }
-})
+});
 
 router.post('/monitor/stop', (ctx) => {
   const process_monitor = processMap.get(ctx.request.body.phone);
@@ -192,7 +192,7 @@ router.post('/monitor/stop', (ctx) => {
     processMap.delete(ctx.request.body.phone);
   }
   ctx.body = '{"code":201,"msg":"Suspended"}';
-})
+});
 
 router.post('/monitor/start', async (ctx) => {
   if (processMap.get(ctx.request.body.phone) !== undefined) {
@@ -202,7 +202,7 @@ router.post('/monitor/start', async (ctx) => {
   const process_monitor = fork(ENVJSON.env.dev ? 'monitor.ts' : 'monitor.js', ['--auth',
     ctx.request.body.uf, ctx.request.body._d,
     ctx.request.body.vc3, ctx.request.body.uid,
-    ctx.request.body.lv, ctx.request.body.fid], {
+    ctx.request.body.lv, ctx.request.body.fid, ctx.request.body.phone], {
     cwd: __dirname,
     detached: false,
     stdio: [null, null, null, 'ipc']
@@ -216,35 +216,44 @@ router.post('/monitor/start', async (ctx) => {
           break;
         }
         case 'authfail': {
-          process_monitor.kill();
           resolve('{"code":202,"msg":"Authencation Failed"}');
+          break;
+        }
+        case 'notconfigured': {
+          resolve('{"code":203,"msg":"Not Configured"}');
           break;
         }
       }
     });
   });
   ctx.body = response;
-})
-
-app.use(bodyparser())
-app.use(async (ctx, next) => {
-  ctx.set("Access-Control-Allow-Origin", "*")
-  ctx.set("Access-Control-Allow-Headers", "Content-Type")
-  await next()
-})
-app.use(async (ctx, next) => {
-  ctx.set("Access-Control-Max-Age", "300")
-  if (ctx.method === 'OPTIONS') {
-    ctx.body = ''
-  }
-  await next()
 });
-app.use(router.routes())
+
+app.use(bodyparser());
+app.use(async (ctx, next) => {
+  ctx.set("Access-Control-Allow-Origin", "*");
+  ctx.set("Access-Control-Allow-Headers", "Content-Type");
+  await next();
+});
+app.use(async (ctx, next) => {
+  ctx.set("Access-Control-Max-Age", "300");
+  if (ctx.method === 'OPTIONS') {
+    ctx.body = '';
+  }
+  await next();
+});
+app.use(router.routes());
+
+process.on('exit', () => {
+  processMap.forEach((pcs) => {
+    pcs.kill('SIGKILL');
+  });
+});
 
 // 若在服务器，直接运行
-if (!ENVJSON.env.SERVERLESS) app.listen(5000, () => { console.log("API Server: http://localhost:5000") })
+if (!ENVJSON.env.SERVERLESS) app.listen(5000, () => { console.log("API Server: http://localhost:5000"); });
 
 // 导出云函数
-export const main = serverless(app)
-export const handler = main
-export const main_handler = main
+export const main = serverless(app);
+export const handler = main;
+export const main_handler = main;

@@ -5,27 +5,27 @@
  */
 export const promiseAny = (tasks: Promise<any>[]): Promise<any> => {
   // 记录失败次数
-  let length = tasks.length
+  let length = tasks.length;
   return new Promise((resolve, reject) => {
     if (length === 0) {
-      reject(new Error('All promises were rejected'))
-      return
+      reject(new Error('All promises were rejected'));
+      return;
     }
     // 遍历Promise数组，任意一个成功则resolve其值；全部失败，则reject一个异常。
     tasks.forEach(promise => {
       promise.then(res => {
-        resolve(res)
-        return
+        resolve(res);
+        return;
       }, reason => {
-        length--
+        length--;
         if (length === 0) {
-          reject(new Error('All promises were rejected'))
-          return
+          reject(new Error('All promises were rejected'));
+          return;
         }
-      })
-    })
-  })
-}
+      });
+    });
+  });
+};
 
 /**
  * 
@@ -41,12 +41,12 @@ function parseJSON(text: string): any {
   } catch (err) {
     if (err instanceof Error) {
       console.error(err);
-      console.log('\nInvalid JSON: ' + text)
+      console.log('\nInvalid JSON: ' + text);
     }
   }
 }
 
-globalThis.JSON.parseJSON = parseJSON
+globalThis.JSON.parseJSON = parseJSON;
 
 function extendGlobalThis(gl: any) {
   gl.JSON.parseJSON = parseJSON;
