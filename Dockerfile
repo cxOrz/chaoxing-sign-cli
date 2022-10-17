@@ -4,11 +4,9 @@ FROM node:16-alpine
 
 WORKDIR /app
 
-COPY ["package.json", "yarn.lock", "./"]
+COPY . .
 
 RUN corepack enable && yarn && yarn build
-
-COPY . .
 
 EXPOSE 5000
 
