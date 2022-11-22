@@ -170,8 +170,8 @@ export const getAccountInfo = async (uf: string, _d: string, _uid: string, vc3: 
       });
       res.on('end', () => {
         // console.log(data)
-        let end_of_messageName = data.indexOf('messageName') + 13;
-        let name = data.slice(end_of_messageName, data.indexOf('<', end_of_messageName));
+        let end_of_messageName = data.indexOf('messageName') + 20;
+        let name = data.slice(end_of_messageName, data.indexOf('"', end_of_messageName));
         resolve(name);
       });
     });
