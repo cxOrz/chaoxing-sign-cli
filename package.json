@@ -3,13 +3,13 @@
   "version": "3.8.9",
   "description": "超星学习通签到命令行工具",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && ts-node ./src/scripts/cplibs.ts",
     "start": "node ./build/index.js",
     "serve": "node ./build/serve.js",
     "monitor": "node ./build/monitor.js",
     "dev-start": "ts-node ./src/index.ts",
     "dev-serve": "ts-node ./src/serve.ts",
-    "dev-monitor": "ts-node ./src/monitor.ts"
+    "dev-monitor": "ts-node ./src/monitor.ts",
   },
   "repository": "https://github.com/cxOrz/chaoxing-sign-cli.git",
   "author": "mcx",

@@ -1,6 +1,6 @@
 {
   // This is an alias to @tsconfig/node16: https://github.com/tsconfig/bases
-  "extends": "ts-node/node16/tsconfig.json",
+  "extends": "@tsconfig/node16",
   // Most ts-node options can be specified here using their programmatic names.
   "ts-node": {
     // It is faster to skip typechecking.
@@ -23,7 +23,7 @@
     "module": "CommonJS",
     "removeComments": true,
     "resolveJsonModule": true,
-    "allowJs": true,
+    // "allowJs": true,
     "outDir": "build",
     "types": [
       "node"
