@@ -9,7 +9,7 @@
     "monitor": "node ./build/monitor.js",
     "dev-start": "ts-node ./src/index.ts",
     "dev-serve": "ts-node ./src/serve.ts",
-    "dev-monitor": "ts-node ./src/monitor.ts",
+    "dev-monitor": "ts-node ./src/monitor.ts"
   },
   "repository": "https://github.com/cxOrz/chaoxing-sign-cli.git",
   "author": "mcx",
