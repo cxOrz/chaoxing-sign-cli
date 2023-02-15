@@ -39,5 +39,5 @@ export const getStoredUser = (phone: string): User | null => {
 };
 
 export const getJsonObject = (fileURL: string) => {
-  return JSON.parseJSON(filehandle.readFileSync(path.join(__dirname, '../' + fileURL), 'utf8'));
+  return JSON.parse(filehandle.readFileSync(path.join(__dirname, '../' + fileURL), 'utf8'));
 };
