@@ -10,8 +10,6 @@ const JSDOM = new jsdom.JSDOM('', { url: 'https://im.chaoxing.com/webim/me' });
 globalThis.navigator = JSDOM.window.navigator;
 globalThis.location = JSDOM.window.location;
 const webIM = require('./utils/websdk3.1.4.js').default;
-import { delay, extendGlobalThis } from './utils/helper';
-extendGlobalThis(globalThis);
 import { Activity, getPPTActiveInfo, preSign, preSign2, speculateType } from './functions/activity';
 import { GeneralSign, GeneralSign_2 } from "./functions/general";
 import { LocationSign, LocationSign_2 } from "./functions/location";

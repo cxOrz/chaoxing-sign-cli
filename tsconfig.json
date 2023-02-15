@@ -23,7 +23,6 @@
     "module": "CommonJS",
     "removeComments": true,
     "resolveJsonModule": true,
-    // "allowJs": true,
     "outDir": "build",
     "types": [
       "node"

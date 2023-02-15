@@ -3,7 +3,7 @@
   "version": "3.8.9",
   "description": "超星学习通签到命令行工具",
   "scripts": {
-    "build": "tsc && ts-node ./src/scripts/cplibs.ts",
+    "build": "tsc && node ./src/scripts/cplibs.js",
     "start": "node ./build/index.js",
     "serve": "node ./build/serve.js",
     "monitor": "node ./build/monitor.js",
