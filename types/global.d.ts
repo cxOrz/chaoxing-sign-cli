@@ -1,9 +1,3 @@
-declare namespace globalThis {
-  interface JSON {
-    parseJSON(text: string): any
-  }
-}
-
 interface MonitorConfig {
   delay: number;
   lon: number;

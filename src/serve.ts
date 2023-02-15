@@ -1,19 +1,17 @@
-import { extendGlobalThis } from './utils/helper';
-extendGlobalThis(globalThis);
 import Router from '@koa/router';
+import { ChildProcess, fork } from 'child_process';
 import Koa from 'koa';
 import bodyparser from 'koa-bodyparser';
 import multiparty from 'multiparty';
-import { userLogin, getAccountInfo, getCourses, getPanToken } from './functions/user';
-import { getSignActivity, preSign } from "./functions/activity";
-import { QRCodeSign } from './functions/QRCode';
-import { LocationSign } from './functions/location';
-import { GeneralSign } from './functions/general';
-import { PhotoSign, uploadPhoto } from './functions/photo';
-import { QrCodeScan } from './functions/tencent/QrCodeOCR';
-import { getJsonObject } from './utils/file';
-import { ChildProcess, fork } from 'child_process';
 import serverless from 'serverless-http';
+import { getSignActivity, preSign } from "./functions/activity";
+import { GeneralSign } from './functions/general';
+import { LocationSign } from './functions/location';
+import { PhotoSign, uploadPhoto } from './functions/photo';
+import { QRCodeSign } from './functions/qrcode';
+import { QrCodeScan } from './functions/tencent.qrcode';
+import { getAccountInfo, getCourses, getPanToken, userLogin } from './functions/user';
+import { getJsonObject } from './utils/file';
 const ENVJSON = getJsonObject('env.json');
 
 const app = new Koa();

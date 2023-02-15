@@ -71,7 +71,7 @@ export function aPromise(course: any, uf: string, _d: string, UID: string, vc3: 
       res.on('data', (chunk) => { data += chunk; });
       res.on('end', () => {
         // console.log(data)
-        data = JSON.parseJSON(data);
+        data = JSON.parse(data);
         // 判断是否请求成功
         if (data.data !== null) {
           if (data.data.activeList.length != 0) {
@@ -116,7 +116,7 @@ export function getPPTActiveInfo(activeId: string, uf: string, _d: string, UID: 
     }, (res) => {
       res.on('data', chunk => data += chunk);
       res.on('end', () => {
-        resolve(JSON.parseJSON(data).data);
+        resolve(JSON.parse(data).data);
       });
     });
   });

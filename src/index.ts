@@ -1,13 +1,11 @@
-import { extendGlobalThis } from './utils/helper';
-extendGlobalThis(globalThis);
 import { blue, red } from 'kolorist';
 import prompts from 'prompts';
 import { getPPTActiveInfo, getSignActivity, preSign } from "./functions/activity";
 import { GeneralSign } from "./functions/general";
 import { LocationSign } from "./functions/location";
-import { PhotoSign, getObjectIdFromcxPan } from "./functions/photo";
-import { QRCodeSign } from "./functions/QRCode";
-import { userLogin, getCourses, getAccountInfo, getLocalUsers } from "./functions/user";
+import { getObjectIdFromcxPan, PhotoSign } from "./functions/photo";
+import { QRCodeSign } from "./functions/qrcode";
+import { getAccountInfo, getCourses, getLocalUsers, userLogin } from "./functions/user";
 import { getJsonObject, storeUser } from './utils/file';
 
 const PromptsOptions = {

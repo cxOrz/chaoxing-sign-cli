@@ -20,7 +20,6 @@ export const PhotoSign = async (uf: string, _d: string, vc3: string, name: strin
           resolve('success');
           return;
         } else {
-          // console.log(data)
           resolve(data);
         }
       });
@@ -77,7 +76,7 @@ export const getObjectIdFromcxPan = (uf: string, _d: string, vc3: string, uid: s
         }, (res) => {
           res.on('data', (chunk) => { data += chunk; });
           res.on('end', () => {
-            let result = JSON.parseJSON(data);
+            let result = JSON.parse(data);
             for (let i = 0; i < result.list.length; i++) {
               if (result.list[i].name == '0.jpg' || result.list[i].name == '0.png') {
                 objectId = result.list[i].objectId;
