@@ -1,6 +1,6 @@
 import { blue, red } from 'kolorist';
 import prompts from 'prompts';
-import { getPPTActiveInfo, getSignActivity, preSign } from "./functions/activity";
+import { getPPTActiveInfo, preSign, traverseCourseActivity } from "./functions/activity";
 import { GeneralSign } from "./functions/general";
 import { LocationSign } from "./functions/location";
 import { getObjectIdFromcxPan, PhotoSign } from "./functions/photo";
@@ -49,7 +49,7 @@ const PromptsOptions = {
   let courses = await getCourses(params._uid, params._d, params.vc3);
   if (typeof courses === 'string') process.exit(0);
   // 获取进行中的签到活动
-  let activity = await getSignActivity(courses, params.uf, params._d, params._uid, params.vc3);
+  let activity = await traverseCourseActivity(courses, params.uf, params._d, params._uid, params.vc3);
   if (typeof activity === 'string') process.exit(0);
   else await preSign(params.uf, params._d, params.vc3, activity.aid, activity.classId, activity.courseId, params._uid);
 
@@ -87,6 +87,7 @@ const PromptsOptions = {
         await prompts({ name: 'complete', type: 'confirm', message: '已上传完毕?' });
         // 获取照片objectId
         let objectId = await getObjectIdFromcxPan(params.uf, params._d, params.vc3, params._uid);
+        if (objectId === null) return null;
         await PhotoSign(params.uf, params._d, params.vc3, name, activity.aid, params._uid, params.fid, objectId);
       } else {
         // 普通签到

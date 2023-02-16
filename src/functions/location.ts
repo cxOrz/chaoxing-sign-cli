@@ -15,7 +15,7 @@ export const LocationSign = async (
 ): Promise<string> => {
   const url = `${PPTSIGN.URL}?name=${name}&address=${address}&activeId=${activeId}&uid=${uid}&clientip=&latitude=${lat}&longitude=${lon}&fid=${fid}&appType=15&ifTiJiao=1`;
   const result = await request(url, {
-    SSL: true,
+    secure: true,
     headers: {
       Cookie: `uf=${uf}; _d=${_d}; UID=${uid}; vc3=${vc3};`,
     },
@@ -47,7 +47,7 @@ export const LocationSign_2 = async (
   const result = await request(
     CHAT_GROUP.SIGN.URL,
     {
-      SSL: true,
+      secure: true,
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',

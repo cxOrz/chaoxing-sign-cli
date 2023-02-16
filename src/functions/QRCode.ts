@@ -15,7 +15,7 @@ export const QRCodeSign = async (
     name
   )}&activeId=${aid}&uid=${uid}&clientip=&useragent=&latitude=-1&longitude=-1&fid=${fid}&appType=15`;
   const result = await request(url, {
-    SSL: true,
+    secure: true,
     headers: {
       Cookie: `uf=${uf}; _d=${_d}; UID=${uid}; vc3=${vc3};`,
     },

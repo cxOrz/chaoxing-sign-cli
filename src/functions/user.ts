@@ -154,7 +154,7 @@ export const getAccountInfo = async (uf: string, _d: string, _uid: string, vc3: 
 // 获取用户鉴权token
 export const getPanToken = async (uf: string, _d: string, _uid: string, vc3: string) => {
   const result = await request(PANTOKEN.URL, {
-    SSL: true,
+    secure: true,
     headers: {
       Cookie: `uf=${uf}; _d=${_d}; UID=${_uid}; vc3=${vc3};`,
     },
@@ -190,7 +190,7 @@ export const getIMParams = async (uf: string, _d: string, _uid: string, vc3: str
     myPuid: '',
   };
   const result = await request(WEBIM.URL, {
-    SSL: true,
+    secure: true,
     headers: {
       Cookie: `uf=${uf}; _d=${_d}; UID=${_uid}; vc3=${vc3};`,
     },
