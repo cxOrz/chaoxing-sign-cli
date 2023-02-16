@@ -14,18 +14,58 @@ interface MailConfig {
   to: string;
 }
 
-interface UserParams {
+interface BasicCookie {
   _uid: string;
   _d: string;
   uf: string;
   vc3: string;
+}
+
+type UserParams = BasicCookie & {
   fid: string;
   lv: string;
-}
+};
 
 interface User {
   phone?: string;
   params?: UserParams;
   monitor?: MonitorConfig;
   mailing?: MailConfig;
+}
+
+interface CourseType {
+  courseId: string;
+  classId: string;
+}
+
+interface Activity {
+  activeId: string;
+  name?: string;
+  courseId: string;
+  classId: string;
+  otherId: number;
+  ifphoto?: number;
+  chatID?: string;
+}
+
+interface IMParamsType {
+  myName: string;
+  myToken: string;
+  myTuid: string;
+  myPuid: string;
+}
+
+interface UserCookieType {
+  name?: string;
+  fid: string;
+  pid: string;
+  refer: string;
+  _blank: string;
+  t: boolean;
+  vc3: string;
+  _uid: string;
+  _d: string;
+  uf: string;
+  lv: string;
+  UID?: string;
 }

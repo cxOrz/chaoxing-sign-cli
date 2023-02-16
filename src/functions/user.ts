@@ -2,33 +2,7 @@ import cryptojs from 'crypto-js';
 import { blue } from 'kolorist';
 import { ACCOUNTMANAGE, COURSELIST, LOGIN, PANTOKEN, WEBIM } from '../configs/api';
 import { getJsonObject } from '../utils/file';
-import { request } from '../utils/request';
-
-export interface IMParamsType {
-  myName: string;
-  myToken: string;
-  myTuid: string;
-  myPuid: string;
-}
-
-export interface UserCookieType {
-  name?: string;
-  fid: string;
-  pid: string;
-  refer: string;
-  _blank: string;
-  t: boolean;
-  vc3: string;
-  _uid: string;
-  _d: string;
-  uf: string;
-  lv: string;
-}
-
-export interface CourseType {
-  courseId: string;
-  classId: string;
-}
+import { cookieSerialize, request } from '../utils/request';
 
 const DefaultParams: UserCookieType = {
   fid: '-1',
@@ -139,10 +113,10 @@ export const getCourses = async (_uid: string, _d: string, vc3: string): Promise
 };
 
 // 获取用户名
-export const getAccountInfo = async (uf: string, _d: string, _uid: string, vc3: string): Promise<string> => {
+export const getAccountInfo = async (cookies: BasicCookie): Promise<string> => {
   const result = await request(ACCOUNTMANAGE.URL, {
     headers: {
-      Cookie: `uf=${uf}; _d=${_d}; UID=${_uid}; vc3=${vc3};`,
+      Cookie: cookieSerialize(cookies),
     },
   });
   const data = result.data;
@@ -152,11 +126,11 @@ export const getAccountInfo = async (uf: string, _d: string, _uid: string, vc3: 
 };
 
 // 获取用户鉴权token
-export const getPanToken = async (uf: string, _d: string, _uid: string, vc3: string) => {
+export const getPanToken = async (cookies: BasicCookie) => {
   const result = await request(PANTOKEN.URL, {
     secure: true,
     headers: {
-      Cookie: `uf=${uf}; _d=${_d}; UID=${_uid}; vc3=${vc3};`,
+      Cookie: cookieSerialize(cookies),
     },
   });
   return result.data;
@@ -182,7 +156,7 @@ export const getLocalUsers = () => {
 /**
  * @returns \{ myName, myToken, myTuid, myPuid \}
  */
-export const getIMParams = async (uf: string, _d: string, _uid: string, vc3: string): Promise<IMParamsType | 'AuthFailed'> => {
+export const getIMParams = async (cookies: BasicCookie): Promise<IMParamsType | 'AuthFailed'> => {
   let params = {
     myName: '',
     myToken: '',
@@ -192,7 +166,7 @@ export const getIMParams = async (uf: string, _d: string, _uid: string, vc3: str
   const result = await request(WEBIM.URL, {
     secure: true,
     headers: {
-      Cookie: `uf=${uf}; _d=${_d}; UID=${_uid}; vc3=${vc3};`,
+      Cookie: cookieSerialize(cookies),
     },
   });
   let data = result.data;
@@ -206,7 +180,7 @@ export const getIMParams = async (uf: string, _d: string, _uid: string, vc3: str
   params.myToken = data.slice(index + 36, data.indexOf('<', index + 36));
   index = data.indexOf('id="myTuid"');
   params.myTuid = data.slice(index + 35, data.indexOf('<', index + 35));
-  params.myPuid = _uid;
+  params.myPuid = cookies._uid;
 
   return { ...params };
 };

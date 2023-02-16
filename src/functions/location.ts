@@ -1,23 +1,15 @@
 import { CHAT_GROUP, PPTSIGN } from '../configs/api';
-import { request } from '../utils/request';
+import { cookieSerialize, request } from '../utils/request';
 
 export const LocationSign = async (
-  uf: string,
-  _d: string,
-  vc3: string,
-  name: string,
-  address: string,
-  activeId: string | number,
-  uid: string,
-  lat: string,
-  lon: string,
-  fid: string
+  args: BasicCookie & { name: string; address: string; activeId: string; lat: string; lon: string; fid: string }
 ): Promise<string> => {
-  const url = `${PPTSIGN.URL}?name=${name}&address=${address}&activeId=${activeId}&uid=${uid}&clientip=&latitude=${lat}&longitude=${lon}&fid=${fid}&appType=15&ifTiJiao=1`;
+  const { name, address, activeId, lat, lon, fid, ...cookies } = args;
+  const url = `${PPTSIGN.URL}?name=${name}&address=${address}&activeId=${activeId}&uid=${cookies._uid}&clientip=&latitude=${lat}&longitude=${lon}&fid=${fid}&appType=15&ifTiJiao=1`;
   const result = await request(url, {
     secure: true,
     headers: {
-      Cookie: `uf=${uf}; _d=${_d}; UID=${uid}; vc3=${vc3};`,
+      Cookie: cookieSerialize(cookies),
     },
   });
   if (result.data === 'success') {
@@ -32,18 +24,12 @@ export const LocationSign = async (
  * 位置签到，无课程群聊版本
  */
 export const LocationSign_2 = async (
-  uf: string,
-  _d: string,
-  vc3: string,
-  address: string,
-  activeId: string | number,
-  uid: string,
-  lat: string,
-  lon: string
+  args: BasicCookie & { name: string; address: string; activeId: string; lat: string; lon: string; fid: string }
 ): Promise<string> => {
-  let formdata = `address=${encodeURIComponent(
-    address
-  )}&activeId=${activeId}&uid=${uid}&clientip=&useragent=&latitude=${lat}&longitude=${lon}&fid=&ifTiJiao=1`;
+  const { name, address, activeId, lat, lon, fid, ...cookies } = args;
+  let formdata = `address=${encodeURIComponent(address)}&activeId=${activeId}&uid=${
+    cookies._uid
+  }&clientip=&useragent=&latitude=${lat}&longitude=${lon}&fid=&ifTiJiao=1`;
   const result = await request(
     CHAT_GROUP.SIGN.URL,
     {
@@ -51,7 +37,7 @@ export const LocationSign_2 = async (
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        Cookie: `uf=${uf}; _d=${_d}; UID=${uid}; vc3=${vc3};`,
+        Cookie: cookieSerialize(cookies),
       },
     },
     formdata
