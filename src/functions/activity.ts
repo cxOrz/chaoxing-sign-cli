@@ -1,29 +1,13 @@
 import { ACTIVELIST, CHAT_GROUP, PPTACTIVEINFO, PRESIGN } from '../configs/api';
-import { request } from '../utils/request';
-import { CourseType } from './user';
-
-export interface Activity {
-  aid: string;
-  name?: string;
-  courseId: string;
-  classId: string;
-  otherId: number;
-  ifphoto?: number;
-  chatID?: string;
-}
+import { cookieSerialize, request } from '../utils/request';
 
 /**
  * 返回一个签到信息对象 {aid, name, courseId, classId, otherId}
  * @param {{courseId:string, classId:string}[]} courses
  */
-export const traverseCourseActivity = async (
-  courses: CourseType[],
-  uf: string,
-  _d: string,
-  UID: string,
-  vc3: string
-): Promise<string | Activity> => {
+export const traverseCourseActivity = async (args: BasicCookie & { courses: CourseType[] }): Promise<string | Activity> => {
   console.log('正在查询有效签到活动，等待时间视网络情况而定...');
+  const { courses, ...cookies } = args;
   let i = 0;
   let tasks: Promise<any>[] = [];
 
@@ -31,17 +15,17 @@ export const traverseCourseActivity = async (
   if (courses.length === 1) {
     try {
       i++;
-      return await getActivity(courses[0], uf, _d, UID, vc3);
+      return await getActivity({ course: courses[0], ...cookies });
     } catch (err) {
       // 该课程无有效签到
     }
   }
 
-  tasks.push(getActivity(courses[0], uf, _d, UID, vc3));
+  tasks.push(getActivity({ course: courses[0], ...cookies }));
   // 一次请求五个，全部reject或有一个成功则进行下一次请求
   for (i = 1; i < courses.length; i++) {
     // 课程请求加入任务数组
-    tasks.push(getActivity(courses[i], uf, _d, UID, vc3));
+    tasks.push(getActivity({ course: courses[i], ...cookies }));
     // 一轮提交5个，若处于最后一个且此轮还不够5个，提交此轮全部
     if (i % 5 === 0 || i === courses.length - 1) {
       try {
@@ -60,13 +44,14 @@ export const traverseCourseActivity = async (
 /**
  * @returns 签到信息对象
  */
-export const getActivity = async (course: any, uf: string, _d: string, UID: string, vc3: string): Promise<string | Activity> => {
+export const getActivity = async (args: BasicCookie & { course: CourseType }): Promise<string | Activity> => {
+  const { course, ...cookies } = args;
   const result = await request(
     `${ACTIVELIST.URL}?fid=0&courseId=${course.courseId}&classId=${course.classId}&_=${new Date().getTime()}`,
     {
       secure: true,
       headers: {
-        Cookie: `uf=${uf}; _d=${_d}; UID=${UID}; vc3=${vc3};`,
+        Cookie: cookieSerialize(cookies),
       },
     }
   );
@@ -82,7 +67,7 @@ export const getActivity = async (course: any, uf: string, _d: string, UID: stri
         if ((new Date().getTime() - data.data.activeList[0].startTime) / 1000 < 7200) {
           console.log(`检测到活动：${data.data.activeList[0].nameOne}`);
           return {
-            aid: data.data.activeList[0].id,
+            activeId: data.data.activeList[0].id,
             name: data.data.activeList[0].nameOne,
             courseId: course.courseId,
             classId: course.classId,
@@ -102,11 +87,11 @@ export const getActivity = async (course: any, uf: string, _d: string, UID: stri
 /**
  * 根据 activeId 请求获得签到信息
  */
-export const getPPTActiveInfo = async (activeId: string, uf: string, _d: string, UID: string, vc3: string) => {
+export const getPPTActiveInfo = async ({ activeId, ...cookies }: BasicCookie & { activeId: string }) => {
   const result = await request(`${PPTACTIVEINFO.URL}?activeId=${activeId}`, {
     secure: true,
     headers: {
-      Cookie: `uf=${uf}; _d=${_d}; UID=${UID}; vc3=${vc3};`,
+      Cookie: cookieSerialize(cookies),
     },
   });
 
@@ -114,42 +99,28 @@ export const getPPTActiveInfo = async (activeId: string, uf: string, _d: string,
 };
 
 // 预签到请求
-export const preSign = async (
-  uf: string,
-  _d: string,
-  vc3: string,
-  activeId: string | number,
-  classId: string,
-  courseId: string,
-  uid: string
-) => {
+export const preSign = async (args: BasicCookie & { activeId: string; courseId: string; classId: string }) => {
+  const { activeId, classId, courseId, ...cookies } = args;
   await request(
-    `${PRESIGN.URL}?courseId=${courseId}&classId=${classId}&activePrimaryId=${activeId}&general=1&sys=1&ls=1&appType=15&&tid=&uid=${uid}&ut=s`,
+    `${PRESIGN.URL}?courseId=${courseId}&classId=${classId}&activePrimaryId=${activeId}&general=1&sys=1&ls=1&appType=15&&tid=&uid=${args._uid}&ut=s`,
     {
       secure: true,
       headers: {
-        Cookie: `uf=${uf}; _d=${_d}; UID=${uid}; vc3=${vc3};`,
+        Cookie: cookieSerialize(cookies),
       },
     }
   );
   console.log(`[预签]已请求`);
 };
 
-export const preSign2 = async (
-  uf: string,
-  _d: string,
-  vc3: string,
-  activeId: string | number,
-  chatId: string | undefined,
-  uid: string,
-  tuid: string
-) => {
+export const preSign2 = async (args: BasicCookie & { activeId: string; chatId: string; _uid: string; tuid: string }) => {
+  const { activeId, chatId, tuid, ...cookies } = args;
   const result = await request(
-    `${CHAT_GROUP.PRESTUSIGN.URL}?activeId=${activeId}&code=&uid=${uid}&courseId=null&classId=0&general=0&chatId=${chatId}&appType=0&tid=${tuid}&atype=null&sys=0`,
+    `${CHAT_GROUP.PRESTUSIGN.URL}?activeId=${activeId}&code=&uid=${cookies._uid}&courseId=null&classId=0&general=0&chatId=${chatId}&appType=0&tid=${tuid}&atype=null&sys=0`,
     {
       secure: true,
       headers: {
-        Cookie: `uf=${uf}; _d=${_d}; UID=${uid}; vc3=${vc3};`,
+        Cookie: cookieSerialize(cookies),
       },
     }
   );
