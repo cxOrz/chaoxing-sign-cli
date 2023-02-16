@@ -1,23 +1,15 @@
 import { PPTSIGN } from '../configs/api';
-import { request } from '../utils/request';
+import { cookieSerialize, request } from '../utils/request';
 
-export const QRCodeSign = async (
-  enc: string,
-  name: string,
-  fid: string,
-  uid: string,
-  aid: string | number,
-  uf: string,
-  _d: string,
-  vc3: string
-) => {
-  const url = `${PPTSIGN.URL}?enc=${enc}&name=${encodeURI(
-    name
-  )}&activeId=${aid}&uid=${uid}&clientip=&useragent=&latitude=-1&longitude=-1&fid=${fid}&appType=15`;
+export const QRCodeSign = async (args: BasicCookie & { enc: string; name: string; fid: string; activeId: string }) => {
+  const { enc, name, fid, activeId, ...cookies } = args;
+  const url = `${PPTSIGN.URL}?enc=${enc}&name=${encodeURI(name)}&activeId=${activeId}&uid=${
+    cookies._uid
+  }&clientip=&useragent=&latitude=-1&longitude=-1&fid=${fid}&appType=15`;
   const result = await request(url, {
     secure: true,
     headers: {
-      Cookie: `uf=${uf}; _d=${_d}; UID=${uid}; vc3=${vc3};`,
+      Cookie: cookieSerialize(cookies),
     },
   });
   if (result.data === 'success') {

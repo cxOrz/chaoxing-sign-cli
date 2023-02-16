@@ -4,7 +4,7 @@ import Koa from 'koa';
 import bodyparser from 'koa-bodyparser';
 import multiparty from 'multiparty';
 import serverless from 'serverless-http';
-import { preSign, traverseCourseActivity } from "./functions/activity";
+import { preSign, traverseCourseActivity } from './functions/activity';
 import { GeneralSign } from './functions/general';
 import { LocationSign } from './functions/location';
 import { PhotoSign, uploadPhoto } from './functions/photo';
@@ -29,10 +29,8 @@ router.post('/login', async (ctx) => {
     ctx.body = params;
     return;
   }
-  params.name = (params.uf && params._d && params._uid && params.vc3) ?
-    await getAccountInfo(params.uf, params._d, params._uid, params.vc3) : '获取失败';
+  params.name = (await getAccountInfo(params)) || '获取失败';
   console.log(ctx.request.body);
-
   ctx.body = params;
 });
 
@@ -43,20 +41,41 @@ router.post('/activity', async (ctx) => {
     ctx.body = courses;
     return;
   }
-  let activity = await traverseCourseActivity(courses, ctx.request.body.uf, ctx.request.body._d, ctx.request.body.uid, ctx.request.body.vc3);
+  let activity = await traverseCourseActivity({
+    courses,
+    uf: ctx.request.body.uf,
+    _d: ctx.request.body._d,
+    _uid: ctx.request.body.uid,
+    vc3: ctx.request.body.vc3,
+  });
   // 无活动
   if (typeof activity === 'string') {
     ctx.body = activity;
     return;
   }
   // 对活动进行预签
-  await preSign(ctx.request.body.uf, ctx.request.body._d, ctx.request.body.vc3, activity.aid, activity.classId, activity.courseId, ctx.request.body.uid);
+  await preSign({
+    uf: ctx.request.body.uf,
+    _d: ctx.request.body._d,
+    vc3: ctx.request.body.vc3,
+    _uid: ctx.request.body.uid,
+    ...activity,
+  });
   console.log(ctx.request.body.uid);
   ctx.body = activity;
 });
 
 router.post('/qrcode', async (ctx) => {
-  let res = await QRCodeSign(ctx.request.body.enc, ctx.request.body.name, ctx.request.body.fid, ctx.request.body.uid, ctx.request.body.aid, ctx.request.body.uf, ctx.request.body._d, ctx.request.body.vc3);
+  let res = await QRCodeSign({
+    enc: ctx.request.body.enc,
+    name: ctx.request.body.name,
+    fid: ctx.request.body.fid,
+    _uid: ctx.request.body.uid,
+    activeId: ctx.request.body.aid,
+    uf: ctx.request.body.uf,
+    _d: ctx.request.body._d,
+    vc3: ctx.request.body.vc3,
+  });
   console.log(ctx.request.body.name, ctx.request.body.uid);
   if (res === 'success') {
     ctx.body = 'success';
@@ -67,7 +86,18 @@ router.post('/qrcode', async (ctx) => {
 });
 
 router.post('/location', async (ctx) => {
-  let res = await LocationSign(ctx.request.body.uf, ctx.request.body._d, ctx.request.body.vc3, ctx.request.body.name, ctx.request.body.address, ctx.request.body.aid, ctx.request.body.uid, ctx.request.body.lat, ctx.request.body.lon, ctx.request.body.fid);
+  let res = await LocationSign({
+    uf: ctx.request.body.uf,
+    _d: ctx.request.body._d,
+    vc3: ctx.request.body.vc3,
+    name: ctx.request.body.name,
+    address: ctx.request.body.address,
+    activeId: ctx.request.body.aid,
+    _uid: ctx.request.body.uid,
+    lat: ctx.request.body.lat,
+    lon: ctx.request.body.lon,
+    fid: ctx.request.body.fid,
+  });
   console.log(ctx.request.body.name, ctx.request.body.uid);
   if (res === 'success') {
     ctx.body = 'success';
@@ -78,7 +108,15 @@ router.post('/location', async (ctx) => {
 });
 
 router.post('/general', async (ctx) => {
-  let res = await GeneralSign(ctx.request.body.uf, ctx.request.body._d, ctx.request.body.vc3, ctx.request.body.name, ctx.request.body.aid, ctx.request.body.uid, ctx.request.body.fid);
+  let res = await GeneralSign({
+    uf: ctx.request.body.uf,
+    _d: ctx.request.body._d,
+    vc3: ctx.request.body.vc3,
+    name: ctx.request.body.name,
+    activeId: ctx.request.body.aid,
+    _uid: ctx.request.body.uid,
+    fid: ctx.request.body.fid,
+  });
   console.log(ctx.request.body.name, ctx.request.body.uid);
   if (res === 'success') {
     ctx.body = 'success';
@@ -89,7 +127,12 @@ router.post('/general', async (ctx) => {
 });
 
 router.post('/uvtoken', async (ctx) => {
-  let res = await getPanToken(ctx.request.body.uf, ctx.request.body._d, ctx.request.body.uid, ctx.request.body.vc3);
+  let res = await getPanToken({
+    uf: ctx.request.body.uf,
+    _d: ctx.request.body._d,
+    _uid: ctx.request.body.uid,
+    vc3: ctx.request.body.vc3,
+  });
   ctx.body = res;
 });
 
@@ -119,7 +162,14 @@ router.post('/upload', async (ctx) => {
     // 解析完成后
     form.on('close', async () => {
       let buffer = Buffer.concat(data);
-      let res = await uploadPhoto(fields['uf'], fields['_d'], fields['_uid'], fields['vc3'], ctx.query._token as string, buffer);
+      let res = await uploadPhoto({
+        uf: fields['uf'],
+        _d: fields['_d'],
+        _uid: fields['_uid'],
+        vc3: fields['vc3'],
+        token: ctx.query._token as string,
+        buffer,
+      });
       resolve(res);
       console.log(res);
     });
@@ -130,7 +180,16 @@ router.post('/upload', async (ctx) => {
 });
 
 router.post('/photo', async (ctx) => {
-  let res = await PhotoSign(ctx.request.body.uf, ctx.request.body._d, ctx.request.body.vc3, ctx.request.body.name, ctx.request.body.aid, ctx.request.body.uid, ctx.request.body.fid, ctx.request.body.objectId);
+  let res = await PhotoSign({
+    uf: ctx.request.body.uf,
+    _d: ctx.request.body._d,
+    vc3: ctx.request.body.vc3,
+    name: ctx.request.body.name,
+    activeId: ctx.request.body.aid,
+    _uid: ctx.request.body.uid,
+    fid: ctx.request.body.fid,
+    objectId: ctx.request.body.objectId,
+  });
   console.log(ctx.request.body.name, ctx.request.body.uid);
   if (res === 'success') {
     ctx.body = 'success';
@@ -197,14 +256,24 @@ router.post('/monitor/start', async (ctx) => {
     ctx.body = '{"code":200,"msg":"Already started"}';
     return;
   }
-  const process_monitor = fork(ENVJSON.env.dev ? 'monitor.ts' : 'monitor.js', ['--auth',
-    ctx.request.body.uf, ctx.request.body._d,
-    ctx.request.body.vc3, ctx.request.body.uid,
-    ctx.request.body.lv, ctx.request.body.fid, ctx.request.body.phone], {
-    cwd: __dirname,
-    detached: false,
-    stdio: [null, null, null, 'ipc']
-  });
+  const process_monitor = fork(
+    ENVJSON.env.dev ? 'monitor.ts' : 'monitor.js',
+    [
+      '--auth',
+      ctx.request.body.uf,
+      ctx.request.body._d,
+      ctx.request.body.vc3,
+      ctx.request.body.uid,
+      ctx.request.body.lv,
+      ctx.request.body.fid,
+      ctx.request.body.phone,
+    ],
+    {
+      cwd: __dirname,
+      detached: false,
+      stdio: [null, null, null, 'ipc'],
+    }
+  );
   const response = await new Promise((resolve) => {
     process_monitor.on('message', (msg) => {
       switch (msg) {
@@ -229,12 +298,12 @@ router.post('/monitor/start', async (ctx) => {
 
 app.use(bodyparser());
 app.use(async (ctx, next) => {
-  ctx.set("Access-Control-Allow-Origin", "*");
-  ctx.set("Access-Control-Allow-Headers", "Content-Type");
+  ctx.set('Access-Control-Allow-Origin', '*');
+  ctx.set('Access-Control-Allow-Headers', 'Content-Type');
   await next();
 });
 app.use(async (ctx, next) => {
-  ctx.set("Access-Control-Max-Age", "300");
+  ctx.set('Access-Control-Max-Age', '300');
   if (ctx.method === 'OPTIONS') {
     ctx.body = '';
   }
@@ -249,7 +318,10 @@ process.on('exit', () => {
 });
 
 // 若在服务器，直接运行
-if (!ENVJSON.env.SERVERLESS) app.listen(5000, () => { console.log("API Server: http://localhost:5000"); });
+if (!ENVJSON.env.SERVERLESS)
+  app.listen(5000, () => {
+    console.log('API Server: http://localhost:5000');
+  });
 
 // 导出云函数
 export const main = serverless(app);

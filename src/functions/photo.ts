@@ -3,23 +3,17 @@ import fs from 'fs';
 import { tmpdir } from 'os';
 import path from 'path';
 import { CHAT_GROUP, PANCHAOXING, PANLIST, PANUPLOAD, PPTSIGN } from '../configs/api';
-import { request } from '../utils/request';
+import { cookieSerialize, request } from '../utils/request';
 
 export const PhotoSign = async (
-  uf: string,
-  _d: string,
-  vc3: string,
-  name: string,
-  activeId: string | number,
-  uid: string,
-  fid: string,
-  objectId: string
+  args: BasicCookie & { fid: string; objectId: string; name: string; activeId: string }
 ): Promise<string> => {
-  const url = `${PPTSIGN.URL}?activeId=${activeId}&uid=${uid}&clientip=&useragent=&latitude=-1&longitude=-1&appType=15&fid=${fid}&objectId=${objectId}&name=${name}`;
+  const { name, activeId, fid, objectId, ...cookies } = args;
+  const url = `${PPTSIGN.URL}?activeId=${activeId}&uid=${cookies._uid}&clientip=&useragent=&latitude=-1&longitude=-1&appType=15&fid=${fid}&objectId=${objectId}&name=${name}`;
   const result = await request(url, {
     secure: true,
     headers: {
-      Cookie: `uf=${uf}; _d=${_d}; UID=${uid}; vc3=${vc3};`,
+      Cookie: cookieSerialize(cookies),
     },
   });
   if (result.data === 'success') {
@@ -29,19 +23,13 @@ export const PhotoSign = async (
   return result.data;
 };
 
-export const PhotoSign_2 = async (
-  uf: string,
-  _d: string,
-  vc3: string,
-  activeId: string | number,
-  uid: string,
-  objectId: string
-): Promise<string> => {
-  const url = `${CHAT_GROUP.SIGN.URL}?activeId=${activeId}&uid=${uid}&clientip=&useragent=&latitude=-1&longitude=-1&fid=0&objectId=${objectId}`;
+export const PhotoSign_2 = async (args: BasicCookie & { objectId: string; activeId: string }): Promise<string> => {
+  const { activeId, objectId, ...cookies } = args;
+  const url = `${CHAT_GROUP.SIGN.URL}?activeId=${activeId}&uid=${cookies._uid}&clientip=&useragent=&latitude=-1&longitude=-1&fid=0&objectId=${objectId}`;
   const result = await request(url, {
     secure: true,
     headers: {
-      Cookie: `uf=${uf}; _d=${_d}; UID=${uid}; vc3=${vc3};`,
+      Cookie: cookieSerialize(cookies),
     },
   });
   if (result.data === 'success') {
@@ -52,12 +40,12 @@ export const PhotoSign_2 = async (
 };
 
 // 在Termux或其他终端中使用，从云盘获取图片
-export const getObjectIdFromcxPan = async (uf: string, _d: string, vc3: string, uid: string) => {
+export const getObjectIdFromcxPan = async (cookies: BasicCookie) => {
   // 获得 parentId, enc
   const result = await request(PANCHAOXING.URL, {
     secure: true,
     headers: {
-      Cookie: `uf=${uf}; _d=${_d}; UID=${uid}; vc3=${vc3};`,
+      Cookie: cookieSerialize(cookies),
     },
   });
   let data = result.data;
@@ -73,7 +61,7 @@ export const getObjectIdFromcxPan = async (uf: string, _d: string, vc3: string, 
       secure: true,
       method: PANLIST.URL,
       headers: {
-        Cookie: `uf=${uf}; _d=${_d}; UID=${uid}; vc3=${vc3};`,
+        Cookie: cookieSerialize(cookies),
       },
     },
     `puid=0&shareid=0&parentId=${parentId}&page=1&size=50&enc=${enc}`
@@ -90,7 +78,8 @@ export const getObjectIdFromcxPan = async (uf: string, _d: string, vc3: string, 
 };
 
 // 直接上传图片获得 objectId，在UI项目里使用
-export const uploadPhoto = async (uf: string, _d: string, _uid: string, vc3: string, token: string, buffer: Buffer) => {
+export const uploadPhoto = async (args: BasicCookie & { buffer: Buffer; token: string }) => {
+  const { token, buffer, ...cookies } = args;
   const FormData = (await import('form-data')).default;
   const form = new FormData();
   const tempFilePath = path.join(tmpdir(), randomBytes(16).toString('hex') + '.jpg');
@@ -99,7 +88,7 @@ export const uploadPhoto = async (uf: string, _d: string, _uid: string, vc3: str
   fs.writeFileSync(tempFilePath, buffer);
   const fStream = fs.createReadStream(tempFilePath);
   form.append('file', fStream);
-  form.append('puid', _uid);
+  form.append('puid', cookies._uid);
 
   const result = await request(
     `${PANUPLOAD.URL}?_token=${token}`,
@@ -107,7 +96,7 @@ export const uploadPhoto = async (uf: string, _d: string, _uid: string, vc3: str
       secure: true,
       method: PANUPLOAD.METHOD,
       headers: {
-        Cookie: `uf=${uf}; _d=${_d}; UID=${_uid}; vc3=${vc3};`,
+        Cookie: cookieSerialize(cookies),
         'Content-Type': `multipart/form-data;boundary=${form.getBoundary()}`,
       },
     },
