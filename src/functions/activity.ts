@@ -1,6 +1,5 @@
-import https from 'https';
-import { ACTIVELIST, CHAT_GROUP, PPTACTIVEINFO, PRESIGN } from "../configs/api";
-import { promiseAny } from '../utils/helper';
+import { ACTIVELIST, CHAT_GROUP, PPTACTIVEINFO, PRESIGN } from '../configs/api';
+import { request } from '../utils/request';
 import { CourseType } from './user';
 
 export interface Activity {
@@ -15,146 +14,147 @@ export interface Activity {
 
 /**
  * 返回一个签到信息对象 {aid, name, courseId, classId, otherId}
- * @param {{courseId:string, classId:string}[]} courses 
+ * @param {{courseId:string, classId:string}[]} courses
  */
-export const getSignActivity = (courses: CourseType[],
-  uf: string, _d: string, UID: string, vc3: string): Promise<string | Activity> => {
+export const traverseCourseActivity = async (
+  courses: CourseType[],
+  uf: string,
+  _d: string,
+  UID: string,
+  vc3: string
+): Promise<string | Activity> => {
   console.log('正在查询有效签到活动，等待时间视网络情况而定...');
-  let i = 0, tasks: Promise<any>[] = [];
-  return new Promise(async (resolve) => {
-    if (courses.length === 1) {
+  let i = 0;
+  let tasks: Promise<any>[] = [];
+
+  // 特殊情况，只有一门课
+  if (courses.length === 1) {
+    try {
+      i++;
+      return await getActivity(courses[0], uf, _d, UID, vc3);
+    } catch (err) {
+      // 该课程无有效签到
+    }
+  }
+
+  tasks.push(getActivity(courses[0], uf, _d, UID, vc3));
+  // 一次请求五个，全部reject或有一个成功则进行下一次请求
+  for (i = 1; i < courses.length; i++) {
+    // 课程请求加入任务数组
+    tasks.push(getActivity(courses[i], uf, _d, UID, vc3));
+    // 一轮提交5个，若处于最后一个且此轮还不够5个，提交此轮全部
+    if (i % 5 === 0 || i === courses.length - 1) {
       try {
-        resolve(await aPromise(courses[0], uf, _d, UID, vc3));
-      } catch (err) {
-        i++;
-      }
-    } else {
-      tasks.push(aPromise(courses[0], uf, _d, UID, vc3));
-      // 一次请求五个，全部reject或有一个成功则进行下一次请求
-      for (i++; i < courses.length; i++) {
-        // 课程请求加入任务数组
-        tasks.push(aPromise(courses[i], uf, _d, UID, vc3));
-        // 一轮提交5个，若处于最后一个且此轮还不够5个，提交此轮全部
-        if (i % 5 === 0 || i === courses.length - 1) {
-          try {
-            // 任务数组中任意一个成功，则resolve；否则，抛出异常
-            const result = await promiseAny(tasks);
-            resolve(result);
-            return;
-          } catch (error) { }
-          // 每轮请求任务组之后，清空任务数组供下轮使用
-          tasks = [];
-        }
-      }
+        // 任务数组中任意一个成功就返回；否则，抛出异常
+        return await Promise.any(tasks);
+      } catch (error) {}
+      // 每轮请求任务组之后，清空任务数组供下轮使用
+      tasks = [];
     }
-    // 若等于length说明遍历了全部，都没有获得活动
-    if (i === courses.length) {
-      console.log('未检测到有效签到活动！');
-      resolve('NoActivity');
-      return;
-    }
-  });
+  }
+
+  console.log('未检测到有效签到活动！');
+  return 'NoActivity';
 };
 
 /**
- * @param {{courseId, classId}} course
- * @returns 返回一个活动请求 Promise 对象
+ * @returns 签到信息对象
  */
-export function aPromise(course: any, uf: string, _d: string, UID: string, vc3: string): Promise<string | Activity> {
-  return new Promise((resolve, reject) => {
-    let data: any = '';
-    https.get(ACTIVELIST.URL + `?fid=0&courseId=${course.courseId}&classId=${course.classId}&_=${new Date().getTime()}`, {
+export const getActivity = async (course: any, uf: string, _d: string, UID: string, vc3: string): Promise<string | Activity> => {
+  const result = await request(
+    `${ACTIVELIST.URL}?fid=0&courseId=${course.courseId}&classId=${course.classId}&_=${new Date().getTime()}`,
+    {
+      secure: true,
       headers: {
-        'Cookie': `uf=${uf}; _d=${_d}; UID=${UID}; vc3=${vc3};`,
-      }
-    }, (res) => {
-      res.on('data', (chunk) => { data += chunk; });
-      res.on('end', () => {
-        // console.log(data)
-        data = JSON.parse(data);
-        // 判断是否请求成功
-        if (data.data !== null) {
-          if (data.data.activeList.length != 0) {
-            let otherId = Number(data.data.activeList[0].otherId);
-            // 判断是否有效签到活动
-            if ((otherId >= 0 && otherId <= 5) && data.data.activeList[0].status == 1) {
-              // 活动开始超过一小时则忽略
-              if ((new Date().getTime() - data.data.activeList[0].startTime) / 1000 < 7200) {
-                console.log(`检测到活动：${data.data.activeList[0].nameOne}`);
-                resolve({
-                  aid: data.data.activeList[0].id,
-                  name: data.data.activeList[0].nameOne,
-                  courseId: course.courseId,
-                  classId: course.classId,
-                  otherId
-                });
-                return;
-              }
-            }
-          }
-        } else {
-          console.log('请求似乎有些频繁，获取数据为空!');
-          resolve("Too Frequent");
+        Cookie: `uf=${uf}; _d=${_d}; UID=${UID}; vc3=${vc3};`,
+      },
+    }
+  );
+
+  let data = JSON.parse(result.data);
+  // 判断是否请求成功
+  if (data.data !== null) {
+    if (data.data.activeList.length !== 0) {
+      let otherId = Number(data.data.activeList[0].otherId);
+      // 判断是否有效签到活动
+      if (otherId >= 0 && otherId <= 5 && data.data.activeList[0].status == 1) {
+        // 活动开始超过一小时则忽略
+        if ((new Date().getTime() - data.data.activeList[0].startTime) / 1000 < 7200) {
+          console.log(`检测到活动：${data.data.activeList[0].nameOne}`);
+          return {
+            aid: data.data.activeList[0].id,
+            name: data.data.activeList[0].nameOne,
+            courseId: course.courseId,
+            classId: course.classId,
+            otherId,
+          };
         }
-        // 此课程最新活动并非有效签到
-        reject('Not Available');
-      });
-    });
-  });
-}
+      }
+    }
+  } else {
+    console.log('请求似乎有些频繁，获取数据为空!');
+    return 'Too Frequent';
+  }
+  // 此课程最新活动并非有效签到
+  throw 'Not Available';
+};
 
 /**
- * 根据 activeId 请求获得 otherId
+ * 根据 activeId 请求获得签到信息
  */
-export function getPPTActiveInfo(activeId: string, uf: string, _d: string, UID: string, vc3: string) {
-  let data = '';
-  return new Promise<any>((resolve) => {
-    https.get(PPTACTIVEINFO.URL + `?activeId=` + activeId, {
-      headers: {
-        'Cookie': `uf=${uf}; _d=${_d}; UID=${UID}; vc3=${vc3};`
-      }
-    }, (res) => {
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => {
-        resolve(JSON.parse(data).data);
-      });
-    });
+export const getPPTActiveInfo = async (activeId: string, uf: string, _d: string, UID: string, vc3: string) => {
+  const result = await request(`${PPTACTIVEINFO.URL}?activeId=${activeId}`, {
+    secure: true,
+    headers: {
+      Cookie: `uf=${uf}; _d=${_d}; UID=${UID}; vc3=${vc3};`,
+    },
   });
-}
+
+  return JSON.parse(result.data).data;
+};
 
 // 预签到请求
-export const preSign = async (uf: string, _d: string, vc3: string, activeId: string | number, classId: string, courseId: string, uid: string) => {
-  let data = '';
-  return new Promise<void>((resolve) => {
-    https.get(PRESIGN.URL + `?courseId=${courseId}&classId=${classId}&activePrimaryId=${activeId}&general=1&sys=1&ls=1&appType=15&&tid=&uid=${uid}&ut=s`, {
+export const preSign = async (
+  uf: string,
+  _d: string,
+  vc3: string,
+  activeId: string | number,
+  classId: string,
+  courseId: string,
+  uid: string
+) => {
+  await request(
+    `${PRESIGN.URL}?courseId=${courseId}&classId=${classId}&activePrimaryId=${activeId}&general=1&sys=1&ls=1&appType=15&&tid=&uid=${uid}&ut=s`,
+    {
+      secure: true,
       headers: {
-        'Cookie': `uf=${uf}; _d=${_d}; UID=${uid}; vc3=${vc3};`
-      }
-    }, (res) => {
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => {
-        console.log(`[预签]已请求`);
-        resolve();
-      });
-    });
-  });
+        Cookie: `uf=${uf}; _d=${_d}; UID=${uid}; vc3=${vc3};`,
+      },
+    }
+  );
+  console.log(`[预签]已请求`);
 };
 
-export const preSign2 = (uf: string, _d: string, vc3: string, activeId: string | number, chatId: string | undefined, uid: string, tuid: string) => {
-  let data = '';
-  return new Promise<string>((resolve) => {
-    https.get(CHAT_GROUP.PRESTUSIGN.URL + `?activeId=${activeId}&code=&uid=${uid}&courseId=null&classId=0&general=0&chatId=${chatId}&appType=0&tid=${tuid}&atype=null&sys=0`, {
+export const preSign2 = async (
+  uf: string,
+  _d: string,
+  vc3: string,
+  activeId: string | number,
+  chatId: string | undefined,
+  uid: string,
+  tuid: string
+) => {
+  const result = await request(
+    `${CHAT_GROUP.PRESTUSIGN.URL}?activeId=${activeId}&code=&uid=${uid}&courseId=null&classId=0&general=0&chatId=${chatId}&appType=0&tid=${tuid}&atype=null&sys=0`,
+    {
+      secure: true,
       headers: {
-        'Cookie': `uf=${uf}; _d=${_d}; UID=${uid}; vc3=${vc3};`
-      }
-    }, (res) => {
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => {
-        console.log(`[预签]已请求`);
-        resolve(data);
-      });
-    });
-  });
+        Cookie: `uf=${uf}; _d=${_d}; UID=${uid}; vc3=${vc3};`,
+      },
+    }
+  );
+  console.log(`[预签]已请求`);
+  return result.data;
 };
 
 /**

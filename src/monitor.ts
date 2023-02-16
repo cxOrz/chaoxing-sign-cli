@@ -4,12 +4,6 @@ import path from 'path';
 import { blue, red } from 'kolorist';
 import jsdom from 'jsdom';
 import WebSocket from 'ws';
-const JSDOM = new jsdom.JSDOM('', { url: 'https://im.chaoxing.com/webim/me' });
-(globalThis.window as any) = JSDOM.window;
-(globalThis.WebSocket as any) = WebSocket;
-globalThis.navigator = JSDOM.window.navigator;
-globalThis.location = JSDOM.window.location;
-const webIM = require('./utils/websdk3.1.4.js').default;
 import { Activity, getPPTActiveInfo, preSign, preSign2, speculateType } from './functions/activity';
 import { GeneralSign, GeneralSign_2 } from "./functions/general";
 import { LocationSign, LocationSign_2 } from "./functions/location";
@@ -17,6 +11,14 @@ import { PhotoSign, getObjectIdFromcxPan, PhotoSign_2 } from "./functions/photo"
 import { getJsonObject, getStoredUser, storeUser } from './utils/file';
 import { getIMParams, getLocalUsers, userLogin } from './functions/user';
 import { sendEmail } from './utils/mailer';
+import { delay } from './utils/helper';
+const JSDOM = new jsdom.JSDOM('', { url: 'https://im.chaoxing.com/webim/me' });
+(globalThis.window as any) = JSDOM.window;
+(globalThis.WebSocket as any) = WebSocket;
+globalThis.navigator = JSDOM.window.navigator;
+globalThis.location = JSDOM.window.location;
+
+const webIM = require('./utils/websdk3.1.4.js').default;
 
 const PromptsOptions = {
   onCancel: () => {
@@ -190,6 +192,7 @@ async function Sign(realname: string, params: any, config: any, activity: Activi
       }
       case 'photo': {
         let objectId = await getObjectIdFromcxPan(params.uf, params._d, params.vc3, params._uid);
+        if (objectId === null) return null;
         result = await PhotoSign_2(params.uf, params._d, params.vc3, activity.aid, params._uid, objectId);
         break;
       }
@@ -227,6 +230,7 @@ async function Sign(realname: string, params: any, config: any, activity: Activi
         result = await GeneralSign(params.uf, params._d, params.vc3, realname, activity.aid, params._uid, params.fid); break;
       } else {
         let objectId = await getObjectIdFromcxPan(params.uf, params._d, params.vc3, params._uid);
+        if (objectId === null) return null;
         result = await PhotoSign(params.uf, params._d, params.vc3, realname, activity.aid, params._uid, params.fid, objectId); break;
       }
     }
@@ -310,7 +314,7 @@ async function Sign(realname: string, params: any, config: any, activity: Activi
             otherId: PPTActiveInfo.otherId,
             ifphoto: PPTActiveInfo.ifphoto
           });
-          if (config.mailing) sendEmail(IM_CourseInfo.aid, params._uid, IM_Params.myName, result, config.mailing);
+          if (config.mailing && result) sendEmail(IM_CourseInfo.aid, params._uid, IM_Params.myName, result, config.mailing);
         }
       }
     },
