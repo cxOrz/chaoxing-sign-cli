@@ -63,6 +63,7 @@ export const CHAT_GROUP = {
   },
   SIGN: {
     URL: 'https://mobilelearn.chaoxing.com/sign/stuSignajax',
+    // 也存在是 POST 的情况
     METHOD: 'GET'
   }
 };

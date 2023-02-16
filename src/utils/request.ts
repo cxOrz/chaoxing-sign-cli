@@ -1,6 +1,6 @@
 import http, { ClientRequestArgs } from 'http';
-import zlib from 'zlib';
 import https from 'https';
+import zlib from 'zlib';
 
 enum RequestMethod {
   GET = 'GET',
@@ -12,7 +12,7 @@ enum RequestMethod {
 type RequestMethodType = RequestMethod | string;
 
 interface RequestOptions {
-  SSL?: boolean;
+  secure?: boolean;
   headers?: ClientRequestArgs['headers'];
   method?: RequestMethodType;
   gzip?: boolean;
@@ -26,7 +26,7 @@ interface ResponseType {
 
 /**
  * @param url 接口地址
- * @param options headers, method, SSL 参数配置
+ * @param options headers, method, secure 参数配置
  * @param payload 当进行POST请求时传入数据
  * @returns
  */
@@ -34,7 +34,7 @@ const request = (url: string, options: RequestOptions, payload?: any): Promise<R
   // 设置默认值
   options.method = options.method || 'GET';
 
-  let protocol = options.SSL ? https : http;
+  let protocol = options.secure ? https : http;
 
   const result = new Promise<ResponseType>((resolve, reject) => {
     let data = '';
@@ -73,3 +73,4 @@ const request = (url: string, options: RequestOptions, payload?: any): Promise<R
 };
 
 export { request };
+

@@ -1,4 +1,4 @@
-import { PPTSIGN, CHAT_GROUP } from '../configs/api';
+import { CHAT_GROUP, PPTSIGN } from '../configs/api';
 import { request } from '../utils/request';
 
 export const GeneralSign = async (
@@ -12,7 +12,7 @@ export const GeneralSign = async (
 ): Promise<string> => {
   const url = `${PPTSIGN.URL}?activeId=${activeId}&uid=${uid}&clientip=&latitude=-1&longitude=-1&appType=15&fid=${fid}&name=${name}`;
   const result = await request(url, {
-    SSL: true,
+    secure: true,
     headers: {
       Cookie: `uf=${uf}; _d=${_d}; UID=${uid}; vc3=${vc3};`,
     },
@@ -37,7 +37,7 @@ export const GeneralSign_2 = async (
 ): Promise<string> => {
   const url = `${CHAT_GROUP.SIGN.URL}?activeId=${activeId}&uid=${uid}&clientip=`;
   const result = await request(url, {
-    SSL: true,
+    secure: true,
     headers: {
       Cookie: `uf=${uf}; _d=${_d}; UID=${uid}; vc3=${vc3};`,
     },

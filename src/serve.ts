@@ -4,7 +4,7 @@ import Koa from 'koa';
 import bodyparser from 'koa-bodyparser';
 import multiparty from 'multiparty';
 import serverless from 'serverless-http';
-import { getSignActivity, preSign } from "./functions/activity";
+import { preSign, traverseCourseActivity } from "./functions/activity";
 import { GeneralSign } from './functions/general';
 import { LocationSign } from './functions/location';
 import { PhotoSign, uploadPhoto } from './functions/photo';
@@ -43,7 +43,7 @@ router.post('/activity', async (ctx) => {
     ctx.body = courses;
     return;
   }
-  let activity = await getSignActivity(courses, ctx.request.body.uf, ctx.request.body._d, ctx.request.body.uid, ctx.request.body.vc3);
+  let activity = await traverseCourseActivity(courses, ctx.request.body.uf, ctx.request.body._d, ctx.request.body.uid, ctx.request.body.vc3);
   // 无活动
   if (typeof activity === 'string') {
     ctx.body = activity;
