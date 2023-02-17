@@ -192,9 +192,8 @@ async function configure(phone: string) {
 async function Sign(realname: string, params: UserCookieType & { tuid: string }, config: any, activity: Activity) {
   let result = 'fail';
   // 群聊签到，无课程
-  if (activity.courseId === 'null') {
-    // 暂未处理 chatId 获取！！
-    let page = await preSign2({ ...activity, ...params, chatId: '' });
+  if (!activity.courseId) {
+    let page = await preSign2({ ...activity, ...params, chatId: activity.chatId as string });
     let activityType = speculateType(page);
     switch (activityType) {
       case 'general': {
@@ -337,8 +336,8 @@ async function Sign(realname: string, params: UserCookieType & { tuid: string },
       if (message?.ext?.attachment?.att_chat_course?.url.includes('sign')) {
         const IM_CourseInfo = {
           aid: message.ext.attachment.att_chat_course.aid,
-          classId: message.ext.attachment.att_chat_course.courseInfo.classid,
-          courseId: message.ext.attachment.att_chat_course.courseInfo.courseid,
+          classId: message.ext.attachment.att_chat_course?.courseInfo?.classid,
+          courseId: message.ext.attachment.att_chat_course?.courseInfo?.courseid,
         };
         const PPTActiveInfo = await getPPTActiveInfo({ activeId: IM_CourseInfo.aid, ...(params as UserCookieType) });
 
@@ -351,6 +350,7 @@ async function Sign(realname: string, params: UserCookieType & { tuid: string },
             activeId: IM_CourseInfo.aid,
             otherId: PPTActiveInfo.otherId,
             ifphoto: PPTActiveInfo.ifphoto,
+            chatId: message?.to,
           });
           if (config.mailing && result)
             sendEmail({
