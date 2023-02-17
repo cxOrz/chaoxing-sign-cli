@@ -45,7 +45,7 @@ interface Activity {
   classId: string;
   otherId: number;
   ifphoto?: number;
-  chatID?: string;
+  chatId?: string;
 }
 
 interface IMParamsType {

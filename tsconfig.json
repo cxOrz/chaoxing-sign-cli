@@ -1,6 +1,6 @@
 {
   // This is an alias to @tsconfig/node16: https://github.com/tsconfig/bases
-  "extends": "@tsconfig/node16",
+  "extends": "@tsconfig/node18/tsconfig.json",
   // Most ts-node options can be specified here using their programmatic names.
   "ts-node": {
     // It is faster to skip typechecking.
