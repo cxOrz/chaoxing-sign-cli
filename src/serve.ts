@@ -71,7 +71,7 @@ router.post('/qrcode', async (ctx) => {
     name: ctx.request.body.name,
     fid: ctx.request.body.fid,
     _uid: ctx.request.body.uid,
-    activeId: ctx.request.body.aid,
+    activeId: ctx.request.body.activeId,
     uf: ctx.request.body.uf,
     _d: ctx.request.body._d,
     vc3: ctx.request.body.vc3,
@@ -92,7 +92,7 @@ router.post('/location', async (ctx) => {
     vc3: ctx.request.body.vc3,
     name: ctx.request.body.name,
     address: ctx.request.body.address,
-    activeId: ctx.request.body.aid,
+    activeId: ctx.request.body.activeId,
     _uid: ctx.request.body.uid,
     lat: ctx.request.body.lat,
     lon: ctx.request.body.lon,
@@ -113,7 +113,7 @@ router.post('/general', async (ctx) => {
     _d: ctx.request.body._d,
     vc3: ctx.request.body.vc3,
     name: ctx.request.body.name,
-    activeId: ctx.request.body.aid,
+    activeId: ctx.request.body.activeId,
     _uid: ctx.request.body.uid,
     fid: ctx.request.body.fid,
   });
@@ -180,12 +180,12 @@ router.post('/upload', async (ctx) => {
 });
 
 router.post('/photo', async (ctx) => {
-  let res = await PhotoSign({
+  const res = await PhotoSign({
     uf: ctx.request.body.uf,
     _d: ctx.request.body._d,
     vc3: ctx.request.body.vc3,
     name: ctx.request.body.name,
-    activeId: ctx.request.body.aid,
+    activeId: ctx.request.body.activeId,
     _uid: ctx.request.body.uid,
     fid: ctx.request.body.fid,
     objectId: ctx.request.body.objectId,
