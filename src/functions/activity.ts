@@ -2,7 +2,7 @@ import { ACTIVELIST, CHAT_GROUP, PPTACTIVEINFO, PRESIGN } from '../configs/api';
 import { cookieSerialize, request } from '../utils/request';
 
 /**
- * 返回一个签到信息对象 {aid, name, courseId, classId, otherId}
+ * 返回一个签到信息对象 {activeId, name, courseId, classId, otherId}
  * @param {{courseId:string, classId:string}[]} courses
  */
 export const traverseCourseActivity = async (args: BasicCookie & { courses: CourseType[] }): Promise<string | Activity> => {

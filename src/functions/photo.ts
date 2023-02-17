@@ -9,7 +9,9 @@ export const PhotoSign = async (
   args: BasicCookie & { fid: string; objectId: string; name: string; activeId: string }
 ): Promise<string> => {
   const { name, activeId, fid, objectId, ...cookies } = args;
-  const url = `${PPTSIGN.URL}?activeId=${activeId}&uid=${cookies._uid}&clientip=&useragent=&latitude=-1&longitude=-1&appType=15&fid=${fid}&objectId=${objectId}&name=${name}`;
+  const url = `${PPTSIGN.URL}?activeId=${activeId}&uid=${
+    cookies._uid
+  }&clientip=&useragent=&latitude=-1&longitude=-1&appType=15&fid=${fid}&objectId=${objectId}&name=${encodeURIComponent(name)}`;
   const result = await request(url, {
     secure: true,
     headers: {
@@ -59,7 +61,7 @@ export const getObjectIdFromcxPan = async (cookies: BasicCookie) => {
     `${PANLIST.URL}?puid=0&shareid=0&parentId=${parentId}&page=1&size=50&enc=${enc}`,
     {
       secure: true,
-      method: PANLIST.URL,
+      method: PANLIST.METHOD,
       headers: {
         Cookie: cookieSerialize(cookies),
       },
@@ -86,12 +88,12 @@ export const uploadPhoto = async (args: BasicCookie & { buffer: Buffer; token: s
 
   // form-data 库只支持文件流，所以只能先写入文件再从文件读了
   fs.writeFileSync(tempFilePath, buffer);
-  const fStream = fs.createReadStream(tempFilePath);
-  form.append('file', fStream);
+  const file = fs.readFileSync(tempFilePath);
+  form.append('file', file, { filename: '1.png' }); // 必须指定文件名，form-data 才能识别出文件 MimeType
   form.append('puid', cookies._uid);
 
   const result = await request(
-    `${PANUPLOAD.URL}?_token=${token}`,
+    `${PANUPLOAD.URL}?_from=mobilelearn&_token=${token}`,
     {
       secure: true,
       method: PANUPLOAD.METHOD,
