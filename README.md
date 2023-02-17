@@ -102,10 +102,10 @@ yarn start
 |/login|POST|phone, password|JSON|\< String \>|
 |/activity|POST|uf, _d, vc3, uid|JSON|JSON|
 |/uvtoken|POST|uf, _d, vc3, uid|JSON|\< String \>|
-|/qrcode|POST|uf, _d, vc3, name, aid, uid, fid, enc|JSON|待填|
-|/location|POST|uf, _d, vc3, name, aid, uid, fid, address, lat, lon|JSON|待填|
-|/general|POST|uf, _d, vc3, name, aid, uid, fid|JSON|待填|
-|/photo|POST|uf, _d, vc3, name, aid, uid, fid, objectId|JSON|待填|
+|/qrcode|POST|uf, _d, vc3, name, activeId, uid, fid, enc|JSON|待填|
+|/location|POST|uf, _d, vc3, name, activeId, uid, fid, address, lat, lon|JSON|待填|
+|/general|POST|uf, _d, vc3, name, activeId, uid, fid|JSON|待填|
+|/photo|POST|uf, _d, vc3, name, activeId, uid, fid, objectId|JSON|待填|
 |/upload|POST|uf, _d, vc3, uid, file, ?_token|multipart/form-data|待填|
 |/qrocr|POST|file|multipart/form-data|\< String \>|
 |/monitor/status|POST|phone|JSON|JSON|
