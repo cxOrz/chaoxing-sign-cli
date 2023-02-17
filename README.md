@@ -12,7 +12,7 @@
 
 ## 环境 💻
 
-可在任意运行 [NodeJS](https://nodejs.org/en/) > v16.14 的平台签到，Windows、MacOS、Linux ... 
+可在任意运行 [NodeJS](https://nodejs.org/en/) > v18.14 的平台签到，Windows、MacOS、Linux ... 
 
 安卓手机上可以用 Termux 来运行NodeJS程序，[查看Termux教程](./src/docs/termux.md) 。
 
