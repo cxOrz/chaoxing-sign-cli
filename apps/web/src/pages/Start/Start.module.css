@@ -1,0 +1,25 @@
+.hint {
+  margin-top: -1rem;
+  margin-bottom: 2.5rem;
+  color: #6f788c;
+}
+
+.neumCard {
+  border-radius: 13px;
+  background: #ecf0f3;
+  box-shadow: 16px 16px 32px #c9cccf, -16px -16px 32px #ffffff;
+}
+
+.startBox {
+  margin-top: 5rem;
+  margin-bottom: 5rem;
+}
+
+@media screen and (max-width: 500px) {
+  .neumCard {
+    border-radius: 13px;
+    background: #ecf0f3;
+    margin: 0 1rem 2rem !important;
+    box-shadow: 16px 16px 32px #c9cccf, -16px -16px 32px #ffffff;
+  }
+}

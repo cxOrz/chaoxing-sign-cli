@@ -1,0 +1,44 @@
+{
+  "name": "server",
+  "version": "3.8.9",
+  "description": "超星学习通签到项目",
+  "scripts": {
+    "build": "tsc && node ./src/scripts/cplibs.js",
+    "start": "node ./build/index.js",
+    "serve": "node ./build/serve.js",
+    "monitor": "node ./build/monitor.js",
+    "dev:start": "ts-node ./src/index.ts",
+    "dev:serve": "ts-node ./src/serve.ts",
+    "dev:monitor": "ts-node ./src/monitor.ts"
+  },
+  "dependencies": {
+    "@koa/router": "^12.0.0",
+    "crypto-js": "^4.1.1",
+    "form-data": "^4.0.0",
+    "jsdom": "^20.0.0",
+    "koa": "^2.13.4",
+    "koa-bodyparser": "^4.3.0",
+    "kolorist": "^1.5.1",
+    "multiparty": "^4.2.3",
+    "nodemailer": "^6.7.8",
+    "prompts": "^2.4.2",
+    "serverless-http": "^3.0.1",
+    "tencentcloud-sdk-nodejs": "^4.0.421",
+    "ws": "^8.8.1"
+  },
+  "devDependencies": {
+    "@types/crypto-js": "^4.1.1",
+    "@types/jsdom": "^20.0.0",
+    "@types/koa": "^2.13.5",
+    "@types/koa-bodyparser": "^4.3.7",
+    "@types/koa__router": "^8.0.11",
+    "@types/multiparty": "^0.0.33",
+    "@types/node": "^18.7.9",
+    "@types/nodemailer": "^6.4.5",
+    "@types/prompts": "^2.0.14",
+    "@types/ws": "^8.5.3",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.7.4",
+    "tsconfig": "workspace:*"
+  }
+}

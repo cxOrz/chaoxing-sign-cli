@@ -23,7 +23,8 @@ router.get('/', async (ctx) => {
 });
 
 router.post('/login', async (ctx) => {
-  let params = await userLogin(ctx.request.body.phone, ctx.request.body.password);
+  const { phone, password } = ctx.request.body as any;
+  let params = await userLogin(phone, password);
   // 登陆失败
   if (typeof params === 'string') {
     ctx.body = params;
@@ -35,7 +36,8 @@ router.post('/login', async (ctx) => {
 });
 
 router.post('/activity', async (ctx) => {
-  let courses = await getCourses(ctx.request.body.uid, ctx.request.body._d, ctx.request.body.vc3);
+  const { uid, _d, vc3, uf } = ctx.request.body as any;
+  let courses = await getCourses(uid, _d, vc3);
   // 身份凭证过期
   if (typeof courses === 'string') {
     ctx.body = courses;
@@ -43,10 +45,10 @@ router.post('/activity', async (ctx) => {
   }
   let activity = await traverseCourseActivity({
     courses,
-    uf: ctx.request.body.uf,
-    _d: ctx.request.body._d,
-    _uid: ctx.request.body.uid,
-    vc3: ctx.request.body.vc3,
+    uf: uf,
+    _d: _d,
+    _uid: uid,
+    vc3: vc3,
   });
   // 无活动
   if (typeof activity === 'string') {
@@ -55,28 +57,29 @@ router.post('/activity', async (ctx) => {
   }
   // 对活动进行预签
   await preSign({
-    uf: ctx.request.body.uf,
-    _d: ctx.request.body._d,
-    vc3: ctx.request.body.vc3,
-    _uid: ctx.request.body.uid,
+    uf,
+    _d,
+    vc3,
+    _uid: uid,
     ...activity,
   });
-  console.log(ctx.request.body.uid);
+  console.log(uid);
   ctx.body = activity;
 });
 
 router.post('/qrcode', async (ctx) => {
+  const { name, fid, uid, activeId, uf, _d, vc3, enc } = ctx.request.body as any;
   let res = await QRCodeSign({
-    enc: ctx.request.body.enc,
-    name: ctx.request.body.name,
-    fid: ctx.request.body.fid,
-    _uid: ctx.request.body.uid,
-    activeId: ctx.request.body.activeId,
-    uf: ctx.request.body.uf,
-    _d: ctx.request.body._d,
-    vc3: ctx.request.body.vc3,
+    enc,
+    name,
+    fid,
+    _uid: uid,
+    activeId,
+    uf,
+    _d,
+    vc3,
   });
-  console.log(ctx.request.body.name, ctx.request.body.uid);
+  console.log(name, uid);
   if (res === 'success') {
     ctx.body = 'success';
     return;
@@ -86,19 +89,20 @@ router.post('/qrcode', async (ctx) => {
 });
 
 router.post('/location', async (ctx) => {
+  const { uf, _d, vc3, name, uid, lat, lon, fid, address, activeId } = ctx.request.body as any;
   let res = await LocationSign({
-    uf: ctx.request.body.uf,
-    _d: ctx.request.body._d,
-    vc3: ctx.request.body.vc3,
-    name: ctx.request.body.name,
-    address: ctx.request.body.address,
-    activeId: ctx.request.body.activeId,
-    _uid: ctx.request.body.uid,
-    lat: ctx.request.body.lat,
-    lon: ctx.request.body.lon,
-    fid: ctx.request.body.fid,
+    uf,
+    _d,
+    vc3,
+    name,
+    address,
+    activeId,
+    _uid: uid,
+    lat,
+    lon,
+    fid,
   });
-  console.log(ctx.request.body.name, ctx.request.body.uid);
+  console.log(name, uid);
   if (res === 'success') {
     ctx.body = 'success';
     return;
@@ -108,16 +112,17 @@ router.post('/location', async (ctx) => {
 });
 
 router.post('/general', async (ctx) => {
+  const { uf, _d, vc3, name, activeId, uid, fid } = ctx.request.body as any;
   let res = await GeneralSign({
-    uf: ctx.request.body.uf,
-    _d: ctx.request.body._d,
-    vc3: ctx.request.body.vc3,
-    name: ctx.request.body.name,
-    activeId: ctx.request.body.activeId,
-    _uid: ctx.request.body.uid,
-    fid: ctx.request.body.fid,
+    uf,
+    _d,
+    vc3,
+    name,
+    activeId,
+    _uid: uid,
+    fid,
   });
-  console.log(ctx.request.body.name, ctx.request.body.uid);
+  console.log(name, uid);
   if (res === 'success') {
     ctx.body = 'success';
     return;
@@ -127,11 +132,12 @@ router.post('/general', async (ctx) => {
 });
 
 router.post('/uvtoken', async (ctx) => {
+  const { uf, _d, uid, vc3 } = ctx.request.body as any;
   let res = await getPanToken({
-    uf: ctx.request.body.uf,
-    _d: ctx.request.body._d,
-    _uid: ctx.request.body.uid,
-    vc3: ctx.request.body.vc3,
+    uf,
+    _d,
+    _uid: uid,
+    vc3,
   });
   ctx.body = res;
 });
@@ -180,17 +186,18 @@ router.post('/upload', async (ctx) => {
 });
 
 router.post('/photo', async (ctx) => {
+  const { uf, _d, uid, vc3, name, activeId, fid, objectId } = ctx.request.body as any;
   const res = await PhotoSign({
-    uf: ctx.request.body.uf,
-    _d: ctx.request.body._d,
-    vc3: ctx.request.body.vc3,
-    name: ctx.request.body.name,
-    activeId: ctx.request.body.activeId,
-    _uid: ctx.request.body.uid,
-    fid: ctx.request.body.fid,
-    objectId: ctx.request.body.objectId,
+    uf,
+    _d,
+    vc3,
+    name,
+    activeId,
+    _uid: uid,
+    fid,
+    objectId,
   });
-  console.log(ctx.request.body.name, ctx.request.body.uid);
+  console.log(name, uid);
   if (res === 'success') {
     ctx.body = 'success';
     return;
@@ -234,8 +241,9 @@ router.post('/qrocr', async (ctx) => {
 
 // 200:监听中，201:未监听，202:登录失败
 router.post('/monitor/status', (ctx) => {
+  const { phone } = ctx.request.body as any;
   // 状态为正在监听
-  if (processMap.get(ctx.request.body.phone)) {
+  if (processMap.get(phone)) {
     ctx.body = '{"code":200,"msg":"Monitoring"}';
   } else {
     ctx.body = '{"code":201,"msg":"Suspended"}';
@@ -243,42 +251,31 @@ router.post('/monitor/status', (ctx) => {
 });
 
 router.post('/monitor/stop', (ctx) => {
-  const process_monitor = processMap.get(ctx.request.body.phone);
+  const { phone } = ctx.request.body as any;
+  const process_monitor = processMap.get(phone);
   if (process_monitor !== undefined) {
     process_monitor.kill('SIGKILL');
-    processMap.delete(ctx.request.body.phone);
+    processMap.delete(phone);
   }
   ctx.body = '{"code":201,"msg":"Suspended"}';
 });
 
 router.post('/monitor/start', async (ctx) => {
-  if (processMap.get(ctx.request.body.phone) !== undefined) {
+  const { phone, uf, _d, vc3, uid, lv, fid } = ctx.request.body as any;
+  if (processMap.get(phone) !== undefined) {
     ctx.body = '{"code":200,"msg":"Already started"}';
     return;
   }
-  const process_monitor = fork(
-    ENVJSON.env.dev ? 'monitor.ts' : 'monitor.js',
-    [
-      '--auth',
-      ctx.request.body.uf,
-      ctx.request.body._d,
-      ctx.request.body.vc3,
-      ctx.request.body.uid,
-      ctx.request.body.lv,
-      ctx.request.body.fid,
-      ctx.request.body.phone,
-    ],
-    {
-      cwd: __dirname,
-      detached: false,
-      stdio: [null, null, null, 'ipc'],
-    }
-  );
+  const process_monitor = fork(ENVJSON.env.dev ? 'monitor.ts' : 'monitor.js', ['--auth', uf, _d, vc3, uid, lv, fid, phone], {
+    cwd: __dirname,
+    detached: false,
+    stdio: [null, null, null, 'ipc'],
+  });
   const response = await new Promise((resolve) => {
     process_monitor.on('message', (msg) => {
       switch (msg) {
         case 'success': {
-          processMap.set(ctx.request.body.phone, process_monitor);
+          processMap.set(phone, process_monitor);
           resolve('{"code":200,"msg":"Started Successfully"}');
           break;
         }
