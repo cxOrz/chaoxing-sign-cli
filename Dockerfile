@@ -10,4 +10,4 @@ RUN corepack enable && yarn && yarn build
 
 EXPOSE 5000
 
-CMD [ "node", "build/serve.js" ]
+CMD [ "node", "apps/server/build/serve.js" ]

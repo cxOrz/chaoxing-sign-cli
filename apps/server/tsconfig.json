@@ -1,0 +1,12 @@
+{
+  "extends": "tsconfig/server.json",
+  "include": [
+    "./src",
+    "./types",
+    "./src/env.json",
+    "./src/configs/storage.json"
+  ],
+  "compilerOptions": {
+    "outDir": "build"
+  }
+}
