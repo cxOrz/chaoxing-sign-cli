@@ -4,9 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "serve": "vite",
+    "serve": "vite --open",
     "build": "tsc && vite build",
-    "dev:serve": "vite --open true",
     "preview": "vite preview"
   },
   "dependencies": {
