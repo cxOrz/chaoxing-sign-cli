@@ -14,7 +14,7 @@
 
 安卓手机上可以用 Termux 来运行NodeJS程序，[查看Termux教程](./apps/server/src/docs/termux.md) 。
 
-苹果手机请查看 [高级](https://github.com/cxOrz/chaoxing-sign-cli#%E9%AB%98%E7%BA%A7-) 部分，通过这种方式来使用，当然这种方式也适用于其他。
+苹果手机请查看 [高级](#高级-🎲) 部分，通过这种方式来使用，当然这种方式也适用于其他。
 
 ## 部署 🛠
 
@@ -36,18 +36,26 @@ pnpm install
 ### 命令解释
 
 根目录下：
-- `pnpm build`：转译源码，输出到 build 文件夹；必须先转译才能运行程序；
-- `pnpm serve`：启动接口、前端服务；
-- `pnpm dev:serve`：以开发模式启动接口、启动前端服务并自动在浏览器打开页面；
+- `pnpm build`：构建前端页面、转译后端代码；
+- `pnpm serve`：启动前端页面、运行后端接口；
+- `pnpm start`：运行手动签到功能；
+- `pnpm monitor`：启动监听模式，检测到签到将自动签上，无需人工干预；
 
 apps/server 目录下：
-- `pnpm start`：运行程序，若有签到则手动完成，若无则退出程序；
+- `pnpm build`：转译代码；
+- `pnpm start`：运行手动签到功能，若有签到则手动完成，若无则退出程序；
 - `pnpm serve`：启动接口；
-- `pnpm monitor`：监听模式，检测到签到将自动签上，无需人工干预；
+- `pnpm monitor`：启动监听模式，检测到签到将自动签上，无需人工干预；
+
+apps/web 目录下：
+- `pnpm serve`：运行 Web 服务；
+- `pnpm build`：构建静态页面；
 
 ### 基本使用方式
 
-更新仓库代码之后，先构建
+进入 `apps/server` 目录下，执行以下步骤：
+
+构建代码
 ```bash
 pnpm build
 ```
@@ -55,8 +63,6 @@ pnpm build
 ```bash
 pnpm start
 ```
-
-【注意】对 apps/server/src 目录下任何文件做出修改后，需重新构建才可生效！
 
 ## 使用须知 📄
 
@@ -80,76 +86,22 @@ pnpm start
 
 ### 监听模式
 
-每次需要时启用2-4小时较为合适，请勿挂着不关。
+每次需要时启用 2 - 4 小时较为合适，请勿挂着不关。
 
 ## 高级 🎲
 
-以上内容介绍了最基本的用法，接下来介绍一些稍高级一些的使用方法。
+除了简单的 `pnpm start` 来手动签到，也可以部署到服务器使用网页版本，别忘了这也是个 Web 项目。
 
-### 前端界面
+- 前端界面，查看 [前端](/apps/web) 的部署方式。
+- 后端服务，查看 [服务端](/apps/server) 的部署方式。
 
-访问 [这里](https://github.com/cxOrz/chaoxing-sign-ui) 查看前端代码如何部署，使用前端页面需要部署好接口才能正常工作。
+### 一键运行
 
-### 接口服务
-
-运行 `pnpm serve` 将启动接口服务，接下来描述每个接口的参数以及调用方式：
-
-<details>
-<summary>展开接口详情</summary>
-
-|路径|请求方式|参数|内容类型|返回内容|
-|-|-|-|-|-|
-|/|GET|无|无|\< String \>|
-|/login|POST|phone, password|JSON|\< String \>|
-|/activity|POST|uf, _d, vc3, uid|JSON|JSON|
-|/uvtoken|POST|uf, _d, vc3, uid|JSON|\< String \>|
-|/qrcode|POST|uf, _d, vc3, name, activeId, uid, fid, enc|JSON|待填|
-|/location|POST|uf, _d, vc3, name, activeId, uid, fid, address, lat, lon|JSON|待填|
-|/general|POST|uf, _d, vc3, name, activeId, uid, fid|JSON|待填|
-|/photo|POST|uf, _d, vc3, name, activeId, uid, fid, objectId|JSON|待填|
-|/upload|POST|uf, _d, vc3, uid, file, ?_token|multipart/form-data|待填|
-|/qrocr|POST|file|multipart/form-data|\< String \>|
-|/monitor/status|POST|phone|JSON|JSON|
-|/monitor/start|POST|phone, uf, _d, vc3, uid, lv, fid|JSON|JSON|
-|/monitor/stop|POST|phone|JSON|JSON|
-
-</details>
-
-### 最佳实践
-
-在这里介绍部署接口的最佳方式，前端部署的最佳实践请到它对应的仓库查看。
-
-部署在服务器，步骤如下：
-
-1. 安装 Node 环境，推荐使用 LTS 版本
-2. 克隆代码 `git clone https://github.com/cxOrz/chaoxing-sign-cli.git`
-3. 进入项目根目录，安装依赖
-4. 配置项目的 env.json 文件（可选）
-5. 转译源码 `pnpm build`
-6. 最后，使用 GNU Screen 或者 PM2 运行接口服务
-
-还有一些事情必需知道：
-
-- 如果要通过UI点击按钮启动监听功能，则要在运行接口服务之前，先运行多次 `pnpm monitor` 来配置每一个使用监听的用户的信息（一个用户一份配置，不配置无法使用UI启动监听），看到 "监听中"，即可终止程序，该用户信息已经写入本地。配置完成后，就可以运行 `pnpm serve` 来启动接口了。
-- 如果使用腾讯文字识别来解析二维码，请在 `src/env.json` 文件中配置 secretId 和 secretKey，然后重新构建代码。
-
-<details>
-<summary>使用云函数注意事项</summary>
-
-1. 此项目可以运行在 AWS Lambda 和 腾讯云函数上运行（均不支持监听）。如有需求运行在 Serverless 容器，请修改 `src/env.json` 中的 `SERVERLESS` 为 `true`，然后重新构建代码。
-2. 如使用腾讯云函数，请仔细按云函数文档操作，对代码稍作调整，安装依赖、转译源码，并配置云函数启动文件 scf_bootstrap 内容为如下命令
-``` bash
-#!/bin/bash
-/var/lang/node16/bin/node apps/server/build/serve.js
-```
-
-</details>
-
-至此，部署完成，可通过域名或服务器 IP 访问接口的默认路径 `/` ，看到欢迎页面。
+根目录下执行 `pnpm build` 将自动构建前后端代码，然后执行 `pnpm serve` 将运行前后端服务，并在浏览器弹出项目首页。
 
 ### 展示
 
-演示地址：https://prod.d6afmntd8nh5y.amplifyapp.com （部署在香港，较慢，功能阉割版仅供演示）
+演示地址：https://prod.d6afmntd8nh5y.amplifyapp.com （海外服务器较慢，功能阉割仅供演示UI）
 
 ![](https://cxorz.blob.core.windows.net/static-files/ui-start.png)
 ![](https://cxorz.blob.core.windows.net/static-files/ui-qrcode-sign.png)

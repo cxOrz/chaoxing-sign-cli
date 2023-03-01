@@ -17,6 +17,7 @@ dist
 # misc
 .DS_Store
 *.pem
+stats.html
 
 # debug
 npm-debug.log*

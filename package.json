@@ -1,6 +1,6 @@
 {
   "name": "chaoxing-sign",
-  "version": "3.8.9",
+  "version": "4.1.0",
   "description": "超星学习通签到项目",
   "workspaces": [
     "apps/*",
@@ -9,7 +9,8 @@
   "scripts": {
     "build": "turbo run build",
     "serve": "turbo run serve",
-    "dev:serve": "turbo run dev:serve"
+    "start": "node ./apps/server/build/index.js",
+    "monitor": "node ./apps/server/build/monitor.js"
   },
   "repository": "https://github.com/cxOrz/chaoxing-sign-cli.git",
   "author": "mcx",
@@ -17,5 +18,8 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "packageManager": "pnpm@7.28.0"
+  "packageManager": "pnpm@7.28.0",
+  "devDependencies": {
+    "turbo": "^1.8.3"
+  }
 }
