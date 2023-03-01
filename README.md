@@ -4,17 +4,15 @@
 ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
 ![Licence](https://img.shields.io/github/license/cxOrz/chaoxing-sign-cli?style=for-the-badge)
 
-基于 Nodejs 实现的一个签到命令行工具。
+基于 Nodejs 实现的一个命令行签到工具，在此基础上使用 React.js + Material UI + Koa 扩展成为 Web 项目。
 
 **功能**： 普通签到、拍照签到、手势签到、位置签到、签到码签到、二维码签到（10秒变换不影响），多用户凭据储存，IM 协议自动签到。
-
-**请经常更新你的代码与仓库保持同步，并在代码变更后重新build使之生效**
 
 ## 环境 💻
 
 可在任意运行 [NodeJS](https://nodejs.org/en/) > v18.14 的平台签到，Windows、MacOS、Linux ... 
 
-安卓手机上可以用 Termux 来运行NodeJS程序，[查看Termux教程](./src/docs/termux.md) 。
+安卓手机上可以用 Termux 来运行NodeJS程序，[查看Termux教程](./apps/server/src/docs/termux.md) 。
 
 苹果手机请查看 [高级](https://github.com/cxOrz/chaoxing-sign-cli#%E9%AB%98%E7%BA%A7-) 部分，通过这种方式来使用，当然这种方式也适用于其他。
 
@@ -30,30 +28,35 @@ git clone https://github.com/cxOrz/chaoxing-sign-cli.git
 
 ```bash
 cd chaoxing-sign-cli
-yarn
+pnpm install
 ```
 
 ## 运行 ⚙
 
 ### 命令解释
 
-- `yarn build`：转译源码，输出到 build 文件夹；必须先转译才能运行程序；
-- `yarn start`：运行程序，若有签到则手动完成，若无则退出程序；
-- `yarn serve`：启动接口服务；
-- `yarn monitor`：监听模式，检测到签到将自动签上，无需人工干预；
+根目录下：
+- `pnpm build`：转译源码，输出到 build 文件夹；必须先转译才能运行程序；
+- `pnpm serve`：启动接口、前端服务；
+- `pnpm dev:serve`：以开发模式启动接口、启动前端服务并自动在浏览器打开页面；
+
+apps/server 目录下：
+- `pnpm start`：运行程序，若有签到则手动完成，若无则退出程序；
+- `pnpm serve`：启动接口；
+- `pnpm monitor`：监听模式，检测到签到将自动签上，无需人工干预；
 
 ### 基本使用方式
 
 更新仓库代码之后，先构建
 ```bash
-yarn build
+pnpm build
 ```
 构建完成，后续的运行直至下次变更代码，不需要再构建，可以直接运行
 ```bash
-yarn start
+pnpm start
 ```
 
-【注意】对 src 目录下任何文件做出修改后，需重新构建才可生效！
+【注意】对 apps/server/src 目录下任何文件做出修改后，需重新构建才可生效！
 
 ## 使用须知 📄
 
@@ -85,13 +88,11 @@ yarn start
 
 ### 前端界面
 
-基于 React.js + Material UI 开发前端页面，整体设计灵感来自拟态。
-
 访问 [这里](https://github.com/cxOrz/chaoxing-sign-ui) 查看前端代码如何部署，使用前端页面需要部署好接口才能正常工作。
 
 ### 接口服务
 
-运行 `npm run serve` 将启动接口服务，接下来描述每个接口的参数以及调用方式：
+运行 `pnpm serve` 将启动接口服务，接下来描述每个接口的参数以及调用方式：
 
 <details>
 <summary>展开接口详情</summary>
@@ -122,14 +123,14 @@ yarn start
 
 1. 安装 Node 环境，推荐使用 LTS 版本
 2. 克隆代码 `git clone https://github.com/cxOrz/chaoxing-sign-cli.git`
-3. 进入项目目录，安装依赖
+3. 进入项目根目录，安装依赖
 4. 配置项目的 env.json 文件（可选）
-5. 转译源码 `yarn build`
+5. 转译源码 `pnpm build`
 6. 最后，使用 GNU Screen 或者 PM2 运行接口服务
 
 还有一些事情必需知道：
 
-- 如果要通过UI点击按钮启动监听功能，则要在运行接口服务之前，先运行多次 `yarn monitor` 来配置每一个使用监听的用户的信息（一个用户一份配置，不配置无法使用UI启动监听），看到 "监听中"，即可终止程序，该用户信息已经写入本地。配置完成后，就可以运行 `yarn serve` 来启动接口了。
+- 如果要通过UI点击按钮启动监听功能，则要在运行接口服务之前，先运行多次 `pnpm monitor` 来配置每一个使用监听的用户的信息（一个用户一份配置，不配置无法使用UI启动监听），看到 "监听中"，即可终止程序，该用户信息已经写入本地。配置完成后，就可以运行 `pnpm serve` 来启动接口了。
 - 如果使用腾讯文字识别来解析二维码，请在 `src/env.json` 文件中配置 secretId 和 secretKey，然后重新构建代码。
 
 <details>
@@ -139,7 +140,7 @@ yarn start
 2. 如使用腾讯云函数，请仔细按云函数文档操作，对代码稍作调整，安装依赖、转译源码，并配置云函数启动文件 scf_bootstrap 内容为如下命令
 ``` bash
 #!/bin/bash
-/var/lang/node16/bin/node build/serve.js
+/var/lang/node16/bin/node apps/server/build/serve.js
 ```
 
 </details>

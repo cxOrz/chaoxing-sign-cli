@@ -1,0 +1,116 @@
+.neum-button {
+  height: 135px;
+  width: 135px;
+  border-radius: 50%;
+  background: #ecf0f3;
+  box-shadow: 16px 16px 32px #c9cccf, -16px -16px 32px #ffffff;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #4c5e6d !important;
+  transition: 0.3s;
+}
+
+.neum-button:hover {
+  transform: scale(1.05);
+  background: #e9eef1;
+  transition: 0.3s;
+}
+
+.text-button {
+  padding: 1rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  direction: rtl;
+}
+
+.hidden {
+  opacity: 0;
+}
+
+.input-area {
+  padding-left: 10px;
+  margin: 0 auto 1rem;
+  height: 3rem;
+  font-size: 1.25rem;
+  color: #536f85;
+  background: #ecf0f3;
+  outline: none;
+  border: none;
+  border-radius: 10px;
+  box-shadow: inset 2px 2px 3px #d7dadd, inset -2px -2px 3px #ffffff;
+}
+
+.neum-form {
+  color: #4c5e6d !important;
+  min-height: 300px;
+  min-width: 250px;
+  max-width: 300px;
+  padding: 2rem;
+  border-radius: 20px;
+  background: #ecf0f3;
+  box-shadow: 16px 16px 32px #c9cccf, -16px -16px 32px #ffffff;
+  transition: 0.8s;
+}
+
+.form-height {
+  min-height: 100px !important;
+}
+
+.neum-form-button {
+  height: 60px;
+  width: 135px;
+  margin: 3rem auto 0 !important;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #4c5e6d !important;
+  border-radius: 25px !important;
+  background: #ecf0f3;
+  box-shadow: 7px 7px 14px #c9cccf, -7px -7px 14px #ffffff;
+  transition: 0.3s;
+}
+
+.checked::before {
+  display: inline-block;
+  vertical-align: bottom;
+  content: '';
+  height: 2rem;
+  width: 2rem;
+  border-radius: 10px;
+  background-image: url('../../../public/assets/check.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 70%;
+  box-shadow: inset 2px 2px 3px #d7dadd, inset -2px -2px 3px #ffffff;
+}
+
+.unchecked::before {
+  display: inline-block;
+  vertical-align: bottom;
+  content: '';
+  height: 2rem;
+  width: 2rem;
+  border-radius: 10px;
+  box-shadow: inset 2px 2px 3px #d7dadd, inset -2px -2px 3px #ffffff;
+}
+
+h1 {
+  color: #4c5e6d;
+}
+
+.form-title {
+  display: inline-block;
+  margin: 0 auto 2rem;
+}
+
+.form-content {
+  opacity: 1;
+  transition: 0.4s;
+}
+
+@media screen and (max-width: 500px) {
+  .form-title {
+    display: inline-block;
+    margin: 0 auto 2rem;
+    font-size: 1.7rem;
+  }
+}
