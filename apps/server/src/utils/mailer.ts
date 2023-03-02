@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { request } from './request';
 
 export function sendEmail(args: { aid: string; uid: string; realname: string; status: string; mailing: MailConfig }) {
   const { uid, realname, aid, status, mailing } = args;
@@ -23,3 +24,24 @@ export function sendEmail(args: { aid: string; uid: string; realname: string; st
     }
   );
 }
+
+interface PushPlusType {
+  token: string;
+  title?: string;
+  content: string;
+  template?: 'html' | 'txt' | 'json' | 'markdown';
+  channel?: 'wechat' | 'webhook' | 'mail' | 'sms';
+}
+
+export const pushplusSend = (args: PushPlusType) => {
+  return request(
+    'http://www.pushplus.plus/send',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    },
+    args
+  );
+};

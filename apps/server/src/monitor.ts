@@ -352,6 +352,7 @@ async function Sign(realname: string, params: UserCookieType & { tuid: string },
             ifphoto: PPTActiveInfo.ifphoto,
             chatId: message?.to,
           });
+          // 若使用 pushplus 请改用 pushplusSend() 并填入所需参数 token, content, ...
           if (config.mailing && result)
             sendEmail({
               aid: IM_CourseInfo.aid,
