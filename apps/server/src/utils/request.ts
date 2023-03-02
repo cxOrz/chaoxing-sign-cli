@@ -64,7 +64,10 @@ const request = (url: string, options: RequestOptions, payload?: any): Promise<R
       }
     });
 
-    options.method === RequestMethod.POST && req.write(payload);
+    if (options.method === RequestMethod.POST) {
+      if (Object.prototype.toString.call(payload) === '[object Object]') req.write(JSON.stringify(payload));
+      else req.write(payload);
+    }
 
     req.end();
   });
