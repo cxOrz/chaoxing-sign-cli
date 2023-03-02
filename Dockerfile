@@ -1,12 +1,12 @@
 # syntax=docker/dockerfile:1
 
-FROM node:16-alpine
+FROM node:lts-alpine
 
 WORKDIR /app
 
 COPY . .
 
-RUN corepack enable && yarn && yarn build
+RUN apk add --no-cache libc6-compat && corepack enable && pnpm install && pnpm build
 
 EXPOSE 5000
 
