@@ -65,7 +65,7 @@ const PromptsOptions = {
       // 二维码签到
       let enc = (await prompts({ type: 'text', name: 'enc', message: 'enc(微信或其他识别二维码，可得enc参数)' }, PromptsOptions))
         .enc;
-      await QRCodeSign({ enc, name, activeId: activity.activeId, ...params });
+      await QRCodeSign({ ...params, activeId: activity.activeId, enc, name });
       process.exit(0);
     }
     case 4: {
@@ -78,23 +78,23 @@ const PromptsOptions = {
       const lat = lnglat.substring(lnglat.indexOf(',') + 1, lnglat.length);
       const lon = lnglat.substring(0, lnglat.indexOf(','));
       await LocationSign({
-        name,
+        ...activity,
+        ...params,
         address,
         lat,
         lon,
-        ...activity,
-        ...params,
+        name,
       });
       process.exit(0);
     }
     case 3: {
       // 手势签到
-      await GeneralSign({ name, ...activity, ...params });
+      await GeneralSign({ ...activity, ...params, name });
       process.exit(0);
     }
     case 5: {
       // 签到码签到
-      await GeneralSign({ name, ...activity, ...params });
+      await GeneralSign({ ...activity, ...params, name });
       process.exit(0);
     }
     case 0: {
@@ -106,10 +106,10 @@ const PromptsOptions = {
         // 获取照片objectId
         let objectId = await getObjectIdFromcxPan(params);
         if (objectId === null) return null;
-        await PhotoSign({ name, activeId: activity.activeId, objectId, ...params });
+        await PhotoSign({ ...params, activeId: activity.activeId, objectId, name });
       } else {
         // 普通签到
-        await GeneralSign({ name, activeId: activity.activeId, ...params });
+        await GeneralSign({ ...params, activeId: activity.activeId, name });
       }
       process.exit(0);
     }
