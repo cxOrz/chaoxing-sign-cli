@@ -7,9 +7,10 @@
     "packages/*"
   ],
   "scripts": {
+    "dev": "turbo run dev:serve dev --filter=./apps/*",
     "build": "turbo run build",
-    "serve": "turbo run serve",
     "start": "node ./apps/server/build/index.js",
+    "serve": "node ./apps/server/build/serve.js",
     "monitor": "node ./apps/server/build/monitor.js"
   },
   "repository": "https://github.com/cxOrz/chaoxing-sign-cli.git",
