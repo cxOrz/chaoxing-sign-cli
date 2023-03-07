@@ -36,9 +36,10 @@ pnpm install
 ### 命令解释
 
 根目录下：
+- `pnpm dev`：运行Web开发服务器、后端接口；
 - `pnpm build`：构建前端页面、转译后端代码；
-- `pnpm serve`：启动前端页面、运行后端接口；
-- `pnpm start`：运行手动签到功能；
+- `pnpm start`：运行手动签到；
+- `pnpm serve`：启动后端接口；
 - `pnpm monitor`：启动监听模式，检测到签到将自动签上，无需人工干预；
 
 apps/server 目录下：
@@ -48,7 +49,7 @@ apps/server 目录下：
 - `pnpm monitor`：启动监听模式，检测到签到将自动签上，无需人工干预；
 
 apps/web 目录下：
-- `pnpm serve`：运行 Web 服务；
+- `pnpm dev`：运行 Web 开发服务器；
 - `pnpm build`：构建静态页面；
 
 ### 基本使用方式
@@ -97,7 +98,7 @@ pnpm start
 
 ### 一键运行
 
-根目录下执行 `pnpm build` 将自动构建前后端代码，然后执行 `pnpm serve` 将运行前后端服务，并在浏览器弹出项目首页。
+根目录下执行 `pnpm dev` 将运行前后端服务，并在浏览器弹出项目首页，注意这是开发模式！
 
 ### 展示
 
