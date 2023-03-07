@@ -15,6 +15,12 @@
     },
     "serve": {
       "cache": false
+    },
+    "dev": {
+      "cache": false
+    },
+    "dev:serve": {
+      "cache": false
     }
   }
 }
