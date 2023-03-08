@@ -2,6 +2,7 @@
 
 ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
 ![Licence](https://img.shields.io/github/license/cxOrz/chaoxing-sign-cli?style=for-the-badge)
 
 基于 Nodejs 实现的一个命令行签到工具，在此基础上使用 React.js + Material UI + Koa 扩展成为 Web 项目。
@@ -14,7 +15,7 @@
 
 安卓手机上可以用 Termux 来运行NodeJS程序，[查看Termux教程](./apps/server/src/docs/termux.md) 。
 
-苹果手机请查看 [高级](#高级-🎲) 部分，通过这种方式来使用，当然这种方式也适用于其他。
+苹果手机请查看 [高级](#高级-) 部分，通过这种方式来使用，当然这种方式也适用于其他。
 
 ## 部署 🛠
 
@@ -93,12 +94,21 @@ pnpm start
 
 除了简单的 `pnpm start` 来手动签到，也可以部署到服务器使用网页版本，别忘了这也是个 Web 项目。
 
-- 前端界面，查看 [前端](/apps/web) 的部署方式。
-- 后端服务，查看 [服务端](/apps/server) 的部署方式。
+- 前端界面，查看 [前端](/apps/web) 的说明。
+- 后端服务，查看 [服务端](/apps/server) 的说明。
 
 ### 一键运行
 
-根目录下执行 `pnpm dev` 将运行前后端服务，并在浏览器弹出项目首页，注意这是开发模式！
+方案一：根目录下执行 `pnpm dev` 将运行前后端服务，并在浏览器弹出项目首页，注意这是开发模式！
+
+方案二：用提供的 Docker 镜像，运行后可通过 IP 访问。
+
+```bash
+docker pull ghcr.io/cxorz/chaoxing-sign-cli:latest
+docker run -d -p 80:80 -p 5000:5000 chaoxing-sign-cli
+```
+
+> 出现问题？先仔细阅读相关说明，若仍无法解决请发 issue
 
 ### 展示
 
