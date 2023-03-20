@@ -21,6 +21,7 @@
     },
     "dev:serve": {
       "cache": false
-    }
+    },
+    "lint": {}
   }
 }
