@@ -11,7 +11,8 @@
     "build": "turbo run build",
     "start": "node ./apps/server/build/index.js",
     "serve": "node ./apps/server/build/serve.js",
-    "monitor": "node ./apps/server/build/monitor.js"
+    "monitor": "node ./apps/server/build/monitor.js",
+    "lint": "turbo run lint"
   },
   "repository": "https://github.com/cxOrz/chaoxing-sign-cli.git",
   "author": "mcx",
