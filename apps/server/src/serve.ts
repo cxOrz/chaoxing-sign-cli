@@ -315,10 +315,44 @@ process.on('exit', () => {
 });
 
 // 若在服务器，直接运行
-if (!ENVJSON.env.SERVERLESS)
-  app.listen(5000, () => {
-    console.log('API Server: http://localhost:5000');
+if (!ENVJSON.env.SERVERLESS) {
+  app.listen(ENVJSON.env.port, () => {
+    console.log('API Server: http://localhost:' + ENVJSON.env.port);
   });
+
+  // 处理自动监听
+  const data = getJsonObject('configs/storage.json');
+  for (let i = 0; i < data.users.length; i++) {
+    if (data.users[i].monitor.autostart === true) {
+      console.log("正在为 " + data.users[i].phone + " 启用监听…");
+      const process_monitor = fork(ENVJSON.env.dev ? 'monitor.ts' : 'monitor.js', ['--auth',
+        data.users[i].params.uf, data.users[i].params._d,
+        data.users[i].params.vc3, data.users[i].params.UID,
+        data.users[i].params.lv, data.users[i].params.fid, data.users[i].phone], {
+        cwd: __dirname,
+        detached: false,
+        stdio: [null, null, null, 'ipc']
+      });
+      process_monitor.on('message', (msg) => {
+        switch (msg) {
+          case 'success': {
+            processMap.set(data.users[i].phone, process_monitor);
+            console.log("成功运行。正在监听 " + data.users[i].phone + "…")
+            break;
+          }
+          case 'authfail': {
+            console.log("运行监听 " + data.users[i].phone + " 的子进程失败…")
+            break;
+          }
+          case 'notconfigured': {
+            console.log("账号 " + data.users[i].phone + " 缺少配置。")
+            break;
+          }
+        }
+      });
+    }
+  }
+}
 
 // 导出云函数
 export const main = serverless(app);

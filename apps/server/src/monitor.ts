@@ -118,6 +118,12 @@ async function configure(phone: string) {
         },
         {
           type: 'confirm',
+          name: 'autostart',
+          message: '启用接口服务时是否自动为本账号开启监听模式?',
+          initial: false
+        },
+        {
+          type: 'confirm',
           name: 'mail',
           message: '是否启用邮件通知?',
           initial: false,
@@ -165,6 +171,7 @@ async function configure(phone: string) {
     monitor.lon = response.lon;
     monitor.lat = response.lat;
     monitor.address = response.address;
+    monitor.autostart = response.autostart;
     mailing.host = response.host;
     mailing.ssl = response.ssl;
     mailing.port = response.port;
