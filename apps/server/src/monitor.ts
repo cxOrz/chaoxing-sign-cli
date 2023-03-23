@@ -13,7 +13,7 @@ import { getIMParams, getLocalUsers, userLogin } from './functions/user';
 import { sendEmail } from './utils/mailer';
 import { delay } from './utils/helper';
 import { urlQrCodeScan } from './functions/tencent.qrcode';
-import CQWebSocket from '@tsuk1ko/cq-websocket';
+import { CQWebSocket } from '@tsuk1ko/cq-websocket';
 import { QRCodeSign } from './functions/qrcode';
 const ENVJSON = getJsonObject('env.json');
 const JSDOM = new jsdom.JSDOM('', { url: 'https://im.chaoxing.com/webim/me' });
@@ -74,6 +74,7 @@ async function configure(phone: string) {
       return {
         mailing: { ...config.mailing },
         monitor: { ...config.monitor },
+        cqserver: { ...config.cqserver },
       };
     }
   }
@@ -163,23 +164,22 @@ async function configure(phone: string) {
         {
           type: 'confirm',
           name: 'cqserver',
-          message: '是否启用 QQ 机器人 (go-cqhttp) 通知?',
+          message: '是否启用QQ机器人(go-cqhttp)通知?',
           initial: false,
         },
         {
           type: (prev) => (prev ? 'select' : null),
           name: 'cqtype',
-          message: '要发送相关通知到？',
+          message: '要发送相关通知到?',
           choices: [
             { title: '群组', value: 'send_group_msg' },
             { title: '私聊', value: 'send_private_msg' }
           ],
-          initial: 1
         },
         {
           type: (prev) => (prev ? 'number' : null),
           name: 'cquin',
-          message: '发送/接受号码',
+          message: '接收号码',
           initial: 10001,
         },
       ],
@@ -198,7 +198,6 @@ async function configure(phone: string) {
     mailing.user = response.user;
     mailing.pass = response.pass;
     mailing.to = response.to;
-    cqserver.enable = response.cqserver;
     cqserver.cqtype = response.cqtype;
     cqserver.cquin = response.cquin;
     config!.monitor = monitor;
@@ -210,7 +209,7 @@ async function configure(phone: string) {
       if (data.users[i].phone === phone) {
         data.users[i].monitor = monitor;
         data.users[i].mailing = mailing;
-        data.user[i].cqserver = cqserver;
+        data.users[i].cqserver = cqserver;
         break;
       }
     }
@@ -218,7 +217,7 @@ async function configure(phone: string) {
     fs.writeFile(path.join(__dirname, './configs/storage.json'), JSON.stringify(data), 'utf8', () => {});
   }
 
-  return JSON.parse(JSON.stringify({ mailing: config!.mailing, monitor: config!.monitor }));
+  return JSON.parse(JSON.stringify({ mailing: config!.mailing, monitor: config!.monitor, cqserver: config!.cqserver }));
 }
 
 async function Sign(realname: string, params: UserCookieType & { tuid: string }, config: any, activity: Activity) {
@@ -385,7 +384,7 @@ async function Sign(realname: string, params: UserCookieType & { tuid: string },
     switch(iptResult) {
       case 'success': return "成功";
       case 'fail': return "失败";
-      case 'fail-but-can-wait-cqbot': return "请发送二维码";
+      case 'fail-can-wait-cq': return "请发送二维码";
       default: return iptResult;
     }
   }
@@ -407,9 +406,13 @@ async function Sign(realname: string, params: UserCookieType & { tuid: string },
   async function handleImages(e: any, context: any) {
     if (hasImage(context.message)) {
       // 从 CQ 码中取得图片 Url
-      const parseCqImage = context.message.split(',')
-      const parseCqImageFile = parseCqImage[3].split("=")
-      const imageUrl = parseCqImageFile[1]
+      let msgSplitIndex: number
+      if (config.cqserver.cqtype == "send_private_msg") {
+        msgSplitIndex = 2
+      } else {
+        msgSplitIndex = 3
+      }
+      const imageUrl = context.message.split(",")[msgSplitIndex].split("=")[1]
       // 跑 Delay，免得超腾讯api限制了
       console.log("等待 " + config.monitor.delay + " 秒后开始签到…")
       // 开了会刷屏。不知道怎么回事。
@@ -417,6 +420,7 @@ async function Sign(realname: string, params: UserCookieType & { tuid: string },
       //   const message = IM_Params.myName + "：等待 " + config.monitor.delay + " 秒后开始签到…"
       //   cqbot(config.cqserver.cqtype, {
       //     group_id: config.cqserver.cquin,
+      //     user_id: config.cqserver.cquin
       //     message
       //   });
       // }
@@ -447,6 +451,7 @@ async function Sign(realname: string, params: UserCookieType & { tuid: string },
                 const message = IM_Params.myName + "：" + parseSignResult(qrSignResult)
                 cqbot(config.cqserver.cqtype, {
                   group_id: config.cqserver.cquin,
+                  user_id: config.cqserver.cquin,
                   message
                 });
               }
@@ -460,7 +465,7 @@ async function Sign(realname: string, params: UserCookieType & { tuid: string },
   }
 
   let cqbot: CQWebSocket
-  if (config.cqserver.enable === true) {
+  if (config.cqserver) {
     cqbot = new CQWebSocket(ENVJSON.cqserver);
 
     // 连接到CQ机器人监听
@@ -474,7 +479,11 @@ async function Sign(realname: string, params: UserCookieType & { tuid: string },
       .on("socket.connect", (wsType, sock, attempts) => console.log(blue(`CQ 服务器连接成功 (${wsType} #${attempts})`)));
 
     cqbot.connect();
-    cqbot.on('message.group', handleImages);
+    if (config.cqserver.cqtype == "send_group_msg") {
+      cqbot.on('message.group', handleImages);
+    } else if (config.cqserver.cqtype == "send_private_msg") {
+      cqbot.on('message.private', handleImages);
+    }
   }
 
   conn.listen({
@@ -504,6 +513,7 @@ async function Sign(realname: string, params: UserCookieType & { tuid: string },
           }
           cqbot(config.cqserver.cqtype, {
             group_id: config.cqserver.cquin,
+            user_id: config.cqserver.cquin,
             message
           });
         }
@@ -528,10 +538,11 @@ async function Sign(realname: string, params: UserCookieType & { tuid: string },
               status: result,
               mailing: config.mailing,
             });
-          if (cqbot.isReady()) {
+          if (cqbot.isReady() && result) {
             const message = IM_Params.myName + "：" + parseSignResult(result)
-            cqbot('config.cqserver.cquin', {
-              group_id: ENVJSON.cq.announceGroup,
+            cqbot(config.cqserver.cqtype, {
+              group_id: config.cqserver.cquin,
+              user_id: config.cqserver.cquin,
               message
             });
           }
