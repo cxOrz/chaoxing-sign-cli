@@ -14,6 +14,12 @@ interface MailConfig {
   to: string;
 }
 
+interface cqServerConfig {
+  enable: boolean;
+  cqtype: string;
+  cquin: number;
+}
+
 interface BasicCookie {
   _uid: string;
   _d: string;
