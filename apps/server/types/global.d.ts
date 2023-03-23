@@ -31,6 +31,7 @@ interface User {
   params?: UserParams;
   monitor?: MonitorConfig;
   mailing?: MailConfig;
+  cqserver?: cqServerConfig;
 }
 
 interface CourseType {

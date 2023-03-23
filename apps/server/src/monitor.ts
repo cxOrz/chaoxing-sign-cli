@@ -12,6 +12,10 @@ import { getJsonObject, getStoredUser, storeUser } from './utils/file';
 import { getIMParams, getLocalUsers, userLogin } from './functions/user';
 import { sendEmail } from './utils/mailer';
 import { delay } from './utils/helper';
+import { urlQrCodeScan } from './functions/tencent.qrcode';
+import CQWebSocket from '@tsuk1ko/cq-websocket';
+import { QRCodeSign } from './functions/qrcode';
+const ENVJSON = getJsonObject('env.json');
 const JSDOM = new jsdom.JSDOM('', { url: 'https://im.chaoxing.com/webim/me' });
 (globalThis.window as any) = JSDOM.window;
 (globalThis.WebSocket as any) = WebSocket;
@@ -156,11 +160,34 @@ async function configure(phone: string) {
           name: 'to',
           message: '接收邮箱',
         },
+        {
+          type: 'confirm',
+          name: 'cqserver',
+          message: '是否启用 QQ 机器人 (go-cqhttp) 通知?',
+          initial: false,
+        },
+        {
+          type: (prev) => (prev ? 'select' : null),
+          name: 'cqtype',
+          message: '要发送相关通知到？',
+          choices: [
+            { title: '群组', value: 'send_group_msg' },
+            { title: '私聊', value: 'send_private_msg' }
+          ],
+          initial: 1
+        },
+        {
+          type: (prev) => (prev ? 'number' : null),
+          name: 'cquin',
+          message: '发送/接受号码',
+          initial: 10001,
+        },
       ],
       PromptsOptions
     );
     const monitor: any = {},
-      mailing: any = {};
+      mailing: any = {},
+      cqserver: any = {};
     monitor.delay = response.delay;
     monitor.lon = response.lon;
     monitor.lat = response.lat;
@@ -171,14 +198,19 @@ async function configure(phone: string) {
     mailing.user = response.user;
     mailing.pass = response.pass;
     mailing.to = response.to;
+    cqserver.enable = response.cqserver;
+    cqserver.cqtype = response.cqtype;
+    cqserver.cquin = response.cquin;
     config!.monitor = monitor;
     config!.mailing = mailing;
+    config!.cqserver = cqserver;
 
     const data = getJsonObject('configs/storage.json');
     for (let i = 0; i < data.users.length; i++) {
       if (data.users[i].phone === phone) {
         data.users[i].monitor = monitor;
         data.users[i].mailing = mailing;
+        data.user[i].cqserver = cqserver;
         break;
       }
     }
@@ -218,6 +250,7 @@ async function Sign(realname: string, params: UserCookieType & { tuid: string },
         break;
       }
       case 'qr': {
+        result = 'fail-can-wait-cq'
         console.log(red('二维码签到，无法自动签到！'));
         break;
       }
@@ -230,6 +263,7 @@ async function Sign(realname: string, params: UserCookieType & { tuid: string },
   switch (activity.otherId) {
     case 2: {
       // 二维码签到
+      result = 'fail-can-wait-cq'
       console.log(red('二维码签到，无法自动签到！'));
       break;
     }
@@ -324,6 +358,125 @@ async function Sign(realname: string, params: UserCookieType & { tuid: string },
   });
 
   console.log(blue('[监听中]'));
+
+  /**
+   * 解析签到类型
+   * @param iptPPTActiveInfo Get 来的活动信息
+   * @returns 返回具体的中文结果
+   */
+  function parseSignType(iptPPTActiveInfo: any) {
+    switch(iptPPTActiveInfo.otherId) {
+      case 0:
+        if (iptPPTActiveInfo.ifphoto == 1) { return "拍照签到"; } else { return "普通签到"; }
+      case 2: return "二维码签到";
+      case 3: return "手势签到";
+      case 4: return "位置签到";
+      case 5: return "签到码签到";
+      default: return "其他类型签到";
+    }
+  }
+  
+  /** 
+   * 解析签到结果
+   * @param iptResult 签到结果
+   * @returns 返回具体的中文结果
+   */
+  function parseSignResult(iptResult: any) {
+    switch(iptResult) {
+      case 'success': return "成功";
+      case 'fail': return "失败";
+      case 'fail-but-can-wait-cqbot': return "请发送二维码";
+      default: return iptResult;
+    }
+  }
+
+  /**
+   * 判断消息是否有图片
+   * by @Tsuk1ko/cq-picsearcher-bot 56594b6 src/index.mjs:696
+   *
+   * @param {string} msg 消息
+   * @returns 有则返回true
+   */
+  function hasImage(msg: string) {
+    return msg.indexOf('[CQ:image') !== -1;
+  }
+
+  /**
+   * 处理消息中的二维码
+   */
+  async function handleImages(e: any, context: any) {
+    if (hasImage(context.message)) {
+      // 从 CQ 码中取得图片 Url
+      const parseCqImage = context.message.split(',')
+      const parseCqImageFile = parseCqImage[3].split("=")
+      const imageUrl = parseCqImageFile[1]
+      // 跑 Delay，免得超腾讯api限制了
+      console.log("等待 " + config.monitor.delay + " 秒后开始签到…")
+      // 开了会刷屏。不知道怎么回事。
+      // if (cqbot.isReady() && IM_Params !== 'AuthFailed') { 
+      //   const message = IM_Params.myName + "：等待 " + config.monitor.delay + " 秒后开始签到…"
+      //   cqbot(config.cqserver.cqtype, {
+      //     group_id: config.cqserver.cquin,
+      //     message
+      //   });
+      // }
+      await delay(config.monitor.delay);
+      try {
+        // 给腾讯云图片 url 等它发回签到url结果。
+        let qrScanResult: any = await urlQrCodeScan(imageUrl);
+        // 正则找 aid 和 enc
+        let parseQrScanResult = qrScanResult.CodeResults[0].Url
+        const REGEX_ENC = /(SIGNIN:|e\?).*(aid=|id=)(\d+)(&.*)?&enc=([\dA-F]+)/
+        if (REGEX_ENC.test(parseQrScanResult)) {
+          const qrScanResultEnc: any = REGEX_ENC.exec(parseQrScanResult)
+          // 签到 & 发消息
+          if (IM_Params !== 'AuthFailed') {
+            const sendBasicCookie = {
+              enc: qrScanResultEnc[5],
+              name: IM_Params.myName,
+              fid: params.fid,
+              _uid: params._uid,
+              activeId: qrScanResultEnc[3],
+              uf: params.uf,
+              _d: params._d,
+              vc3: params.vc3,
+            }
+            let qrSignResult = await QRCodeSign(sendBasicCookie);
+            if (qrSignResult === 'success') {
+              if (cqbot.isReady()) {
+                const message = IM_Params.myName + "：" + parseSignResult(qrSignResult)
+                cqbot(config.cqserver.cqtype, {
+                  group_id: config.cqserver.cquin,
+                  message
+                });
+              }
+            }
+          }
+        }
+      } catch(error) {
+        console.error(red('识别失败，错误原因：' + error));
+      }
+    }
+  }
+
+  let cqbot: CQWebSocket
+  if (config.cqserver.enable === true) {
+    cqbot = new CQWebSocket(ENVJSON.cqserver);
+
+    // 连接到CQ机器人监听
+    cqbot
+      .on("socket.connecting", (wsType, attempts) => console.log(`正在连接至 CQ 服务器 (${wsType} #${attempts})…`))
+      .on("socket.failed", (wsType, attempts) => console.log(red(`CQ 服务器连接失败 (${wsType} #${attempts})…`)))
+      .on("socket.error", (wsType, err) => {
+        console.error(red(`CQ 服务器连接错误 (${wsType})`));
+        console.error(err);
+      })
+      .on("socket.connect", (wsType, sock, attempts) => console.log(blue(`CQ 服务器连接成功 (${wsType} #${attempts})`)));
+
+    cqbot.connect();
+    cqbot.on('message.group', handleImages);
+  }
+
   conn.listen({
     onOpened: () => {
       if (process.send) process.send('success');
@@ -341,7 +494,21 @@ async function Sign(realname: string, params: UserCookieType & { tuid: string },
         };
         const PPTActiveInfo = await getPPTActiveInfo({ activeId: IM_CourseInfo.aid, ...(params as UserCookieType) });
 
-        // 签到 & 发邮件
+        // 发送收到签到的消息
+        if (cqbot.isReady() && IM_Params !== 'AuthFailed') {
+          let message: string
+          if (PPTActiveInfo.otherId == 2) {
+            message = IM_Params.myName + "的学习通收到" + parseSignType(PPTActiveInfo) + "，请等待签到初始化…"
+          } else {
+            message = IM_Params.myName + "的学习通收到" + parseSignType(PPTActiveInfo) + "，将在 " + config.monitor.delay + " 秒后开始执行签到…"
+          }
+          cqbot(config.cqserver.cqtype, {
+            group_id: config.cqserver.cquin,
+            message
+          });
+        }
+
+        // 签到 & 发消息
         if (IM_Params !== 'AuthFailed') {
           await delay(config.monitor.delay);
           const result = await Sign(IM_Params.myName, params as UserCookieType & { tuid: string }, config.monitor, {
@@ -361,6 +528,13 @@ async function Sign(realname: string, params: UserCookieType & { tuid: string },
               status: result,
               mailing: config.mailing,
             });
+          if (cqbot.isReady()) {
+            const message = IM_Params.myName + "：" + parseSignResult(result)
+            cqbot('config.cqserver.cquin', {
+              group_id: ENVJSON.cq.announceGroup,
+              message
+            });
+          }
         }
       }
     },
