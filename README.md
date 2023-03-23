@@ -110,6 +110,16 @@ docker run -d -p 80:80 -p 5000:5000 chaoxing-sign-cli
 
 > 出现问题？先仔细阅读相关说明，若仍无法解决请发 issue
 
+### 连接 QQ 机器人（go-cqhttp）
+
+在使用 QQ 机器人之前请先按照 [go-cqhttp 基础教程](https://docs.go-cqhttp.org/guide/quick_start.html)安装好 [go-cqhttp 服务器](https://docs.go-cqhttp.org/)。本项目使用正向 WebSocket 连接至 go-cqhttp 服务器。请按照 [go-cqhttp 配置文档](https://docs.go-cqhttp.org/guide/config.html)配置好正向服务器以及其连接密钥（可选，为了安全建议配置好密钥）。
+
+#### 配置本项目的 go-cqhttp 连接
+
+在**构建本项目后**打开 `apps/server/build/env.json` 文件，编辑`cqserver`组内的值。更详细的参数介绍请参阅[官方文档](https://github.com/Tsuk1ko/node-cq-websocket/blob/master/docs/api/CQWebSocket.md#cqwebsocketoption)。
+
+若想读取消息中的签到二维码文本，请配置好`env.json`内的腾讯云 OCR 密钥。
+
 ### 展示
 
 演示地址：https://prod.d6afmntd8nh5y.amplifyapp.com （海外服务器较慢，功能阉割仅供演示UI）
