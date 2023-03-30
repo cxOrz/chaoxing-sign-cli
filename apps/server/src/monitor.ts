@@ -1,21 +1,20 @@
-import prompts from 'prompts';
 import fs from 'fs';
-import path from 'path';
-import { blue, red } from 'kolorist';
 import jsdom from 'jsdom';
+import { blue, red } from 'kolorist';
+import path from 'path';
+import prompts from 'prompts';
 import WebSocket from 'ws';
-import { getPPTActiveInfo, preSign, preSign2, speculateType } from './functions/activity';
+import { getPPTActiveInfo, getSignType, preSign, preSign2, speculateType } from './functions/activity';
+import CQ from './functions/cq';
 import { GeneralSign, GeneralSign_2 } from './functions/general';
 import { LocationSign, LocationSign_2 } from './functions/location';
-import { PhotoSign, getObjectIdFromcxPan, PhotoSign_2 } from './functions/photo';
-import { getJsonObject, getStoredUser, storeUser } from './utils/file';
-import { getIMParams, getLocalUsers, userLogin } from './functions/user';
-import { sendEmail } from './utils/mailer';
-import { delay } from './utils/helper';
-import { urlQrCodeScan } from './functions/tencent.qrcode';
-import { CQWebSocket } from '@tsuk1ko/cq-websocket';
+import { getObjectIdFromcxPan, PhotoSign, PhotoSign_2 } from './functions/photo';
 import { QRCodeSign } from './functions/qrcode';
-const ENVJSON = getJsonObject('env.json');
+import { QrCodeScan } from './functions/tencent.qrcode';
+import { getIMParams, getLocalUsers, userLogin } from './functions/user';
+import { getJsonObject, getStoredUser, storeUser } from './utils/file';
+import { delay } from './utils/helper';
+import { sendEmail } from './utils/mailer';
 const JSDOM = new jsdom.JSDOM('', { url: 'https://im.chaoxing.com/webim/me' });
 (globalThis.window as any) = JSDOM.window;
 (globalThis.WebSocket as any) = WebSocket;
@@ -163,31 +162,37 @@ async function configure(phone: string) {
         },
         {
           type: 'confirm',
-          name: 'cqserver',
-          message: '是否启用QQ机器人(go-cqhttp)通知?',
+          name: 'cq_enabled',
+          message: '是否连接到go-cqhttp服务?',
           initial: false,
         },
         {
+          type: (prev) => (prev ? 'text' : null),
+          name: 'ws_url',
+          message: 'Websocket 地址',
+          initial: 'ws://127.0.0.1:8080',
+        },
+        {
           type: (prev) => (prev ? 'select' : null),
-          name: 'cqtype',
-          message: '要发送相关通知到?',
+          name: 'target_type',
+          message: '选择消息的推送目标',
           choices: [
-            { title: '群组', value: 'send_group_msg' },
-            { title: '私聊', value: 'send_private_msg' }
+            { title: '群组', value: 'group' },
+            { title: '私聊', value: 'private' }
           ],
         },
         {
           type: (prev) => (prev ? 'number' : null),
-          name: 'cquin',
+          name: 'target_id',
           message: '接收号码',
           initial: 10001,
         },
       ],
       PromptsOptions
     );
-    const monitor: any = {},
-      mailing: any = {},
-      cqserver: any = {};
+    const monitor: any = {};
+    const mailing: any = {};
+    const cqserver: any = {};
     monitor.delay = response.delay;
     monitor.lon = response.lon;
     monitor.lat = response.lat;
@@ -198,8 +203,10 @@ async function configure(phone: string) {
     mailing.user = response.user;
     mailing.pass = response.pass;
     mailing.to = response.to;
-    cqserver.cqtype = response.cqtype;
-    cqserver.cquin = response.cquin;
+    cqserver.cq_enabled = response.cq_enabled;
+    cqserver.ws_url = response.ws_url;
+    cqserver.target_type = response.target_type;
+    cqserver.target_id = response.target_id;
     config!.monitor = monitor;
     config!.mailing = mailing;
     config!.cqserver = cqserver;
@@ -214,14 +221,14 @@ async function configure(phone: string) {
       }
     }
 
-    fs.writeFile(path.join(__dirname, './configs/storage.json'), JSON.stringify(data), 'utf8', () => {});
+    fs.writeFile(path.join(__dirname, './configs/storage.json'), JSON.stringify(data), 'utf8', () => { });
   }
 
   return JSON.parse(JSON.stringify({ mailing: config!.mailing, monitor: config!.monitor, cqserver: config!.cqserver }));
 }
 
-async function Sign(realname: string, params: UserCookieType & { tuid: string }, config: any, activity: Activity) {
-  let result = 'fail';
+async function Sign(realname: string, params: UserCookieType & { tuid: string; }, config: any, activity: Activity) {
+  let result = null;
   // 群聊签到，无课程
   if (!activity.courseId) {
     let page = await preSign2({ ...activity, ...params, chatId: activity.chatId as string });
@@ -249,8 +256,8 @@ async function Sign(realname: string, params: UserCookieType & { tuid: string },
         break;
       }
       case 'qr': {
-        result = 'fail-can-wait-cq'
-        console.log(red('二维码签到，无法自动签到！'));
+        result = '[二维码]请发送二维码照片';
+        console.log(red('二维码签到，需人工干预！'));
         break;
       }
     }
@@ -262,8 +269,8 @@ async function Sign(realname: string, params: UserCookieType & { tuid: string },
   switch (activity.otherId) {
     case 2: {
       // 二维码签到
-      result = 'fail-can-wait-cq'
-      console.log(red('二维码签到，无法自动签到！'));
+      result = '[二维码]请发送二维码照片';
+      console.log(red('二维码签到，需人工干预！'));
       break;
     }
     case 4: {
@@ -303,6 +310,25 @@ async function Sign(realname: string, params: UserCookieType & { tuid: string },
   return result;
 }
 
+async function handleMsg(this: CQ, data: string) {
+  // 处理图片，是否二维码，发送一些其他反馈
+  if (CQ.hasImage(data) && this.getCache('params') !== undefined) {
+    console.log('[图片]尝试二维码识别');
+    const img_url = data.match(/https:\/\/[\S]+[^\]]/g)![0];
+    const params = this.getCache('params');
+    const qr_str = (await QrCodeScan(img_url, 'url')).CodeResults?.[0].Url;
+
+    if (typeof qr_str === 'undefined') this.send('是否已配置腾讯云OCR？图像是否包含清晰二维码？', this.getTargetID());
+    else {
+      params.enc = qr_str.match(/(?<=&enc=)[\dA-Z]+/)[0];
+      const result = await QRCodeSign(params);
+      this.send(`${result} - ${params.name}`, this.getTargetID());
+      // 签到成功则清理缓存
+      result === '[二维码]签到成功' && this.clearCache();
+    }
+  }
+}
+
 // 开始运行
 (async () => {
   let params: any = {};
@@ -340,14 +366,24 @@ async function Sign(realname: string, params: UserCookieType & { tuid: string },
     }
   }
 
+  // 配置签到信息
+  const config = await configure(params.phone);
+  // 获取IM参数
   let IM_Params = await getIMParams(params as UserCookieType);
   if (IM_Params === 'AuthFailed') {
     if (process.send) process.send('authfail');
     process.exit(0);
   }
   params.tuid = IM_Params.myTuid;
-  // 配置默认签到信息
-  const config = await configure(params.phone);
+  params.name = IM_Params.myName;
+  
+  let cq: CQ;
+  // 建立连接，添加监听事件并绑定处理函数  
+  if (config.cqserver?.cq_enabled) {
+    cq = new CQ(config.cqserver.ws_url, config.cqserver.target_type, config.cqserver.target_id);
+    cq.connect();
+    cq.onMessage(handleMsg);
+  }
 
   conn.open({
     apiUrl: WebIMConfig.apiURL,
@@ -355,136 +391,6 @@ async function Sign(realname: string, params: UserCookieType & { tuid: string },
     accessToken: IM_Params.myToken,
     appKey: WebIMConfig.appkey,
   });
-
-  console.log(blue('[监听中]'));
-
-  /**
-   * 解析签到类型
-   * @param iptPPTActiveInfo Get 来的活动信息
-   * @returns 返回具体的中文结果
-   */
-  function parseSignType(iptPPTActiveInfo: any) {
-    switch(iptPPTActiveInfo.otherId) {
-      case 0:
-        if (iptPPTActiveInfo.ifphoto == 1) { return "拍照签到"; } else { return "普通签到"; }
-      case 2: return "二维码签到";
-      case 3: return "手势签到";
-      case 4: return "位置签到";
-      case 5: return "签到码签到";
-      default: return "其他类型签到";
-    }
-  }
-  
-  /** 
-   * 解析签到结果
-   * @param iptResult 签到结果
-   * @returns 返回具体的中文结果
-   */
-  function parseSignResult(iptResult: any) {
-    switch(iptResult) {
-      case 'success': return "成功";
-      case 'fail': return "失败";
-      case 'fail-can-wait-cq': return "请发送二维码";
-      default: return iptResult;
-    }
-  }
-
-  /**
-   * 判断消息是否有图片
-   * by @Tsuk1ko/cq-picsearcher-bot 56594b6 src/index.mjs:696
-   *
-   * @param {string} msg 消息
-   * @returns 有则返回true
-   */
-  function hasImage(msg: string) {
-    return msg.indexOf('[CQ:image') !== -1;
-  }
-
-  /**
-   * 处理消息中的二维码
-   */
-  async function handleImages(e: any, context: any) {
-    if (hasImage(context.message)) {
-      // 从 CQ 码中取得图片 Url
-      let msgSplitIndex: number
-      if (config.cqserver.cqtype == "send_private_msg") {
-        msgSplitIndex = 2
-      } else {
-        msgSplitIndex = 3
-      }
-      const imageUrl = context.message.split(",")[msgSplitIndex].split("=")[1]
-      // 跑 Delay，免得超腾讯api限制了
-      console.log("等待 " + config.monitor.delay + " 秒后开始签到…")
-      // 开了会刷屏。不知道怎么回事。
-      // if (cqbot.isReady() && IM_Params !== 'AuthFailed') { 
-      //   const message = IM_Params.myName + "：等待 " + config.monitor.delay + " 秒后开始签到…"
-      //   cqbot(config.cqserver.cqtype, {
-      //     group_id: config.cqserver.cquin,
-      //     user_id: config.cqserver.cquin
-      //     message
-      //   });
-      // }
-      await delay(config.monitor.delay);
-      try {
-        // 给腾讯云图片 url 等它发回签到url结果。
-        let qrScanResult: any = await urlQrCodeScan(imageUrl);
-        // 正则找 aid 和 enc
-        let parseQrScanResult = qrScanResult.CodeResults[0].Url
-        const REGEX_ENC = /(SIGNIN:|e\?).*(aid=|id=)(\d+)(&.*)?&enc=([\dA-F]+)/
-        if (REGEX_ENC.test(parseQrScanResult)) {
-          const qrScanResultEnc: any = REGEX_ENC.exec(parseQrScanResult)
-          // 签到 & 发消息
-          if (IM_Params !== 'AuthFailed') {
-            const sendBasicCookie = {
-              enc: qrScanResultEnc[5],
-              name: IM_Params.myName,
-              fid: params.fid,
-              _uid: params._uid,
-              activeId: qrScanResultEnc[3],
-              uf: params.uf,
-              _d: params._d,
-              vc3: params.vc3,
-            }
-            let qrSignResult = await QRCodeSign(sendBasicCookie);
-            if (qrSignResult === 'success') {
-              if (cqbot.isReady()) {
-                const message = IM_Params.myName + "：" + parseSignResult(qrSignResult)
-                cqbot(config.cqserver.cqtype, {
-                  group_id: config.cqserver.cquin,
-                  user_id: config.cqserver.cquin,
-                  message
-                });
-              }
-            }
-          }
-        }
-      } catch(error) {
-        console.error(red('识别失败，错误原因：' + error));
-      }
-    }
-  }
-
-  let cqbot: CQWebSocket
-  if (config.cqserver) {
-    cqbot = new CQWebSocket(ENVJSON.cqserver);
-
-    // 连接到CQ机器人监听
-    cqbot
-      .on("socket.connecting", (wsType, attempts) => console.log(`正在连接至 CQ 服务器 (${wsType} #${attempts})…`))
-      .on("socket.failed", (wsType, attempts) => console.log(red(`CQ 服务器连接失败 (${wsType} #${attempts})…`)))
-      .on("socket.error", (wsType, err) => {
-        console.error(red(`CQ 服务器连接错误 (${wsType})`));
-        console.error(err);
-      })
-      .on("socket.connect", (wsType, sock, attempts) => console.log(blue(`CQ 服务器连接成功 (${wsType} #${attempts})`)));
-
-    cqbot.connect();
-    if (config.cqserver.cqtype == "send_group_msg") {
-      cqbot.on('message.group', handleImages);
-    } else if (config.cqserver.cqtype == "send_private_msg") {
-      cqbot.on('message.private', handleImages);
-    }
-  }
 
   conn.listen({
     onOpened: () => {
@@ -503,25 +409,14 @@ async function Sign(realname: string, params: UserCookieType & { tuid: string },
         };
         const PPTActiveInfo = await getPPTActiveInfo({ activeId: IM_CourseInfo.aid, ...(params as UserCookieType) });
 
-        // 发送收到签到的消息
-        if (cqbot.isReady() && IM_Params !== 'AuthFailed') {
-          let message: string
-          if (PPTActiveInfo.otherId == 2) {
-            message = IM_Params.myName + "的学习通收到" + parseSignType(PPTActiveInfo) + "，请等待签到初始化…"
-          } else {
-            message = IM_Params.myName + "的学习通收到" + parseSignType(PPTActiveInfo) + "，将在 " + config.monitor.delay + " 秒后开始执行签到…"
-          }
-          cqbot(config.cqserver.cqtype, {
-            group_id: config.cqserver.cquin,
-            user_id: config.cqserver.cquin,
-            message
-          });
-        }
-
-        // 签到 & 发消息
+        // 签到 & 推送消息
         if (IM_Params !== 'AuthFailed') {
+          // 签到检测通知推送
+          cq.send(`${IM_Params.myName}，检测到${getSignType(PPTActiveInfo)}，将在${config.monitor.delay}秒后处理`, config.cqserver.target_id);
+          cq.setCache('params', { ...params, activeId: IM_CourseInfo.aid });
+
           await delay(config.monitor.delay);
-          const result = await Sign(IM_Params.myName, params as UserCookieType & { tuid: string }, config.monitor, {
+          const result = await Sign(IM_Params.myName, params, config.monitor, {
             classId: IM_CourseInfo.classId,
             courseId: IM_CourseInfo.courseId,
             activeId: IM_CourseInfo.aid,
@@ -529,8 +424,8 @@ async function Sign(realname: string, params: UserCookieType & { tuid: string },
             ifphoto: PPTActiveInfo.ifphoto,
             chatId: message?.to,
           });
-          // 若使用 pushplus 请改用 pushplusSend() 并填入所需参数 token, content, ...
-          if (config.mailing && result)
+          // 邮件推送签到结果
+          if (config.mailing?.to) {
             sendEmail({
               aid: IM_CourseInfo.aid,
               uid: params._uid,
@@ -538,13 +433,10 @@ async function Sign(realname: string, params: UserCookieType & { tuid: string },
               status: result,
               mailing: config.mailing,
             });
-          if (cqbot.isReady() && result) {
-            const message = IM_Params.myName + "：" + parseSignResult(result)
-            cqbot(config.cqserver.cqtype, {
-              group_id: config.cqserver.cquin,
-              user_id: config.cqserver.cquin,
-              message
-            });
+          }
+          // CQ 推送签到结果
+          if (config.cqserver.cq_enabled) {
+            cq.send(`${result} - ${IM_Params.myName}`, config.cqserver.target_id);
           }
         }
       }
@@ -554,4 +446,6 @@ async function Sign(realname: string, params: UserCookieType & { tuid: string },
       process.exit(0);
     },
   });
+
+  console.log(blue(`[监听中] ${config.cqserver.cq_enabled ? 'CQ服务器已连接' : ''} ${config.mailing?.to ? '邮件推送已开启' : ''}...`));
 })();

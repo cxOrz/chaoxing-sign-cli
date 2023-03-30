@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 import { request } from './request';
 
-export function sendEmail(args: { aid: string; uid: string; realname: string; status: string; mailing: MailConfig }) {
+export function sendEmail(args: { aid: string; uid: string; realname: string; status: string | null; mailing: MailConfig; }) {
   const { uid, realname, aid, status, mailing } = args;
   let transporter = nodemailer.createTransport({
     host: mailing.host,
