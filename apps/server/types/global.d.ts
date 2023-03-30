@@ -15,9 +15,10 @@ interface MailConfig {
 }
 
 interface cqServerConfig {
-  enable: boolean;
-  cqtype: string;
-  cquin: number;
+  cq_enabled: boolean;
+  target_type: string;
+  target_id: number;
+  ws_url: string;
 }
 
 interface BasicCookie {

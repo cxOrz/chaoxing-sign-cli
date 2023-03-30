@@ -30,10 +30,6 @@ module.exports = {
         'SwitchCase': 1
       }
     ],
-    'linebreak-style': [
-      'error',
-      'unix'
-    ],
     'quotes': [
       'error',
       'single'

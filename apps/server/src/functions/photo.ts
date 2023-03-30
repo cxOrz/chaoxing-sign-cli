@@ -18,11 +18,9 @@ export const PhotoSign = async (
       Cookie: cookieSerialize(cookies),
     },
   });
-  if (result.data === 'success') {
-    console.log(`[拍照]签到成功`);
-    return 'success';
-  }
-  return result.data;
+  const msg = result.data === 'success' ? '[拍照]签到成功' : `[拍照]${result.data}`;
+  console.log(msg);
+  return msg;
 };
 
 export const PhotoSign_2 = async (args: BasicCookie & { objectId: string; activeId: string }): Promise<string> => {
@@ -34,11 +32,9 @@ export const PhotoSign_2 = async (args: BasicCookie & { objectId: string; active
       Cookie: cookieSerialize(cookies),
     },
   });
-  if (result.data === 'success') {
-    console.log(`[拍照]签到成功`);
-    return 'success';
-  }
-  return result.data;
+  const msg = result.data === 'success' ? '[拍照]签到成功' : `[拍照]${result.data}`;
+  console.log(msg);
+  return msg;
 };
 
 // 在Termux或其他终端中使用，从云盘获取图片

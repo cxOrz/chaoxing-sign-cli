@@ -88,7 +88,13 @@ pnpm start
 
 ### 监听模式
 
-每次需要时启用 2 - 4 小时较为合适，请勿挂着不关。
+支持开启QQ机器人、邮件推送、pushplus推送；
+
+**QQ 机器人**：根据 [go-cqhttp](https://docs.go-cqhttp.org/guide/quick_start.html) 文档，配置正向 WebSocket、QQ号、密码，并运行 go-cqhttp 程序，即可运行监听模式并启用该选项。
+
+如需发送二维码让机器人识别并签到，请配置 `env.json` 的 `SecretId` 和 `SecretKey`，将使用腾讯云OCR进行识别和处理。
+
+监听模式每次需要时启用 2 - 4 小时较为合适，最好不要挂着不关。
 
 ## 高级 🎲
 
@@ -109,16 +115,6 @@ docker run -d -p 80:80 -p 5000:5000 chaoxing-sign-cli
 ```
 
 > 出现问题？先仔细阅读相关说明，若仍无法解决请发 issue
-
-### 连接 QQ 机器人（go-cqhttp）
-
-在使用 QQ 机器人之前请先按照 [go-cqhttp 基础教程](https://docs.go-cqhttp.org/guide/quick_start.html)安装好 [go-cqhttp 服务器](https://docs.go-cqhttp.org/)。本项目使用正向 WebSocket 连接至 go-cqhttp 服务器。请按照 [go-cqhttp 配置文档](https://docs.go-cqhttp.org/guide/config.html)配置好正向服务器以及其连接密钥（可选，为了安全建议配置好密钥）。
-
-#### 配置本项目的 go-cqhttp 连接
-
-在**构建本项目后**打开 `apps/server/build/env.json` 文件，编辑`cqserver`组内的值。更详细的参数介绍请参阅[官方文档](https://github.com/Tsuk1ko/node-cq-websocket/blob/master/docs/api/CQWebSocket.md#cqwebsocketoption)。
-
-若想读取消息中的签到二维码文本，请配置好`env.json`内的腾讯云 OCR 密钥。
 
 ### 展示
 

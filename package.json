@@ -1,6 +1,6 @@
 {
   "name": "chaoxing-sign",
-  "version": "4.1.3",
+  "version": "4.2.5",
   "description": "超星学习通签到项目",
   "workspaces": [
     "apps/*",
