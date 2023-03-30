@@ -5,7 +5,7 @@ import { cookieSerialize, request } from '../utils/request';
  * 返回一个签到信息对象 {activeId, name, courseId, classId, otherId}
  * @param {{courseId:string, classId:string}[]} courses
  */
-export const traverseCourseActivity = async (args: BasicCookie & { courses: CourseType[] }): Promise<string | Activity> => {
+export const traverseCourseActivity = async (args: BasicCookie & { courses: CourseType[]; }): Promise<string | Activity> => {
   console.log('正在查询有效签到活动，等待时间视网络情况而定...');
   const { courses, ...cookies } = args;
   let i = 0;
@@ -31,7 +31,7 @@ export const traverseCourseActivity = async (args: BasicCookie & { courses: Cour
       try {
         // 任务数组中任意一个成功就返回；否则，抛出异常
         return await Promise.any(tasks);
-      } catch (error) {}
+      } catch (error) { }
       // 每轮请求任务组之后，清空任务数组供下轮使用
       tasks = [];
     }
@@ -44,7 +44,7 @@ export const traverseCourseActivity = async (args: BasicCookie & { courses: Cour
 /**
  * @returns 签到信息对象
  */
-export const getActivity = async (args: BasicCookie & { course: CourseType }): Promise<string | Activity> => {
+export const getActivity = async (args: BasicCookie & { course: CourseType; }): Promise<string | Activity> => {
   const { course, ...cookies } = args;
   const result = await request(
     `${ACTIVELIST.URL}?fid=0&courseId=${course.courseId}&classId=${course.classId}&_=${new Date().getTime()}`,
@@ -87,7 +87,7 @@ export const getActivity = async (args: BasicCookie & { course: CourseType }): P
 /**
  * 根据 activeId 请求获得签到信息
  */
-export const getPPTActiveInfo = async ({ activeId, ...cookies }: BasicCookie & { activeId: string }) => {
+export const getPPTActiveInfo = async ({ activeId, ...cookies }: BasicCookie & { activeId: string; }) => {
   const result = await request(`${PPTACTIVEINFO.URL}?activeId=${activeId}`, {
     secure: true,
     headers: {
@@ -99,7 +99,7 @@ export const getPPTActiveInfo = async ({ activeId, ...cookies }: BasicCookie & {
 };
 
 // 预签到请求
-export const preSign = async (args: BasicCookie & { activeId: string; courseId: string; classId: string }) => {
+export const preSign = async (args: BasicCookie & { activeId: string; courseId: string; classId: string; }) => {
   const { activeId, classId, courseId, ...cookies } = args;
   await request(
     `${PRESIGN.URL}?courseId=${courseId}&classId=${classId}&activePrimaryId=${activeId}&general=1&sys=1&ls=1&appType=15&&tid=&uid=${args._uid}&ut=s`,
@@ -113,7 +113,7 @@ export const preSign = async (args: BasicCookie & { activeId: string; courseId: 
   console.log(`[预签]已请求`);
 };
 
-export const preSign2 = async (args: BasicCookie & { activeId: string; chatId: string; _uid: string; tuid: string }) => {
+export const preSign2 = async (args: BasicCookie & { activeId: string; chatId: string; _uid: string; tuid: string; }) => {
   const { activeId, chatId, tuid, ...cookies } = args;
   const result = await request(
     `${CHAT_GROUP.PRESTUSIGN.URL}?activeId=${activeId}&code=&uid=${cookies._uid}&courseId=null&classId=0&general=0&chatId=${chatId}&appType=0&tid=${tuid}&atype=null&sys=0`,
@@ -141,4 +141,34 @@ export const speculateType = (text: string) => {
   }
   // 普通、手势
   return 'general';
+};
+
+/**
+ * 解析签到类型
+ * @param iptPPTActiveInfo getPPTActiveInfo 的返回对象
+ */
+export const getSignType = (iptPPTActiveInfo: any) => {
+  switch (iptPPTActiveInfo.otherId) {
+    case 0:
+      if (iptPPTActiveInfo.ifphoto == 1) { return "拍照签到"; } else { return "普通签到"; }
+    case 2: return "二维码签到";
+    case 3: return "手势签到";
+    case 4: return "位置签到";
+    case 5: return "签到码签到";
+    default: return "未知";
+  }
+};
+
+/** 
+ * 解析签到结果
+ * @param iptResult 签到结果
+ * @returns 返回具体的中文结果
+ */
+export const getSignResult = (iptResult: string) => {
+  switch (iptResult) {
+    case 'success': return "成功";
+    case 'fail': return "失败";
+    case 'fail-need-qrcode': return "请发送二维码";
+    default: return iptResult;
+  }
 };

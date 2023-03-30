@@ -1,6 +1,6 @@
 {
   "name": "server",
-  "version": "3.8.9",
+  "version": "4.2.5",
   "description": "超星学习通签到项目",
   "scripts": {
     "build": "tsc && node ./src/scripts/cplibs.js",
@@ -14,7 +14,6 @@
   },
   "dependencies": {
     "@koa/router": "^12.0.0",
-    "@tsuk1ko/cq-websocket": "^2.3.1",
     "crypto-js": "^4.1.1",
     "form-data": "^4.0.0",
     "jsdom": "^20.0.0",

@@ -225,7 +225,7 @@ router.post('/qrocr', async (ctx) => {
       let base64str = buffer.toString('base64');
       let res: any;
       try {
-        res = await QrCodeScan(base64str);
+        res = await QrCodeScan(base64str, 'base64');
         const url = res.CodeResults[0].Url;
         const enc_start = url.indexOf('enc=') + 4;
         const result = url.substring(enc_start, url.indexOf('&', enc_start));

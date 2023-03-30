@@ -12,12 +12,9 @@ export const LocationSign = async (
       Cookie: cookieSerialize(cookies),
     },
   });
-  if (result.data === 'success') {
-    console.log(`[位置]签到成功`);
-    return 'success';
-  }
-  console.log(result.data);
-  return result.data;
+  const msg = result.data === 'success' ? '[位置]签到成功' : `[位置]${result.data}`;
+  console.log(msg);
+  return msg;
 };
 
 /**
@@ -42,10 +39,7 @@ export const LocationSign_2 = async (
     },
     formdata
   );
-  if (result.data === 'success') {
-    console.log(`[位置]签到成功`);
-    return 'success';
-  }
-  console.log(result.data);
-  return result.data;
+  const msg = result.data === 'success' ? '[位置]签到成功' : `[位置]${result.data}`;
+  console.log(msg);
+  return msg;
 };
