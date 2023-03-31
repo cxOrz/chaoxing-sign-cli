@@ -3,7 +3,7 @@ import { request } from './request';
 
 export function sendEmail(args: { aid: string; uid: string; realname: string; status: string | null; mailing: MailConfig; }) {
   const { uid, realname, aid, status, mailing } = args;
-  let transporter = nodemailer.createTransport({
+  const transporter = nodemailer.createTransport({
     host: mailing.host,
     port: mailing.port,
     secure: mailing.ssl,

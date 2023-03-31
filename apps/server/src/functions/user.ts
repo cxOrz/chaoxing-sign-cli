@@ -44,7 +44,7 @@ export const userLogin = async (uname: string, password: string): Promise<string
   // 获取结果
   if (JSON.parse(result.data).status) {
     const cookies = result.headers['set-cookie'];
-    let c_equal, c_semi, itemName, itemValue, rt_cookies;
+    let c_equal, c_semi, itemName, itemValue;
 
     // 将每一项 cookie 以键值对形式存入 Map，再转为对象，合并到默认参数中
     const map = new Map();
@@ -55,10 +55,10 @@ export const userLogin = async (uname: string, password: string): Promise<string
       itemValue = cookies![i].substring(c_equal + 1, c_semi);
       map.set(itemName, itemValue);
     }
-    rt_cookies = Object.fromEntries(map.entries());
+    const rt_cookies = Object.fromEntries(map.entries());
 
     console.log('登陆成功');
-    let loginResult = Object.assign({ ...DefaultParams }, rt_cookies);
+    const loginResult = Object.assign({ ...DefaultParams }, rt_cookies);
     return loginResult;
   }
 
@@ -68,7 +68,7 @@ export const userLogin = async (uname: string, password: string): Promise<string
 
 // 返回全部课程
 export const getCourses = async (_uid: string, _d: string, vc3: string): Promise<CourseType[] | string> => {
-  let formdata = 'courseType=1&courseFolderId=0&courseFolderSize=0';
+  const formdata = 'courseType=1&courseFolderId=0&courseFolderSize=0';
   const result = await request(
     COURSELIST.URL,
     {
@@ -92,11 +92,11 @@ export const getCourses = async (_uid: string, _d: string, vc3: string): Promise
 
   // 从 HTMl 页面内容，解析出所有 courseId 和 classId，填充到数组返回
   const data = result.data;
-  let arr: CourseType[] = [];
+  const arr: CourseType[] = [];
   let end_of_courseid;
   for (let i = 1; ; i++) {
     i = data.indexOf('course_', i);
-    if (i == -1) break;
+    if (i === -1) break;
     end_of_courseid = data.indexOf('_', i + 7);
     arr.push({
       courseId: data.slice(i + 7, end_of_courseid),
@@ -157,7 +157,7 @@ export const getLocalUsers = () => {
  * @returns \{ myName, myToken, myTuid, myPuid \}
  */
 export const getIMParams = async (cookies: BasicCookie): Promise<IMParamsType | 'AuthFailed'> => {
-  let params = {
+  const params = {
     myName: '',
     myToken: '',
     myTuid: '',
@@ -169,7 +169,7 @@ export const getIMParams = async (cookies: BasicCookie): Promise<IMParamsType | 
       Cookie: cookieSerialize(cookies),
     },
   });
-  let data = result.data;
+  const data = result.data;
   if (data === '') {
     console.log('身份凭证似乎过期，请手动登录');
     return 'AuthFailed';

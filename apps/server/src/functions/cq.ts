@@ -65,13 +65,12 @@ export default class CQ {
 
   onMessage(handler: (this: CQ, data: string) => void) {
     if (this.#ws_instance) {
-      const context = this;
-      this.#ws_instance.onmessage = function (e) {
+      this.#ws_instance.onmessage = (e) => {
         const data = JSON.parse(e.data);
-        const isTarget = !!(data.group_id === context.#target_id || data.user_id === context.#target_id);
+        const isTarget = !!(data.group_id === this.#target_id || data.user_id === this.#target_id);
         // 仅处理消息类型，且来自目标用户或群
         if (data.post_type === 'message' && isTarget) {
-          handler.call(context, data.raw_message);
+          handler.call(this, data.raw_message);
         }
       };
     }

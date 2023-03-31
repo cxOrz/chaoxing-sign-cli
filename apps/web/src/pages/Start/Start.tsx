@@ -1,20 +1,20 @@
-import React, { useEffect, useRef, useState } from 'react'
-import axios from 'axios'
-import AddCircleOutlineOutlined from '@mui/icons-material/AddCircleOutlineOutlined'
-import Button from '@mui/material/Button'
-import ButtonBase from '@mui/material/ButtonBase'
-import Icon from '@mui/material/Icon'
-import Dialog from '@mui/material/Dialog'
-import DialogTitle from '@mui/material/DialogTitle'
-import DialogContent from '@mui/material/DialogContent'
-import DialogContentText from '@mui/material/DialogContentText'
-import TextField from '@mui/material/TextField'
-import DialogActions from '@mui/material/DialogActions'
-import Snackbar from '@mui/material/Snackbar'
-import Alert from '@mui/material/Alert'
-import UserCard from '../../components/UserCard/UserCard'
-import { login_api, monitor_start_api, monitor_status_api, monitor_stop_api } from '../../config/api'
-import styles from './Start.module.css'
+import React, { useEffect, useRef, useState } from 'react';
+import axios from 'axios';
+import AddCircleOutlineOutlined from '@mui/icons-material/AddCircleOutlineOutlined';
+import Button from '@mui/material/Button';
+import ButtonBase from '@mui/material/ButtonBase';
+import Icon from '@mui/material/Icon';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import TextField from '@mui/material/TextField';
+import DialogActions from '@mui/material/DialogActions';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+import UserCard from '../../components/UserCard/UserCard';
+import { login_api, monitor_start_api, monitor_status_api, monitor_stop_api } from '../../config/api';
+import styles from './Start.module.css';
 
 type UserListType = UserParamsType[]
 
@@ -29,20 +29,20 @@ function Start() {
   const password = useRef<HTMLInputElement>(null);
 
   const login = async () => {
-    loginBtn.current!.disabled = true
-    let res = await axios.post(login_api, {
-      phone: phone.current!.value,
-      password: password.current!.value
-    })
-    let phoneNum = phone.current!.value
-    let userPwd = password.current!.value
-    loginBtn.current!.removeAttribute('disabled')
+    loginBtn.current!.disabled = true;
+    const res = await axios.post(login_api, {
+      phone: phone.current?.value,
+      password: password.current?.value
+    });
+    const phoneNum = phone.current?.value;
+    const userPwd = password.current?.value;
+    loginBtn.current?.removeAttribute('disabled');
     // 登陆成功
     if (res.data !== 'AuthFailed') {
-      setOpen(false)
+      setOpen(false);
 
       // 写入数据库
-      let request = indb!.transaction(['user'], 'readwrite')
+      const request = indb!.transaction(['user'], 'readwrite')
         .objectStore('user')
         .put({
           phone: phoneNum, // 手机号
@@ -56,17 +56,17 @@ function Start() {
           date: new Date(), // 判断时间进行重新认证身份
           monitor: false,
           lv: res.data.lv
-        })
-      request.onerror = () => { console.log('用户写入失败') }
+        });
+      request.onerror = () => { console.log('用户写入失败'); };
       request.onsuccess = () => {
-        console.log('用户写入成功')
-        window.location.reload()
-      }
+        console.log('用户写入成功');
+        window.location.reload();
+      };
     }
     else {
       setAlert({ open: true, message: '登陆失败' });
     }
-  }
+  };
 
   // 修改监听状态，本函数作为props传给UserCard组件来调用
   const setMonitorMode = async (target: UserParamsType) => {
@@ -93,7 +93,7 @@ function Start() {
         setAlert({ open: true, message: '身份过期' });
       }
     }
-  }
+  };
 
   // 设置用户 monitor 属性为 true/false
   const toggleMonitorState = (target: UserParamsType, value: boolean) => {
@@ -103,10 +103,10 @@ function Start() {
           return { ...user, monitor: value };
         }
         return user;
-      })
+      });
     });
     // 同时要将 monitor 值写入数据库
-    let request = indb!.transaction(['user'], 'readwrite')
+    const request = indb!.transaction(['user'], 'readwrite')
       .objectStore('user')
       .put({
         phone: target.phone,
@@ -120,49 +120,49 @@ function Start() {
         date: new Date(),
         monitor: value,
         lv: target.lv
-      })
-    request.onerror = () => { console.log('写入失败') }
+      });
+    request.onerror = () => { console.log('写入失败'); };
     request.onsuccess = () => {
-      console.log('写入成功')
-    }
-  }
+      console.log('写入成功');
+    };
+  };
 
   useEffect(() => {
     // 打开或创建数据库
-    const request = window.indexedDB.open('ui')
+    const request = window.indexedDB.open('ui');
     request.onerror = () => {
-      console.log('数据库打开失败')
-    }
+      console.log('数据库打开失败');
+    };
     // 打开成功
-    request.onsuccess = (event) => {
-      console.log("数据库打开成功")
-      setIndb(request.result)
+    request.onsuccess = () => {
+      console.log('数据库打开成功');
+      setIndb(request.result);
       // 遍历全部数据
-      const cursor_request = request.result.transaction('user', 'readwrite').objectStore('user').openCursor()
-      cursor_request.onsuccess = (event) => {
-        let cursor = cursor_request.result
+      const cursor_request = request.result.transaction('user', 'readwrite').objectStore('user').openCursor();
+      cursor_request.onsuccess = () => {
+        const cursor = cursor_request.result;
         if (cursor) {
           // console.log(cursor.key)
           // console.log(cursor.value)
-          let userValue = cursor.value // 在safari中需要将参数值存到变量，再传给setState不然undefined
+          const userValue = cursor.value; // 在safari中需要将参数值存到变量，再传给setState不然undefined
           setUser((prev) => {
-            return [...prev, userValue]
-          })
-          cursor.continue()
+            return [...prev, userValue];
+          });
+          cursor.continue();
         } else {
           setLoaded(true);
         }
-      }
-    }
+      };
+    };
     // 是否创建数据表
-    request.onupgradeneeded = (event) => {
-      let db = request.result
+    request.onupgradeneeded = () => {
+      const db = request.result;
       if (!db.objectStoreNames.contains('ui')) {
-        db.createObjectStore('user', { keyPath: 'phone' })
-        console.log('数据表已创建')
+        db.createObjectStore('user', { keyPath: 'phone' });
+        console.log('数据表已创建');
       }
-    }
-  }, [])
+    };
+  }, []);
 
   // 获取每个用户的监听状态
   useEffect(() => {
@@ -175,7 +175,7 @@ function Start() {
       // Promise.all 请求所有用户的 monitor 状态，全部完成后得到状态数组 res
       Promise.all(tasks).then((res) => {
         for (let i = 0; i < user.length; i++) {
-          if (res[i]!.data.code === 200) monitorStatus[i] = true;
+          if (res[i]?.data.code === 200) monitorStatus[i] = true;
           else monitorStatus[i] = false;
         }
         // 对应更新每个用户的 monitor 状态
@@ -186,7 +186,7 @@ function Start() {
         });
       });
     }
-  }, [loaded])
+  }, [loaded]);
 
   return (
     <div className={styles.startBox}>
@@ -200,7 +200,7 @@ function Start() {
             key={i}
             user={e}
             setMonitorMode={setMonitorMode}
-          />)
+          />);
         })
       }
       <ButtonBase
@@ -214,7 +214,7 @@ function Start() {
           marginRight: 3.5
         }}
         className={styles.neumCard}
-        onClick={() => { setOpen(true) }}
+        onClick={() => { setOpen(true); }}
       >
         <Icon sx={{
           width: 'auto',
@@ -224,7 +224,7 @@ function Start() {
         </Icon>
       </ButtonBase>
 
-      <Dialog open={open} onClose={() => { setOpen(false) }}>
+      <Dialog open={open} onClose={() => { setOpen(false); }}>
         <DialogTitle>添加用户</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -251,21 +251,21 @@ function Start() {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => { setOpen(false) }}>取消</Button>
+          <Button onClick={() => { setOpen(false); }}>取消</Button>
           <Button ref={loginBtn} onClick={login}>确认添加</Button>
         </DialogActions>
       </Dialog>
       <Snackbar
         open={alert.open}
         autoHideDuration={2000}
-        onClose={() => { setAlert({ open: false, message: '' }) }}
+        onClose={() => { setAlert({ open: false, message: '' }); }}
       >
-        <Alert onClose={() => { setAlert({ open: false, message: '' }) }} severity="error" sx={{ width: '100%' }}>
+        <Alert onClose={() => { setAlert({ open: false, message: '' }); }} severity="error" sx={{ width: '100%' }}>
           {alert.message}
         </Alert>
       </Snackbar>
     </div>
-  )
+  );
 }
 
-export default Start
+export default Start;
