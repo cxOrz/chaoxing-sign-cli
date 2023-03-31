@@ -21,6 +21,7 @@ const JSDOM = new jsdom.JSDOM('', { url: 'https://im.chaoxing.com/webim/me' });
 globalThis.navigator = JSDOM.window.navigator;
 globalThis.location = JSDOM.window.location;
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const webIM = require('./utils/websdk3.1.4.js').default;
 
 const PromptsOptions = {
@@ -221,6 +222,7 @@ async function configure(phone: string) {
       }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     fs.writeFile(path.join(__dirname, './configs/storage.json'), JSON.stringify(data), 'utf8', () => { });
   }
 
@@ -231,15 +233,15 @@ async function Sign(realname: string, params: UserCookieType & { tuid: string; }
   let result = null;
   // 群聊签到，无课程
   if (!activity.courseId) {
-    let page = await preSign2({ ...activity, ...params, chatId: activity.chatId as string });
-    let activityType = speculateType(page);
+    const page = await preSign2({ ...activity, ...params, chatId: activity.chatId as string });
+    const activityType = speculateType(page);
     switch (activityType) {
       case 'general': {
         result = await GeneralSign_2({ activeId: activity.activeId, ...params });
         break;
       }
       case 'photo': {
-        let objectId = await getObjectIdFromcxPan(params);
+        const objectId = await getObjectIdFromcxPan(params);
         if (objectId === null) return null;
         result = await PhotoSign_2({ objectId, activeId: activity.activeId, ...params });
         break;
@@ -300,7 +302,7 @@ async function Sign(realname: string, params: UserCookieType & { tuid: string; }
         result = await GeneralSign({ name: realname, activeId: activity.activeId, ...params });
         break;
       } else {
-        let objectId = await getObjectIdFromcxPan(params);
+        const objectId = await getObjectIdFromcxPan(params);
         if (objectId === null) return null;
         result = await PhotoSign({ name: realname, activeId: activity.activeId, objectId, ...params });
         break;
@@ -343,7 +345,7 @@ async function handleMsg(this: CQ, data: string) {
     params.phone = process.argv[9];
   } else {
     // 打印本地用户列表，并返回用户数量
-    let userItem = (
+    const userItem = (
       await prompts(
         { type: 'select', name: 'userItem', message: '选择用户', choices: getLocalUsers(), initial: 0 },
         PromptsOptions
@@ -351,8 +353,8 @@ async function handleMsg(this: CQ, data: string) {
     ).userItem;
     // 手动登录
     if (userItem === -1) {
-      let phone = (await prompts({ type: 'text', name: 'phone', message: '手机号' }, PromptsOptions)).phone;
-      let password = (await prompts({ type: 'password', name: 'password', message: '密码' }, PromptsOptions)).password;
+      const phone = (await prompts({ type: 'text', name: 'phone', message: '手机号' }, PromptsOptions)).phone;
+      const password = (await prompts({ type: 'password', name: 'password', message: '密码' }, PromptsOptions)).password;
       // 登录获取各参数
       params = await userLogin(phone, password);
       if (params === 'AuthFailed') process.exit(0);
@@ -360,7 +362,7 @@ async function handleMsg(this: CQ, data: string) {
       params.phone = phone;
     } else {
       // 使用本地储存的参数
-      let user = getJsonObject('configs/storage.json').users[userItem];
+      const user = getJsonObject('configs/storage.json').users[userItem];
       params = user.params;
       params.phone = user.phone;
     }
@@ -369,16 +371,16 @@ async function handleMsg(this: CQ, data: string) {
   // 配置签到信息
   const config = await configure(params.phone);
   // 获取IM参数
-  let IM_Params = await getIMParams(params as UserCookieType);
+  const IM_Params = await getIMParams(params as UserCookieType);
   if (IM_Params === 'AuthFailed') {
     if (process.send) process.send('authfail');
     process.exit(0);
   }
   params.tuid = IM_Params.myTuid;
   params.name = IM_Params.myName;
-  
+
   let cq: CQ;
-  // 建立连接，添加监听事件并绑定处理函数  
+  // 建立连接，添加监听事件并绑定处理函数
   if (config.cqserver?.cq_enabled) {
     cq = new CQ(config.cqserver.ws_url, config.cqserver.target_type, config.cqserver.target_id);
     cq.connect();
@@ -410,35 +412,34 @@ async function handleMsg(this: CQ, data: string) {
         const PPTActiveInfo = await getPPTActiveInfo({ activeId: IM_CourseInfo.aid, ...(params as UserCookieType) });
 
         // 签到 & 推送消息
-        if (IM_Params !== 'AuthFailed') {
-          // 签到检测通知推送
-          cq.send(`${IM_Params.myName}，检测到${getSignType(PPTActiveInfo)}，将在${config.monitor.delay}秒后处理`, config.cqserver.target_id);
-          cq.setCache('params', { ...params, activeId: IM_CourseInfo.aid });
+        // 签到检测通知推送
+        cq.send(`${IM_Params.myName}，检测到${getSignType(PPTActiveInfo)}，将在${config.monitor.delay}秒后处理`, config.cqserver.target_id);
+        cq.setCache('params', { ...params, activeId: IM_CourseInfo.aid });
 
-          await delay(config.monitor.delay);
-          const result = await Sign(IM_Params.myName, params, config.monitor, {
-            classId: IM_CourseInfo.classId,
-            courseId: IM_CourseInfo.courseId,
-            activeId: IM_CourseInfo.aid,
-            otherId: PPTActiveInfo.otherId,
-            ifphoto: PPTActiveInfo.ifphoto,
-            chatId: message?.to,
+        await delay(config.monitor.delay);
+        const result = await Sign(IM_Params.myName, params, config.monitor, {
+          classId: IM_CourseInfo.classId,
+          courseId: IM_CourseInfo.courseId,
+          activeId: IM_CourseInfo.aid,
+          otherId: PPTActiveInfo.otherId,
+          ifphoto: PPTActiveInfo.ifphoto,
+          chatId: message?.to,
+        });
+        // 邮件推送签到结果
+        if (config.mailing?.to) {
+          sendEmail({
+            aid: IM_CourseInfo.aid,
+            uid: params._uid,
+            realname: IM_Params.myName,
+            status: result,
+            mailing: config.mailing,
           });
-          // 邮件推送签到结果
-          if (config.mailing?.to) {
-            sendEmail({
-              aid: IM_CourseInfo.aid,
-              uid: params._uid,
-              realname: IM_Params.myName,
-              status: result,
-              mailing: config.mailing,
-            });
-          }
-          // CQ 推送签到结果
-          if (config.cqserver.cq_enabled) {
-            cq.send(`${result} - ${IM_Params.myName}`, config.cqserver.target_id);
-          }
         }
+        // CQ 推送签到结果
+        if (config.cqserver.cq_enabled) {
+          cq.send(`${result} - ${IM_Params.myName}`, config.cqserver.target_id);
+        }
+
       }
     },
     onError: (msg: string) => {

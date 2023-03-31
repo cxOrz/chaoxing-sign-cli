@@ -123,9 +123,14 @@ docker run -d -p 80:80 -p 5000:5000 chaoxing-sign-cli
 ![](https://cxorz.blob.core.windows.net/static-files/ui-start.png)
 ![](https://cxorz.blob.core.windows.net/static-files/ui-qrcode-sign.png)
 
-## 贡献
+## 贡献须知
 
-本项目按照个人意愿进行开发，一些功能以及设计带有个人主观的想法。发起 pr 之前务必先发起issue进行讨论，之后新建一个分支(以提供的功能命名），并在此分支完成你的代码即可提交 pr。请务必保持代码整洁和 commit 规范。
+本项目按照个人意愿进行开发，一些功能以及设计带有个人主观的想法。发起 pr 之前务必先发起issue进行讨论，之后新建一个分支(以提供的功能命名），并在此分支完成你的代码即可提交 pr。
+
+必要条件：
+- 运行 `turbo run lint` 无错误出现，可以有警告
+- 测试所有功能全部正常，保证修改不会导致任何原有功能出错
+- 代码设计合理、健壮、简洁
 
 ## 免责声明
 

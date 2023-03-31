@@ -4,10 +4,10 @@ import { useNavigate, Outlet } from 'react-router-dom';
 import './App.css';
 
 function App() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   return (
     <div className="App">
-      <ButtonBase onClick={() => { navigate('/', { replace: true }) }} sx={{
+      <ButtonBase onClick={() => { navigate('/', { replace: true }); }} sx={{
         border: 10,
         borderRadius: '50%',
         height: '40px',

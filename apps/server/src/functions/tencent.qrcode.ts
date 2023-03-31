@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const tencentcloud = require('tencentcloud-sdk-nodejs');
 const OcrClient = tencentcloud.ocr.v20181119.Client;
 import { getJsonObject } from '../utils/file';

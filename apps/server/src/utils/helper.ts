@@ -17,7 +17,7 @@ const promiseAny = (tasks: Promise<any>[]): Promise<any> => {
           resolve(res);
           return;
         },
-        (reason) => {
+        () => {
           length--;
           if (length === 0) {
             reject(new Error('All promises were rejected'));
@@ -32,7 +32,7 @@ const promiseAny = (tasks: Promise<any>[]): Promise<any> => {
 /**
  * @param {number} timeout 作为等待时间，单位是秒
  */
-const delay = async (timeout: number = 0) => {
+const delay = async (timeout = 0) => {
   await new Promise<void>((res) => setTimeout(() => res(), timeout * 1000));
 };
 

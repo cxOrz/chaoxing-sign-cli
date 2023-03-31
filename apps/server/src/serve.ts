@@ -19,12 +19,12 @@ const router = new Router();
 const processMap = new Map<string, ChildProcess>();
 
 router.get('/', async (ctx) => {
-  ctx.body = `<h1 style="text-align: center">Welcome, chaoxing-sign-cli API service is running.</h1>`;
+  ctx.body = '<h1 style="text-align: center">Welcome, chaoxing-sign-cli API service is running.</h1>';
 });
 
 router.post('/login', async (ctx) => {
   const { phone, password } = ctx.request.body as any;
-  let params = await userLogin(phone, password);
+  const params = await userLogin(phone, password);
   // 登陆失败
   if (typeof params === 'string') {
     ctx.body = params;
@@ -37,13 +37,13 @@ router.post('/login', async (ctx) => {
 
 router.post('/activity', async (ctx) => {
   const { uid, _d, vc3, uf } = ctx.request.body as any;
-  let courses = await getCourses(uid, _d, vc3);
+  const courses = await getCourses(uid, _d, vc3);
   // 身份凭证过期
   if (typeof courses === 'string') {
     ctx.body = courses;
     return;
   }
-  let activity = await traverseCourseActivity({
+  const activity = await traverseCourseActivity({
     courses,
     uf: uf,
     _d: _d,
@@ -69,7 +69,7 @@ router.post('/activity', async (ctx) => {
 
 router.post('/qrcode', async (ctx) => {
   const { name, fid, uid, activeId, uf, _d, vc3, enc } = ctx.request.body as any;
-  let res = await QRCodeSign({
+  const res = await QRCodeSign({
     enc,
     name,
     fid,
@@ -90,7 +90,7 @@ router.post('/qrcode', async (ctx) => {
 
 router.post('/location', async (ctx) => {
   const { uf, _d, vc3, name, uid, lat, lon, fid, address, activeId } = ctx.request.body as any;
-  let res = await LocationSign({
+  const res = await LocationSign({
     uf,
     _d,
     vc3,
@@ -113,7 +113,7 @@ router.post('/location', async (ctx) => {
 
 router.post('/general', async (ctx) => {
   const { uf, _d, vc3, name, activeId, uid, fid } = ctx.request.body as any;
-  let res = await GeneralSign({
+  const res = await GeneralSign({
     uf,
     _d,
     vc3,
@@ -133,7 +133,7 @@ router.post('/general', async (ctx) => {
 
 router.post('/uvtoken', async (ctx) => {
   const { uf, _d, uid, vc3 } = ctx.request.body as any;
-  let res = await getPanToken({
+  const res = await getPanToken({
     uf,
     _d,
     _uid: uid,
@@ -143,11 +143,11 @@ router.post('/uvtoken', async (ctx) => {
 });
 
 router.post('/upload', async (ctx) => {
-  let form = new multiparty.Form();
-  let fields: any = {};
-  let data: any[] = [];
+  const form = new multiparty.Form();
+  const fields: any = {};
+  const data: any[] = [];
 
-  let result = await new Promise((resolve) => {
+  const result = await new Promise((resolve) => {
     // 解析到part时，判断是否为文件
     form.on('part', (part: any) => {
       if (part.filename !== undefined) {
@@ -167,8 +167,8 @@ router.post('/upload', async (ctx) => {
     });
     // 解析完成后
     form.on('close', async () => {
-      let buffer = Buffer.concat(data);
-      let res = await uploadPhoto({
+      const buffer = Buffer.concat(data);
+      const res = await uploadPhoto({
         uf: fields['uf'],
         _d: fields['_d'],
         _uid: fields['_uid'],
@@ -207,9 +207,9 @@ router.post('/photo', async (ctx) => {
 });
 
 router.post('/qrocr', async (ctx) => {
-  let form = new multiparty.Form();
-  let data: any[] = [];
-  let result = await new Promise((resolve) => {
+  const form = new multiparty.Form();
+  const data: any[] = [];
+  const result = await new Promise((resolve) => {
     form.on('part', (part: any) => {
       if (part.filename !== undefined) {
         part.on('data', (chunk: any) => {
@@ -221,8 +221,8 @@ router.post('/qrocr', async (ctx) => {
       }
     });
     form.on('close', async () => {
-      let buffer = Buffer.concat(data);
-      let base64str = buffer.toString('base64');
+      const buffer = Buffer.concat(data);
+      const base64str = buffer.toString('base64');
       let res: any;
       try {
         res = await QrCodeScan(base64str, 'base64');

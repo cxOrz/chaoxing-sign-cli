@@ -34,7 +34,7 @@ const request = (url: string, options: RequestOptions, payload?: any): Promise<R
   // 设置默认值
   options.method = options.method || 'GET';
 
-  let protocol = options.secure ? https : http;
+  const protocol = options.secure ? https : http;
 
   const result = new Promise<ResponseType>((resolve, reject) => {
     let data = '';
@@ -42,7 +42,7 @@ const request = (url: string, options: RequestOptions, payload?: any): Promise<R
     const req = protocol.request(url, { headers: options.headers, method: options.method }, (res) => {
       if (options.gzip) {
         // 若启用了gzip，进行转换再返回，否则乱码
-        let gzip = zlib.createGunzip();
+        const gzip = zlib.createGunzip();
         res.pipe(gzip);
         gzip.on('data', (chunk) => {
           data += chunk;

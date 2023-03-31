@@ -23,20 +23,18 @@ module.exports = {
     '@typescript-eslint'
   ],
   'rules': {
-    'indent': [
-      'error',
-      2,
-      {
-        'SwitchCase': 1
-      }
-    ],
-    'quotes': [
-      'error',
-      'single'
-    ],
-    'semi': [
-      'error',
-      'always'
-    ]
+    'semi-style': ['error', 'last'],
+    'switch-colon-spacing': ['error', { 'after': true, 'before': false }],
+    'space-infix-ops': 'error',
+    'arrow-spacing': 'error',
+    'comma-spacing': ['error', { 'before': false, 'after': true }],
+    'no-trailing-spaces': 'error',
+    '@typescript-eslint/no-explicit-any': 'off',
+    'eqeqeq': ['error', 'always'],
+    'array-bracket-spacing': ['error', 'never'],
+    'prefer-const': ['error', { 'destructuring': 'any', 'ignoreReadBeforeAssign': false }],
+    'indent': ['error', 2, { 'SwitchCase': 1 }],
+    'quotes': ['error', 'single'],
+    'semi': ['error', 'always']
   }
 };
