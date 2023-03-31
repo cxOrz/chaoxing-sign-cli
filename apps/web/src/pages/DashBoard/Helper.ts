@@ -3,7 +3,7 @@ import axios from 'axios';
 import { general_api, location_api, ocr_api, photo_api, qrcode_api, upload_api, uvtoken_api } from '../../config/api';
 
 export const generalSign = async (userParams: UserParamsType, activeId: number | undefined) => {
-  let result = await axios.post(general_api, {
+  const result = await axios.post(general_api, {
     uf: userParams.uf,
     _d: userParams._d,
     vc3: userParams.vc3,
@@ -16,7 +16,7 @@ export const generalSign = async (userParams: UserParamsType, activeId: number |
 };
 
 export const photoSign = async (userParams: UserParamsType, activeId: number | undefined, objectId: string) => {
-  let result = await axios.post(photo_api, {
+  const result = await axios.post(photo_api, {
     uf: userParams.uf,
     _d: userParams._d,
     vc3: userParams.vc3,
@@ -30,7 +30,7 @@ export const photoSign = async (userParams: UserParamsType, activeId: number | u
 };
 
 export const qrcodeSign = async (userParams: UserParamsType, activeId: number | undefined, enc: string) => {
-  let result = await axios.post(qrcode_api, {
+  const result = await axios.post(qrcode_api, {
     uf: userParams.uf,
     _d: userParams._d,
     vc3: userParams.vc3,
@@ -50,7 +50,7 @@ export const locationSign = async (
   lon: string,
   address: string
 ) => {
-  let result = await axios.post(location_api, {
+  const result = await axios.post(location_api, {
     uf: userParams.uf,
     _d: userParams._d,
     vc3: userParams.vc3,
@@ -66,7 +66,7 @@ export const locationSign = async (
 };
 
 export const getuvToken = async (userParams: UserParamsType) => {
-  let token = await axios.post(uvtoken_api, {
+  const token = await axios.post(uvtoken_api, {
     uf: userParams.uf,
     _d: userParams._d,
     vc3: userParams.vc3,
@@ -86,7 +86,7 @@ export const parseEnc = (file: File): Promise<string> => {
       .scan(img.src)
       .then((result: any) => {
         const enc_start = result.data.indexOf('enc=') + 4;
-        let rs = result.data.substring(enc_start, result.data.indexOf('&', enc_start));
+        const rs = result.data.substring(enc_start, result.data.indexOf('&', enc_start));
         resolve(rs);
       })
       .catch((reason: any) => {
@@ -110,7 +110,7 @@ export const parseEnc = (file: File): Promise<string> => {
 
 export const uploadFile = async (userParams: UserParamsType, inputFile: File, token: string) => {
   // 填入FormData
-  let data = new FormData();
+  const data = new FormData();
   data.append('uf', userParams.uf);
   data.append('_d', userParams._d);
   data.append('_uid', userParams._uid);
@@ -118,7 +118,7 @@ export const uploadFile = async (userParams: UserParamsType, inputFile: File, to
   data.append('file', inputFile);
 
   // 使用Token传文件，返回objectId
-  let res = await axios.post(upload_api + `?_token=${token}`, data, {
+  const res = await axios.post(upload_api + `?_token=${token}`, data, {
     headers: {
       'Content-type': 'multipart/form-data',
     },
@@ -128,8 +128,8 @@ export const uploadFile = async (userParams: UserParamsType, inputFile: File, to
 
 export const showResultWithTransition = (cb_setStatus: (res: string) => void, value: string) => {
   (document.getElementById('sign-btn') as HTMLButtonElement).disabled = true;
-  let neum_form = document.getElementsByClassName('neum-form')[0];
-  let content = document.getElementById('neum-form-content');
+  const neum_form = document.getElementsByClassName('neum-form')[0];
+  const content = document.getElementById('neum-form-content');
   content!.style.opacity = '0';
   setTimeout(() => {
     content!.style.display = 'none';

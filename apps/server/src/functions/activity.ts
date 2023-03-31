@@ -31,7 +31,7 @@ export const traverseCourseActivity = async (args: BasicCookie & { courses: Cour
       try {
         // 任务数组中任意一个成功就返回；否则，抛出异常
         return await Promise.any(tasks);
-      } catch (error) { }
+      } catch (error) { /* empty */ }
       // 每轮请求任务组之后，清空任务数组供下轮使用
       tasks = [];
     }
@@ -56,13 +56,13 @@ export const getActivity = async (args: BasicCookie & { course: CourseType; }): 
     }
   );
 
-  let data = JSON.parse(result.data);
+  const data = JSON.parse(result.data);
   // 判断是否请求成功
   if (data.data !== null) {
     if (data.data.activeList.length !== 0) {
-      let otherId = Number(data.data.activeList[0].otherId);
+      const otherId = Number(data.data.activeList[0].otherId);
       // 判断是否有效签到活动
-      if (otherId >= 0 && otherId <= 5 && data.data.activeList[0].status == 1) {
+      if (otherId >= 0 && otherId <= 5 && data.data.activeList[0].status === 1) {
         // 活动开始超过一小时则忽略
         if ((new Date().getTime() - data.data.activeList[0].startTime) / 1000 < 7200) {
           console.log(`检测到活动：${data.data.activeList[0].nameOne}`);
@@ -110,7 +110,7 @@ export const preSign = async (args: BasicCookie & { activeId: string; courseId: 
       },
     }
   );
-  console.log(`[预签]已请求`);
+  console.log('[预签]已请求');
 };
 
 export const preSign2 = async (args: BasicCookie & { activeId: string; chatId: string; _uid: string; tuid: string; }) => {
@@ -124,7 +124,7 @@ export const preSign2 = async (args: BasicCookie & { activeId: string; chatId: s
       },
     }
   );
-  console.log(`[预签]已请求`);
+  console.log('[预签]已请求');
   return result.data;
 };
 
@@ -150,25 +150,25 @@ export const speculateType = (text: string) => {
 export const getSignType = (iptPPTActiveInfo: any) => {
   switch (iptPPTActiveInfo.otherId) {
     case 0:
-      if (iptPPTActiveInfo.ifphoto == 1) { return "拍照签到"; } else { return "普通签到"; }
-    case 2: return "二维码签到";
-    case 3: return "手势签到";
-    case 4: return "位置签到";
-    case 5: return "签到码签到";
-    default: return "未知";
+      if (iptPPTActiveInfo.ifphoto === 1) { return '拍照签到'; } else { return '普通签到'; }
+    case 2: return '二维码签到';
+    case 3: return '手势签到';
+    case 4: return '位置签到';
+    case 5: return '签到码签到';
+    default: return '未知';
   }
 };
 
-/** 
+/**
  * 解析签到结果
  * @param iptResult 签到结果
  * @returns 返回具体的中文结果
  */
 export const getSignResult = (iptResult: string) => {
   switch (iptResult) {
-    case 'success': return "成功";
-    case 'fail': return "失败";
-    case 'fail-need-qrcode': return "请发送二维码";
+    case 'success': return '成功';
+    case 'fail': return '失败';
+    case 'fail-need-qrcode': return '请发送二维码';
     default: return iptResult;
   }
 };

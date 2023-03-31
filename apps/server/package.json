@@ -10,7 +10,7 @@
     "dev:start": "ts-node ./src/index.ts",
     "dev:serve": "ts-node ./src/serve.ts",
     "dev:monitor": "ts-node ./src/monitor.ts",
-    "lint": "eslint src"
+    "lint": "eslint src --fix"
   },
   "dependencies": {
     "@koa/router": "^12.0.0",

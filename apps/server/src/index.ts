@@ -20,7 +20,7 @@ const PromptsOptions = {
   // 本地与登录之间的抉择
   {
     // 打印本地用户列表，并返回用户数量
-    let userItem = (
+    const userItem = (
       await prompts(
         {
           type: 'select',
@@ -34,8 +34,8 @@ const PromptsOptions = {
     ).userItem;
     // 使用新用户登录
     if (userItem === -1) {
-      let phone = (await prompts({ type: 'text', name: 'phone', message: '手机号' }, PromptsOptions)).phone;
-      let password = (await prompts({ type: 'password', name: 'password', message: '密码' }, PromptsOptions)).password;
+      const phone = (await prompts({ type: 'text', name: 'phone', message: '手机号' }, PromptsOptions)).phone;
+      const password = (await prompts({ type: 'password', name: 'password', message: '密码' }, PromptsOptions)).password;
       // 登录获取各参数
       params = await userLogin(phone, password);
       if (typeof params === 'string') process.exit(0);
@@ -63,10 +63,10 @@ const PromptsOptions = {
   switch (activity.otherId) {
     case 2: {
       // 二维码签到
-      let enc = (await prompts({ type: 'text', name: 'enc', message: 'enc(微信或其他识别二维码，可得enc参数)' }, PromptsOptions))
+      const enc = (await prompts({ type: 'text', name: 'enc', message: 'enc(微信或其他识别二维码，可得enc参数)' }, PromptsOptions))
         .enc;
       await QRCodeSign({ ...params, activeId: activity.activeId, enc, name });
-      process.exit(0);
+      break;
     }
     case 4: {
       // 位置签到
@@ -85,33 +85,32 @@ const PromptsOptions = {
         lon,
         name,
       });
-      process.exit(0);
+      break;
     }
     case 3: {
       // 手势签到
       await GeneralSign({ ...activity, ...params, name });
-      process.exit(0);
+      break;
     }
     case 5: {
       // 签到码签到
       await GeneralSign({ ...activity, ...params, name });
-      process.exit(0);
+      break;
     }
     case 0: {
-      let photo = await getPPTActiveInfo({ activeId: activity.activeId, ...params });
+      const photo = await getPPTActiveInfo({ activeId: activity.activeId, ...params });
       if (photo.ifphoto === 1) {
         // 拍照签到
         console.log('访问 https://pan-yz.chaoxing.com 并在根目录上传你想要提交的照片，格式为jpg或png，命名为 0.jpg 或 0.png');
         await prompts({ name: 'complete', type: 'confirm', message: '已上传完毕?' });
         // 获取照片objectId
-        let objectId = await getObjectIdFromcxPan(params);
+        const objectId = await getObjectIdFromcxPan(params);
         if (objectId === null) return null;
         await PhotoSign({ ...params, activeId: activity.activeId, objectId, name });
       } else {
         // 普通签到
         await GeneralSign({ ...params, activeId: activity.activeId, name });
       }
-      process.exit(0);
     }
   }
 })();

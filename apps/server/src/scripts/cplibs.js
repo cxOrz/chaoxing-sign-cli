@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 const { execSync } = require('child_process');
 const { join } = require('path');
 

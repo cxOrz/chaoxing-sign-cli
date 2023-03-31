@@ -6,8 +6,8 @@ import App from './App';
 import Start from './pages/Start/Start';
 import DashBoard from './pages/DashBoard/DashBoard';
 
-const container = document.getElementById('root') as HTMLElement
-const root = createRoot(container)
+const container = document.getElementById('root') as HTMLElement;
+const root = createRoot(container);
 
 root.render(
   <BrowserRouter>

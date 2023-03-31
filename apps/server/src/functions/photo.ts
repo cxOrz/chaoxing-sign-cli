@@ -46,11 +46,11 @@ export const getObjectIdFromcxPan = async (cookies: BasicCookie) => {
       Cookie: cookieSerialize(cookies),
     },
   });
-  let data = result.data;
-  let start_of_enc = data.indexOf('enc ="') + 6;
-  let enc = data.slice(start_of_enc, data.indexOf('"', start_of_enc));
-  let start_of_rootdir = data.indexOf('_rootdir = "') + 12;
-  let parentId = data.slice(start_of_rootdir, data.indexOf('"', start_of_rootdir));
+  const data = result.data;
+  const start_of_enc = data.indexOf('enc ="') + 6;
+  const enc = data.slice(start_of_enc, data.indexOf('"', start_of_enc));
+  const start_of_rootdir = data.indexOf('_rootdir = "') + 12;
+  const parentId = data.slice(start_of_rootdir, data.indexOf('"', start_of_rootdir));
 
   // 获得文件列表，找到符合要求的 ObjectID
   const result_panlist = await request(
@@ -64,9 +64,9 @@ export const getObjectIdFromcxPan = async (cookies: BasicCookie) => {
     },
     `puid=0&shareid=0&parentId=${parentId}&page=1&size=50&enc=${enc}`
   );
-  let objectList = JSON.parse(result_panlist.data).list;
+  const objectList = JSON.parse(result_panlist.data).list;
   for (let i = 0; i < objectList.length; i++) {
-    if (objectList[i].name == '0.jpg' || objectList[i].name == '0.png') {
+    if (objectList[i].name === '0.jpg' || objectList[i].name === '0.png') {
       return objectList[i].objectId as string;
     }
   }

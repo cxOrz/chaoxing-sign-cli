@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect } from 'react';
 
 export const useLongPress = (cb: (pos: { x: number, y: number }) => void, delay: number) => {
   const ref = useRef<HTMLDivElement>(null);
@@ -14,13 +14,13 @@ export const useLongPress = (cb: (pos: { x: number, y: number }) => void, delay:
           cb({ x: e.touches[0].clientX, y: e.touches[0].clientY });
           timer = null;
         }, delay);
-      }
+      };
       ref.current!.ontouchend = function (e) {
         if (timer) clearTimeout(timer);
         else e.preventDefault();
-      }
+      };
     }
   }, [ref]);
 
   return [ref] as const;
-}
+};
