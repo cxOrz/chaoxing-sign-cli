@@ -11,5 +11,6 @@ export default defineConfig({
   base: '/',
   build: {
     sourcemap: false
-  }
+  },
+  optimizeDeps: { include: ['crypto-js'] }
 });
