@@ -33,8 +33,15 @@ module.exports = {
     'eqeqeq': ['error', 'always'],
     'array-bracket-spacing': ['error', 'never'],
     'prefer-const': ['error', { 'destructuring': 'any', 'ignoreReadBeforeAssign': false }],
-    'indent': ['error', 2, { 'SwitchCase': 1 }],
+    'indent': ['error', 2, {
+      'SwitchCase': 1,
+      'ObjectExpression': 1,
+      'FunctionExpression': {
+        'body': 1, 'parameters': 1
+      }
+    }],
     'quotes': ['error', 'single'],
-    'semi': ['error', 'always']
+    'semi': ['error', 'always'],
+    'block-spacing': 'error'
   }
 };

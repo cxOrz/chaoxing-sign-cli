@@ -250,8 +250,8 @@ router.post('/monitor/status', (ctx) => {
   }
 });
 
-router.post('/monitor/stop', (ctx) => {
-  const { phone } = ctx.request.body as any;
+router.post('/monitor/stop/:phone', (ctx) => {
+  const phone = ctx.params.phone;
   const process_monitor = processMap.get(phone);
   if (process_monitor !== undefined) {
     process_monitor.kill('SIGKILL');
@@ -260,22 +260,25 @@ router.post('/monitor/stop', (ctx) => {
   ctx.body = '{"code":201,"msg":"Suspended"}';
 });
 
-router.post('/monitor/start', async (ctx) => {
-  const { phone, uf, _d, vc3, uid, lv, fid } = ctx.request.body as any;
-  if (processMap.get(phone) !== undefined) {
+// base64字串需包含 credentials, monitor, mailing, cqserver 内容
+router.post('/monitor/start/:phone', async (ctx) => {
+  if (processMap.get(ctx.params.phone) !== undefined) {
     ctx.body = '{"code":200,"msg":"Already started"}';
     return;
   }
-  const process_monitor = fork(ENVJSON.env.dev ? 'monitor.ts' : 'monitor.js', ['--auth', uf, _d, vc3, uid, lv, fid, phone], {
-    cwd: __dirname,
-    detached: false,
-    stdio: [null, null, null, 'ipc'],
-  });
+  const process_monitor = fork(process.argv[1].endsWith('ts') ? 'monitor.ts' : 'monitor.js',
+    ['--auth', ctx.params.phone, ctx.request.rawBody],
+    {
+      cwd: __dirname,
+      detached: false,
+      stdio: [null, null, null, 'ipc'],
+    }
+  );
   const response = await new Promise((resolve) => {
     process_monitor.on('message', (msg) => {
       switch (msg) {
         case 'success': {
-          processMap.set(phone, process_monitor);
+          processMap.set(ctx.params.phone, process_monitor);
           resolve('{"code":200,"msg":"Started Successfully"}');
           break;
         }
@@ -293,7 +296,7 @@ router.post('/monitor/start', async (ctx) => {
   ctx.body = response;
 });
 
-app.use(bodyparser());
+app.use(bodyparser({ enableTypes: ['json', 'form', 'text'] }));
 app.use(async (ctx, next) => {
   ctx.set('Access-Control-Allow-Origin', '*');
   ctx.set('Access-Control-Allow-Headers', 'Content-Type');

@@ -100,8 +100,8 @@ pnpm start
 
 除了简单的 `pnpm start` 来手动签到，也可以部署到服务器使用网页版本，别忘了这也是个 Web 项目。
 
-- 前端界面，查看 [前端](/apps/web) 的说明。
-- 后端服务，查看 [服务端](/apps/server) 的说明。
+- 前端界面，查看 [前端](/apps/web) 的详细说明。
+- 后端服务，查看 [服务端](/apps/server) 的详细说明。
 
 ### 一键运行
 
@@ -121,7 +121,7 @@ docker run -d -p 80:80 -p 5000:5000 chaoxing-sign-cli
 演示地址：https://prod.d6afmntd8nh5y.amplifyapp.com （海外服务器较慢，功能阉割仅供演示UI）
 
 ![](https://cxorz.blob.core.windows.net/static-files/ui-start.png)
-![](https://cxorz.blob.core.windows.net/static-files/ui-qrcode-sign.png)
+![](https://cxorz.blob.core.windows.net/static-files/ui-config.webp)
 
 ## 贡献须知
 

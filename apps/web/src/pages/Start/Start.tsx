@@ -1,61 +1,80 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import AddCircleOutlineOutlined from '@mui/icons-material/AddCircleOutlineOutlined';
-import Button from '@mui/material/Button';
 import ButtonBase from '@mui/material/ButtonBase';
 import Icon from '@mui/material/Icon';
 import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import TextField from '@mui/material/TextField';
-import DialogActions from '@mui/material/DialogActions';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import UserCard from '../../components/UserCard/UserCard';
-import { login_api, monitor_start_api, monitor_status_api, monitor_stop_api } from '../../config/api';
+import { login_api, monitor_status_api } from '../../config/api';
 import styles from './Start.module.css';
+import { RenderConfig, RenderLogin } from './ConfigDialog';
 
-type UserListType = UserParamsType[]
+type UserListType = UserParamsType[];
+
+export enum DialogChoice {
+  LOGIN = 'LOGIN',
+  CONFIG = 'CONFIG'
+}
+
+export const defaultConfig: UserConfig = {
+  monitor: {
+    delay: 0,
+    lon: '113.516288',
+    lat: '34.817038',
+    address: ''
+  },
+  mailing: {
+    enabled: false,
+    host: 'smtp.qq.com',
+    ssl: true,
+    port: 465,
+    user: 'sender@qq.com',
+    pass: '',
+    to: 'receiver@qq.com'
+  },
+  cqserver: {
+    cq_enabled: false,
+    ws_url: 'ws://127.0.0.1:8080',
+    target_type: 'private',
+    target_id: 1001
+  }
+};
 
 function Start() {
   const [indb, setIndb] = useState<IDBDatabase>();
   const [open, setOpen] = useState(false);
+  const [dialogChoice, setDialogChoice] = useState(DialogChoice.LOGIN);
   const [alert, setAlert] = useState({ open: false, message: '' });
   const [user, setUser] = useState<UserListType>([]);
   const [loaded, setLoaded] = useState(false);
-  const loginBtn = useRef<HTMLButtonElement>(null);
-  const phone = useRef<HTMLInputElement>(null);
-  const password = useRef<HTMLInputElement>(null);
+  const [current, setCurrent] = useState<UserParamsType>();
 
-  const login = async () => {
-    loginBtn.current!.disabled = true;
+  const login = async (phone: string, password: string) => {
     const res = await axios.post(login_api, {
-      phone: phone.current?.value,
-      password: password.current?.value
+      phone: phone,
+      password: password
     });
-    const phoneNum = phone.current?.value;
-    const userPwd = password.current?.value;
-    loginBtn.current?.removeAttribute('disabled');
     // 登陆成功
     if (res.data !== 'AuthFailed') {
       setOpen(false);
-
       // 写入数据库
       const request = indb!.transaction(['user'], 'readwrite')
         .objectStore('user')
         .put({
-          phone: phoneNum, // 手机号
-          fid: res.data.fid,
-          vc3: res.data.vc3,
-          password: userPwd, // 自动通过储存的密码重新登陆
-          _uid: res.data._uid,
-          _d: res.data._d,
-          uf: res.data.uf,
+          phone,
+          password,
           name: res.data.name, // 姓名
+          _uid: res.data._uid,
+          uf: res.data.uf,
+          vc3: res.data.vc3,
+          _d: res.data._d,
+          fid: res.data.fid,
+          lv: res.data.lv,
           date: new Date(), // 判断时间进行重新认证身份
-          monitor: false,
-          lv: res.data.lv
+          monitor: false, // 监听启用状态
+          config: defaultConfig // 默认配置
         });
       request.onerror = () => { console.log('用户写入失败'); };
       request.onsuccess = () => {
@@ -68,63 +87,46 @@ function Start() {
     }
   };
 
-  // 修改监听状态，本函数作为props传给UserCard组件来调用
-  const setMonitorMode = async (target: UserParamsType) => {
-    const reqData = target.monitor ? { phone: target.phone } : {
-      phone: target.phone,
-      uf: target.uf,
-      _d: target._d,
-      vc3: target.vc3,
-      uid: target._uid,
-      lv: target.lv,
-      fid: target.fid
-    };
-    const result = (await axios.post(target.monitor ? monitor_stop_api : monitor_start_api, reqData)).data;
-    switch (result.code) {
-      case 200: {
-        toggleMonitorState(target, true);
-        break;
-      }
-      case 201: {
-        toggleMonitorState(target, false); break;
-      }
-      case 202: {
-        toggleMonitorState(target, false);
-        setAlert({ open: true, message: '身份过期' });
-      }
-    }
+  // 根据参数设置弹出对话框
+  const emitDialog = (choice: DialogChoice, open: boolean) => {
+    setDialogChoice(choice);
+    setOpen(open);
   };
 
-  // 设置用户 monitor 属性为 true/false
-  const toggleMonitorState = (target: UserParamsType, value: boolean) => {
-    setUser(prev => {
-      return prev.map(user => {
-        if (user === target) {
-          return { ...user, monitor: value };
-        }
-        return user;
-      });
-    });
-    // 同时要将 monitor 值写入数据库
+  // 将配置写入目标用户下
+  const storeConfig = (target: UserParamsType, config: UserConfig) => {
     const request = indb!.transaction(['user'], 'readwrite')
       .objectStore('user')
       .put({
         phone: target.phone,
-        fid: target.fid,
-        vc3: target.vc3,
         password: target.password,
-        _uid: target._uid,
-        _d: target._d,
-        uf: target.uf,
         name: target.name,
-        date: new Date(),
-        monitor: value,
-        lv: target.lv
+        _uid: target._uid,
+        uf: target.uf,
+        vc3: target.vc3,
+        _d: target._d,
+        fid: target.fid,
+        lv: target.lv,
+        date: target.date,
+        monitor: target.monitor,
+        config
       });
-    request.onerror = () => { console.log('写入失败'); };
-    request.onsuccess = () => {
-      console.log('写入成功');
-    };
+    request.onerror = () => { console.log('配置写入失败'); };
+    request.onsuccess = () => { console.log('配置写入成功'); };
+    setUser(prev => prev.map(user => {
+      if (user === target) {
+        return {
+          ...user,
+          config: {
+            monitor: { ...config.monitor },
+            mailing: { ...config.mailing },
+            cqserver: { ...config.cqserver },
+          }
+        };
+      }
+      return user;
+    }));
+    setOpen(false);
   };
 
   useEffect(() => {
@@ -188,18 +190,25 @@ function Start() {
     }
   }, [loaded]);
 
+  const onCancel = () => {
+    setOpen(false);
+  };
+
   return (
     <div className={styles.startBox}>
       <h1>让我们开始吧</h1>
       <p className={styles.hint}>你可以选择或添加一个用户</p>
       {
         // 渲染所有用户卡片
-        user.map((e, i) => {
+        user.map((e) => {
           return (<UserCard
             indb={indb as IDBDatabase}
-            key={i}
+            key={e._uid}
             user={e}
-            setMonitorMode={setMonitorMode}
+            setUser={setUser}
+            setCurrent={setCurrent}
+            setAlert={setAlert}
+            emitDialog={emitDialog}
           />);
         })
       }
@@ -224,36 +233,11 @@ function Start() {
         </Icon>
       </ButtonBase>
 
-      <Dialog open={open} onClose={() => { setOpen(false); }}>
-        <DialogTitle>添加用户</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            添加你的学习通账号，完成后可选择账号登录，进行签到。
-          </DialogContentText>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="phone"
-            label="手机号码"
-            inputRef={phone}
-            type="tel"
-            fullWidth
-            variant="standard"
-          />
-          <TextField
-            margin="dense"
-            id="pwd"
-            label="密码"
-            inputRef={password}
-            type="password"
-            fullWidth
-            variant="standard"
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => { setOpen(false); }}>取消</Button>
-          <Button ref={loginBtn} onClick={login}>确认添加</Button>
-        </DialogActions>
+      <Dialog open={open} onClose={onCancel}>
+        {dialogChoice === DialogChoice.LOGIN ?
+          <RenderLogin onOK={login} onCancel={onCancel} /> :
+          <RenderConfig current={current as UserParamsType} onOK={storeConfig} onCancel={onCancel} />
+        }
       </Dialog>
       <Snackbar
         open={alert.open}
@@ -264,7 +248,7 @@ function Start() {
           {alert.message}
         </Alert>
       </Snackbar>
-    </div>
+    </div >
   );
 }
 
