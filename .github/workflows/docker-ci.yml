@@ -3,6 +3,25 @@ name: Docker-CI
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'warning'
+        type: choice
+        options:
+          - info
+          - warning
+          - debug
+      print_tags:
+        description: 'True to print to STDOUT'
+        required: true
+        type: boolean
+      tags:
+        description: 'Test scenario tags'
+        required: true
+        type: string
 
 jobs:
   docker:
@@ -41,6 +60,8 @@ jobs:
           images: |
             cxorz/chaoxingsigncli
             ghcr.io/${{ github.repository }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
       -
         name: Build and push
         uses: docker/build-push-action@v3
