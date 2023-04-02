@@ -14,4 +14,33 @@ interface UserParamsType {
   _uid: string;
   date: Date;
   monitor: boolean;
+  config: UserConfig;
+}
+
+interface UserConfig {
+  monitor: MonitorConfig;
+  mailing: MailingConfig;
+  cqserver: CQServerConfig;
+}
+
+interface MonitorConfig {
+  delay: number;
+  lon: string;
+  lat: string;
+  address: string;
+}
+interface MailingConfig {
+  enabled: boolean;
+  host: string;
+  ssl: boolean;
+  port: number;
+  user: string;
+  pass: string;
+  to: string;
+}
+interface CQServerConfig {
+  cq_enabled: boolean;
+  ws_url: string;
+  target_type: string;
+  target_id: number;
 }

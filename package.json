@@ -1,6 +1,6 @@
 {
   "name": "chaoxing-sign",
-  "version": "4.2.5",
+  "version": "4.3.5",
   "description": "超星学习通签到项目",
   "workspaces": [
     "apps/*",
@@ -22,6 +22,6 @@
   },
   "packageManager": "pnpm@7.28.0",
   "devDependencies": {
-    "turbo": "^1.8.3"
+    "turbo": "^1.8.8"
   }
 }

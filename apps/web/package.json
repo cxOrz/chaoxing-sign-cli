@@ -1,6 +1,6 @@
 {
   "name": "web",
-  "version": "2.5.8",
+  "version": "2.7.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -18,7 +18,8 @@
     "axios": "^0.26.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "6.3.0"
+    "react-router-dom": "6.3.0",
+    "crypto-js": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^18.0.15",

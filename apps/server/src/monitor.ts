@@ -198,6 +198,7 @@ async function configure(phone: string) {
     monitor.lon = response.lon;
     monitor.lat = response.lat;
     monitor.address = response.address;
+    mailing.enabled = response.mail;
     mailing.host = response.host;
     mailing.ssl = response.ssl;
     mailing.port = response.port;
@@ -334,15 +335,20 @@ async function handleMsg(this: CQ, data: string) {
 // 开始运行
 (async () => {
   let params: any = {};
-  // 若凭证由命令参数传来，直接赋值；否则，直接用户名密码登录获取凭证
+  let config: any = {};
+  // 若凭证由命令参数传来，直接解析赋值；否则，直接用户名密码登录获取凭证
   if (process.argv[2] === '--auth') {
-    params.uf = process.argv[3];
-    params._d = process.argv[4];
-    params.vc3 = process.argv[5];
-    params._uid = process.argv[6];
-    params.lv = process.argv[7];
-    params.fid = process.argv[8];
-    params.phone = process.argv[9];
+    const auth_config = JSON.parse(Buffer.from(process.argv[4], 'base64').toString('utf8'));
+    params.phone = auth_config.credentials.phone;
+    params.uf = auth_config.credentials.uf;
+    params._d = auth_config.credentials._d;
+    params.vc3 = auth_config.credentials.vc3;
+    params._uid = auth_config.credentials.uid;
+    params.lv = auth_config.credentials.lv;
+    params.fid = auth_config.credentials.fid;
+    config.monitor = { ...auth_config.config.monitor };
+    config.mailing = { ...auth_config.config.mailing };
+    config.cqserver = { ...auth_config.config.cqserver };
   } else {
     // 打印本地用户列表，并返回用户数量
     const userItem = (
@@ -366,10 +372,10 @@ async function handleMsg(this: CQ, data: string) {
       params = user.params;
       params.phone = user.phone;
     }
+    // 手动配置签到信息
+    config = await configure(params.phone);
   }
 
-  // 配置签到信息
-  const config = await configure(params.phone);
   // 获取IM参数
   const IM_Params = await getIMParams(params as UserCookieType);
   if (IM_Params === 'AuthFailed') {
@@ -426,7 +432,7 @@ async function handleMsg(this: CQ, data: string) {
           chatId: message?.to,
         });
         // 邮件推送签到结果
-        if (config.mailing?.to) {
+        if (config.mailing?.enabled) {
           sendEmail({
             aid: IM_CourseInfo.aid,
             uid: params._uid,
@@ -436,7 +442,7 @@ async function handleMsg(this: CQ, data: string) {
           });
         }
         // CQ 推送签到结果
-        if (config.cqserver.cq_enabled) {
+        if (config.cqserver?.cq_enabled) {
           cq.send(`${result} - ${IM_Params.myName}`, config.cqserver.target_id);
         }
 
@@ -448,5 +454,5 @@ async function handleMsg(this: CQ, data: string) {
     },
   });
 
-  console.log(blue(`[监听中] ${config.cqserver.cq_enabled ? 'CQ服务器已连接' : ''} ${config.mailing?.to ? '邮件推送已开启' : ''}...`));
+  console.log(blue(`[监听中] ${config.cqserver.cq_enabled ? 'CQ服务器已连接' : ''} ${config.mailing?.enabled ? '邮件推送已开启' : ''}...`));
 })();

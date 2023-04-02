@@ -18,31 +18,6 @@ pnpm start
 
 【注意】对 src 目录下任何文件做出修改后，需重新构建才可生效！
 
-## 接口服务
-
-运行 `pnpm serve` 将启动接口服务，接下来描述每个接口的参数以及调用方式：
-
-<details>
-<summary>展开接口详情</summary>
-
-|路径|请求方式|参数|内容类型|返回内容|
-|-|-|-|-|-|
-|/|GET|无|无|\< String \>|
-|/login|POST|phone, password|JSON|\< String \>|
-|/activity|POST|uf, _d, vc3, uid|JSON|JSON|
-|/uvtoken|POST|uf, _d, vc3, uid|JSON|\< String \>|
-|/qrcode|POST|uf, _d, vc3, name, activeId, uid, fid, enc|JSON|待填|
-|/location|POST|uf, _d, vc3, name, activeId, uid, fid, address, lat, lon|JSON|待填|
-|/general|POST|uf, _d, vc3, name, activeId, uid, fid|JSON|待填|
-|/photo|POST|uf, _d, vc3, name, activeId, uid, fid, objectId|JSON|待填|
-|/upload|POST|uf, _d, vc3, uid, file, ?_token|multipart/form-data|待填|
-|/qrocr|POST|file|multipart/form-data|\< String \>|
-|/monitor/status|POST|phone|JSON|JSON|
-|/monitor/start|POST|phone, uf, _d, vc3, uid, lv, fid|JSON|JSON|
-|/monitor/stop|POST|phone|JSON|JSON|
-
-</details>
-
 ## 最佳实践
 
 部署在服务器，步骤如下：
@@ -56,7 +31,6 @@ pnpm start
 
 还有一些事情必需知道：
 
-- 如果要通过UI点击按钮启动监听功能，则要在运行接口服务之前，先运行多次 `pnpm monitor` 来配置每一个使用监听的用户的信息（一个用户一份配置，不配置无法使用UI启动监听），看到 "监听中"，即可终止程序，该用户信息已经写入本地。配置完成后，就可以运行 `pnpm serve` 来启动接口了。
 - 如果使用腾讯文字识别来解析二维码，请在 `src/env.json` 文件中配置 secretId 和 secretKey，然后重新构建代码。
 
 <details>
