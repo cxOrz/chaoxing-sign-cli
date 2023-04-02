@@ -1,6 +1,6 @@
 {
   "name": "server",
-  "version": "4.2.5",
+  "version": "4.3.5",
   "description": "超星学习通签到项目",
   "scripts": {
     "build": "tsc && node ./src/scripts/cplibs.js",
@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@koa/router": "^12.0.0",
-    "crypto-js": "^4.1.1",
+    "crypto-js": "workspace:*",
     "form-data": "^4.0.0",
     "jsdom": "^20.0.0",
     "koa": "^2.13.4",
@@ -28,7 +28,6 @@
     "ws": "^8.8.1"
   },
   "devDependencies": {
-    "@types/crypto-js": "^4.1.1",
     "@types/jsdom": "^20.0.0",
     "@types/koa": "^2.13.5",
     "@types/koa-bodyparser": "^4.3.7",

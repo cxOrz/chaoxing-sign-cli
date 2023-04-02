@@ -12,7 +12,7 @@ import './DashBoard.css';
 import { generalSign, getuvToken, locationSign, parseEnc, photoSign, qrcodeSign, showResultWithTransition, uploadFile } from './Helper';
 
 interface SignInfo {
-  activity: Activity
+  activity: Activity;
   status: string;
 }
 interface Activity {
@@ -41,7 +41,7 @@ function DashBoard() {
   const [btnProgress, setBtnProgress] = useState(false);
   const [scanProgress, setScanProgress] = useState(false);
   const [radio, setRadio] = useState(0);
-  const [values, setValues] = useState<{ [index: string]: string | File }>({});
+  const [values, setValues] = useState<{ [index: string]: string | File; }>({});
   const [alert, setAlert] = useState<AlertInfo>({ msg: '', show: false, severity: 'info' });
 
   const [control, setControl] = useState({
@@ -185,7 +185,7 @@ function DashBoard() {
           if (res.data === 'AuthFailed') {
             setAlert({ msg: '重新登录失败', show: true, severity: 'error' });
           } else {
-            const userParam = {
+            const userParam: UserParamsType = {
               phone: request_IDBGET.result.phone,
               fid: res.data.fid,
               vc3: res.data.vc3,
@@ -196,7 +196,8 @@ function DashBoard() {
               name: res.data.name,
               date: new Date(),
               lv: res.data.lv,
-              monitor: false
+              monitor: false,
+              config: res.data.config
             };
             setUserParams(userParam);
             // 登陆成功将新信息写入数据库
