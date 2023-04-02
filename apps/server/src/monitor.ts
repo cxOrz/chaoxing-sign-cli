@@ -419,8 +419,10 @@ async function handleMsg(this: CQ, data: string) {
 
         // 签到 & 推送消息
         // 签到检测通知推送
-        cq.send(`${IM_Params.myName}，检测到${getSignType(PPTActiveInfo)}，将在${config.monitor.delay}秒后处理`, config.cqserver.target_id);
-        cq.setCache('params', { ...params, activeId: IM_CourseInfo.aid });
+        if (config.cqserver?.cq_enabled) {
+          cq.send(`${IM_Params.myName}，检测到${getSignType(PPTActiveInfo)}，将在${config.monitor.delay}秒后处理`, config.cqserver.target_id);
+          cq.setCache('params', { ...params, activeId: IM_CourseInfo.aid });
+        }
 
         await delay(config.monitor.delay);
         const result = await Sign(IM_Params.myName, params, config.monitor, {
