@@ -14,10 +14,10 @@ export const traverseCourseActivity = async (args: BasicCookie & { courses: Cour
   // 特殊情况，只有一门课
   if (courses.length === 1) {
     try {
-      i++;
       return await getActivity({ course: courses[0], ...cookies });
     } catch (err) {
-      // 该课程无有效签到
+      console.log('未检测到有效签到活动！');
+      return 'NoActivity';
     }
   }
 
