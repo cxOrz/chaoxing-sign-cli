@@ -3,7 +3,7 @@ import Alert from '@mui/material/Alert';
 import ButtonBase from '@mui/material/ButtonBase';
 import CircularProgress from '@mui/material/CircularProgress';
 import Snackbar from '@mui/material/Snackbar';
-import axios from 'axios';
+import { fetch as Fetch } from '../../utils/request';
 import Box from '@mui/material/Box';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
@@ -60,19 +60,23 @@ function DashBoard() {
         setProgress(true);
       }
     }, 350);
-    activity = await axios.post(activity_api, {
-      uf: userParams.uf,
-      _d: userParams._d,
-      vc3: userParams.vc3,
-      uid: userParams._uid
+
+    activity = await Fetch(activity_api, {
+      method: 'POST',
+      body: {
+        uf: userParams.uf,
+        _d: userParams._d,
+        vc3: userParams.vc3,
+        uid: userParams._uid
+      }
     });
-    // console.log(activity.data)
+    // console.log(activity)
     setProgress(false);
-    switch (activity.data) {
+    switch (activity) {
       case 'NoActivity': setSign({ activity: { name: '无签到活动' }, status: '' }); break;
       case 'AuthRequired': setSign({ activity: { name: '需重新登录' }, status: '' }); break;
       case 'NoCourse': setSign({ activity: { name: '无课程' }, status: '' }); break;
-      default: setSign({ activity: (activity.data as Activity), status: '' });
+      default: setSign({ activity: (activity as Activity), status: '' });
     }
   };
 
@@ -133,9 +137,9 @@ function DashBoard() {
       const token = await getuvToken(userParams);
       // 上传文件，获取上传结果
       const result_upload = await uploadFile(userParams, values['photo'] as File, token);
-      console.log(result_upload);
+      // console.log(result_upload); // 得到的是JSON字符串
       // 传入objectId进行签到
-      res = await photoSign(userParams, sign.activity.activeId, result_upload.objectId);
+      res = await photoSign(userParams, sign.activity.activeId, JSON.parse(result_upload).objectId);
       setBtnProgress(false);
     }
     showResultWithTransition(setStatus, res);
@@ -178,26 +182,29 @@ function DashBoard() {
         setUserParams(request_IDBGET.result);
         // 身份过期自动重新登陆
         if (Date.now() - request_IDBGET.result.date > 432000000) {
-          const res = await axios.post(login_api, {
-            phone: request_IDBGET.result.phone,
-            password: request_IDBGET.result.password
+          const user = await Fetch(login_api, {
+            method: 'POST',
+            body: {
+              phone: request_IDBGET.result.phone,
+              password: request_IDBGET.result.password
+            }
           });
-          if (res.data === 'AuthFailed') {
+          if (user === 'AuthFailed') {
             setAlert({ msg: '重新登录失败', show: true, severity: 'error' });
           } else {
             const userParam: UserParamsType = {
               phone: request_IDBGET.result.phone,
-              fid: res.data.fid,
-              vc3: res.data.vc3,
+              fid: user.fid,
+              vc3: user.vc3,
               password: request_IDBGET.result.password,
-              _uid: res.data._uid,
-              _d: res.data._d,
-              uf: res.data.uf,
-              name: res.data.name,
+              _uid: user._uid,
+              _d: user._d,
+              uf: user.uf,
+              name: user.name,
               date: new Date(),
-              lv: res.data.lv,
+              lv: user.lv,
               monitor: false,
-              config: res.data.config
+              config: user.config
             };
             setUserParams(userParam);
             // 登陆成功将新信息写入数据库

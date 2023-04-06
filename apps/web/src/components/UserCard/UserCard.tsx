@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import cryptojs from 'crypto-js';
-import axios from 'axios';
+import { fetch as Fetch } from '../../utils/request';
+import enc from 'crypto-js/enc';
 import Delete from '@mui/icons-material/Delete';
 import SettingsIcon from '@mui/icons-material/Settings';
 import Typography from '@mui/material/Typography';
@@ -138,9 +138,10 @@ function UserCard(props: UserCardProps) {
         },
         config: { ...props.user.config }
       });
-      reqData = cryptojs.enc.Utf8.parse(payload).toString(cryptojs.enc.Base64);
+      reqData = enc.Utf8.parse(payload).toString(enc.Base64);
     }
-    const { data: result } = await axios.post(`${reqAPI}/${props.user.phone}`, reqData);
+
+    const result = await Fetch(`${reqAPI}/${props.user.phone}`, { method: 'POST', body: reqData });
     switch (result.code) {
       case 200: {
         setMonitorState(props.user, true); break;
