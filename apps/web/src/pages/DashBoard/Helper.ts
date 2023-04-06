@@ -1,46 +1,58 @@
 import { Decoder } from '@nuintun/qrcode';
-import axios from 'axios';
 import { general_api, location_api, ocr_api, photo_api, qrcode_api, upload_api, uvtoken_api } from '../../config/api';
+import { fetch as Fetch } from '../../utils/request';
 
 export const generalSign = async (userParams: UserParamsType, activeId: number | undefined) => {
-  const result = await axios.post(general_api, {
-    uf: userParams.uf,
-    _d: userParams._d,
-    vc3: userParams.vc3,
-    uid: userParams._uid,
-    fid: userParams.fid,
-    activeId: activeId,
-    name: userParams.name,
+  const result = await Fetch(general_api, {
+    method: 'POST',
+    body: {
+      uf: userParams.uf,
+      _d: userParams._d,
+      vc3: userParams.vc3,
+      uid: userParams._uid,
+      fid: userParams.fid,
+      activeId: activeId,
+      name: userParams.name,
+    },
+    type: 'text'
   });
-  return result.data;
+  return result;
 };
 
 export const photoSign = async (userParams: UserParamsType, activeId: number | undefined, objectId: string) => {
-  const result = await axios.post(photo_api, {
-    uf: userParams.uf,
-    _d: userParams._d,
-    vc3: userParams.vc3,
-    uid: userParams._uid,
-    fid: userParams.fid,
-    activeId: activeId,
-    name: userParams.name,
-    objectId: objectId,
+  const result = await Fetch(photo_api, {
+    method: 'POST',
+    body: {
+      uf: userParams.uf,
+      _d: userParams._d,
+      vc3: userParams.vc3,
+      uid: userParams._uid,
+      fid: userParams.fid,
+      activeId: activeId,
+      name: userParams.name,
+      objectId: objectId,
+    },
+    type: 'text'
   });
-  return result.data;
+  return result;
 };
 
 export const qrcodeSign = async (userParams: UserParamsType, activeId: number | undefined, enc: string) => {
-  const result = await axios.post(qrcode_api, {
-    uf: userParams.uf,
-    _d: userParams._d,
-    vc3: userParams.vc3,
-    uid: userParams._uid,
-    fid: userParams.fid,
-    activeId: activeId,
-    name: userParams.name,
-    enc: enc,
+  const result = await Fetch(qrcode_api, {
+    method: 'POST',
+    body: {
+      uf: userParams.uf,
+      _d: userParams._d,
+      vc3: userParams.vc3,
+      uid: userParams._uid,
+      fid: userParams.fid,
+      activeId: activeId,
+      name: userParams.name,
+      enc: enc,
+    },
+    type: 'text'
   });
-  return result.data;
+  return result;
 };
 
 export const locationSign = async (
@@ -50,29 +62,37 @@ export const locationSign = async (
   lon: string,
   address: string
 ) => {
-  const result = await axios.post(location_api, {
-    uf: userParams.uf,
-    _d: userParams._d,
-    vc3: userParams.vc3,
-    uid: userParams._uid,
-    fid: userParams.fid,
-    activeId: activeId,
-    name: userParams.name,
-    lat: lat,
-    lon: lon,
-    address: address,
+  const result = await Fetch(location_api, {
+    method: 'POST',
+    body: {
+      uf: userParams.uf,
+      _d: userParams._d,
+      vc3: userParams.vc3,
+      uid: userParams._uid,
+      fid: userParams.fid,
+      activeId: activeId,
+      name: userParams.name,
+      lat: lat,
+      lon: lon,
+      address: address,
+    },
+    type: 'text'
   });
-  return result.data;
+  return result;
 };
 
 export const getuvToken = async (userParams: UserParamsType) => {
-  const token = await axios.post(uvtoken_api, {
-    uf: userParams.uf,
-    _d: userParams._d,
-    vc3: userParams.vc3,
-    uid: userParams._uid,
+  const token = await Fetch(uvtoken_api, {
+    method: 'POST',
+    body: {
+      uf: userParams.uf,
+      _d: userParams._d,
+      vc3: userParams.vc3,
+      uid: userParams._uid,
+    },
+    type: 'json'
   });
-  return token.data._token;
+  return token._token;
 };
 
 // [默认] 使用浏览器解析ENC，成功率较低
@@ -98,15 +118,15 @@ export const parseEnc = (file: File): Promise<string> => {
 
 // [推荐] 使用腾讯云OCR解析ENC，请在cli项目中配置secretId和secretKey
 // export const parseEnc = async (inputFile: File) => {
-//   let data = new FormData()
-//   data.append("file", inputFile)
-//   let res = await axios.post(ocr_api, data, {
-//     headers: {
-//       'Content-type': 'multipart/form-data'
-//     }
-//   })
-//   return res.data
-// }
+//   const data = new FormData();
+//   data.append('file', inputFile);
+//   const res = await Fetch(ocr_api, {
+//     method: 'POST',
+//     body: data,
+//     type: 'text'
+//   });
+//   return res;
+// };
 
 export const uploadFile = async (userParams: UserParamsType, inputFile: File, token: string) => {
   // 填入FormData
@@ -118,12 +138,11 @@ export const uploadFile = async (userParams: UserParamsType, inputFile: File, to
   data.append('file', inputFile);
 
   // 使用Token传文件，返回objectId
-  const res = await axios.post(upload_api + `?_token=${token}`, data, {
-    headers: {
-      'Content-type': 'multipart/form-data',
-    },
+  const res = await Fetch(upload_api + `?_token=${token}`, {
+    method: 'POST',
+    body: data
   });
-  return res.data;
+  return res;
 };
 
 export const showResultWithTransition = (cb_setStatus: (res: string) => void, value: string) => {

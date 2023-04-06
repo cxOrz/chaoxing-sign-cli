@@ -139,7 +139,7 @@ router.post('/uvtoken', async (ctx) => {
     _uid: uid,
     vc3,
   });
-  ctx.body = res;
+  ctx.body = JSON.parse(res); // 获得的是个JSON字符串，需转换
 });
 
 router.post('/upload', async (ctx) => {
@@ -177,7 +177,7 @@ router.post('/upload', async (ctx) => {
         buffer,
       });
       resolve(res);
-      console.log(res);
+      // console.log(res);
     });
     // 解析请求表单
     form.parse(ctx.req);
@@ -240,13 +240,12 @@ router.post('/qrocr', async (ctx) => {
 });
 
 // 200:监听中，201:未监听，202:登录失败
-router.post('/monitor/status', (ctx) => {
-  const { phone } = ctx.request.body as any;
+router.get('/monitor/status/:phone', (ctx) => {
   // 状态为正在监听
-  if (processMap.get(phone)) {
-    ctx.body = '{"code":200,"msg":"Monitoring"}';
+  if (processMap.get(ctx.params.phone)) {
+    ctx.body = { code: 200, msg: 'Monitoring' };
   } else {
-    ctx.body = '{"code":201,"msg":"Suspended"}';
+    ctx.body = { code: 201, msg: 'Suspended' };
   }
 });
 
@@ -257,13 +256,13 @@ router.post('/monitor/stop/:phone', (ctx) => {
     process_monitor.kill('SIGKILL');
     processMap.delete(phone);
   }
-  ctx.body = '{"code":201,"msg":"Suspended"}';
+  ctx.body = { code: 201, msg: 'Suspended' };
 });
 
 // base64字串需包含 credentials, monitor, mailing, cqserver 内容
 router.post('/monitor/start/:phone', async (ctx) => {
   if (processMap.get(ctx.params.phone) !== undefined) {
-    ctx.body = '{"code":200,"msg":"Already started"}';
+    ctx.body = { code: 200, msg: 'Already started' };
     return;
   }
   const process_monitor = fork(process.argv[1].endsWith('ts') ? 'monitor.ts' : 'monitor.js',
@@ -279,15 +278,15 @@ router.post('/monitor/start/:phone', async (ctx) => {
       switch (msg) {
         case 'success': {
           processMap.set(ctx.params.phone, process_monitor);
-          resolve('{"code":200,"msg":"Started Successfully"}');
+          resolve({ code: 200, msg: 'Started Successfully' });
           break;
         }
         case 'authfail': {
-          resolve('{"code":202,"msg":"Authencation Failed"}');
+          resolve({ code: 202, msg: 'Authencation Failed' });
           break;
         }
         case 'notconfigured': {
-          resolve('{"code":203,"msg":"Not Configured"}');
+          resolve({ code: 203, msg: 'Not Configured' });
           break;
         }
       }
@@ -298,16 +297,13 @@ router.post('/monitor/start/:phone', async (ctx) => {
 
 app.use(bodyparser({ enableTypes: ['json', 'form', 'text'] }));
 app.use(async (ctx, next) => {
+  await next();
   ctx.set('Access-Control-Allow-Origin', '*');
   ctx.set('Access-Control-Allow-Headers', 'Content-Type');
-  await next();
-});
-app.use(async (ctx, next) => {
-  ctx.set('Access-Control-Max-Age', '300');
   if (ctx.method === 'OPTIONS') {
+    ctx.set('Access-Control-Max-Age', '300');
     ctx.body = '';
   }
-  await next();
 });
 app.use(router.routes());
 
