@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { fetch as Fetch } from '../../utils/request';
 import AddCircleOutlineOutlined from '@mui/icons-material/AddCircleOutlineOutlined';
 import ButtonBase from '@mui/material/ButtonBase';
 import Icon from '@mui/material/Icon';
@@ -52,12 +52,16 @@ function Start() {
   const [current, setCurrent] = useState<UserParamsType>();
 
   const login = async (phone: string, password: string) => {
-    const res = await axios.post(login_api, {
-      phone: phone,
-      password: password
+
+    const user = await Fetch(login_api, {
+      method: 'POST',
+      body: {
+        phone: phone,
+        password: password
+      }
     });
     // 登陆成功
-    if (res.data !== 'AuthFailed') {
+    if (user !== 'AuthFailed') {
       setOpen(false);
       // 写入数据库
       const request = indb!.transaction(['user'], 'readwrite')
@@ -65,13 +69,13 @@ function Start() {
         .put({
           phone,
           password,
-          name: res.data.name, // 姓名
-          _uid: res.data._uid,
-          uf: res.data.uf,
-          vc3: res.data.vc3,
-          _d: res.data._d,
-          fid: res.data.fid,
-          lv: res.data.lv,
+          name: user.name, // 姓名
+          _uid: user._uid,
+          uf: user.uf,
+          vc3: user.vc3,
+          _d: user._d,
+          fid: user.fid,
+          lv: user.lv,
           date: new Date(), // 判断时间进行重新认证身份
           monitor: false, // 监听启用状态
           config: defaultConfig // 默认配置
@@ -172,12 +176,12 @@ function Start() {
       const monitorStatus: boolean[] = [];
       const tasks: any[] = [];
       for (let i = 0; i < user.length; i++) {
-        tasks.push(axios.post(monitor_status_api, { phone: user[i].phone }));
+        tasks.push(Fetch(`${monitor_status_api}/${user[i].phone}`));
       }
       // Promise.all 请求所有用户的 monitor 状态，全部完成后得到状态数组 res
       Promise.all(tasks).then((res) => {
         for (let i = 0; i < user.length; i++) {
-          if (res[i]?.data.code === 200) monitorStatus[i] = true;
+          if (res[i]?.code === 200) monitorStatus[i] = true;
           else monitorStatus[i] = false;
         }
         // 对应更新每个用户的 monitor 状态
