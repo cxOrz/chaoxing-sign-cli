@@ -91,6 +91,10 @@ function Start() {
     }
   };
 
+  const addAccount = () => {
+    emitDialog(DialogChoice.LOGIN, true);
+  };
+
   // 根据参数设置弹出对话框
   const emitDialog = (choice: DialogChoice, open: boolean) => {
     setDialogChoice(choice);
@@ -227,7 +231,7 @@ function Start() {
           marginRight: 3.5
         }}
         className={styles.neumCard}
-        onClick={() => { setOpen(true); }}
+        onClick={addAccount}
       >
         <Icon sx={{
           width: 'auto',
