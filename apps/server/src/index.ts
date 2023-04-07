@@ -1,5 +1,5 @@
-import { blue, red } from 'kolorist';
 import prompts from 'prompts';
+import { blue, red } from 'kolorist';
 import { getPPTActiveInfo, preSign, traverseCourseActivity } from './functions/activity';
 import { GeneralSign } from './functions/general';
 import { LocationSign } from './functions/location';
@@ -15,36 +15,38 @@ const PromptsOptions = {
   },
 };
 
-!(async function () {
-  let params: UserCookieType | string;
+(async function () {
+  let params: UserCookieType & { phone?: string; };
+  const configs: any = {};
   // 本地与登录之间的抉择
   {
     // 打印本地用户列表，并返回用户数量
-    const userItem = (
-      await prompts(
-        {
-          type: 'select',
-          name: 'userItem',
-          message: '选择用户',
-          choices: getLocalUsers(),
-          initial: 0,
-        },
-        PromptsOptions
-      )
-    ).userItem;
+    const { userItem } = await prompts({
+      type: 'select',
+      name: 'userItem',
+      message: '选择用户',
+      choices: getLocalUsers(),
+      initial: 0,
+    }, PromptsOptions);
     // 使用新用户登录
     if (userItem === -1) {
-      const phone = (await prompts({ type: 'text', name: 'phone', message: '手机号' }, PromptsOptions)).phone;
-      const password = (await prompts({ type: 'password', name: 'password', message: '密码' }, PromptsOptions)).password;
+      const { phone } = await prompts({ type: 'text', name: 'phone', message: '手机号' }, PromptsOptions);
+      const { password } = await prompts({ type: 'password', name: 'password', message: '密码' }, PromptsOptions);
       // 登录获取各参数
-      params = await userLogin(phone, password);
-      if (typeof params === 'string') process.exit(0);
-      else storeUser(phone, { phone, params }); // 储存到本地
+      const result = await userLogin(phone, password);
+      if (typeof result === 'string') process.exit(0);
+      else storeUser(phone, { phone, params: result }); // 储存到本地
+      params = { ...result, phone };
     } else {
       // 使用本地储存的参数
-      params = getJsonObject('configs/storage.json').users[userItem].params;
+      const jsonObject = getJsonObject('configs/storage.json').users[userItem];
+      params = { ...jsonObject.params };
+      params.phone = jsonObject.phone;
+      configs.monitor = { ...jsonObject.monitor };
+      configs.mailing = { ...jsonObject.mailing };
+      configs.cqserver = { ...jsonObject.cqserver };
     }
-    if (typeof params === 'string') return; // 消除TS类型错误提示
+    if (typeof params === 'string') return;
   }
 
   // 获取用户名
@@ -63,28 +65,23 @@ const PromptsOptions = {
   switch (activity.otherId) {
     case 2: {
       // 二维码签到
-      const enc = (await prompts({ type: 'text', name: 'enc', message: 'enc(微信或其他识别二维码，可得enc参数)' }, PromptsOptions))
-        .enc;
+      const { enc } = await prompts({ type: 'text', name: 'enc', message: 'enc(微信或其他识别二维码，可得enc参数)' }, PromptsOptions);
       await QRCodeSign({ ...params, activeId: activity.activeId, enc, name });
       break;
     }
     case 4: {
       // 位置签到
       console.log('[获取经纬度]https://api.map.baidu.com/lbsapi/getpoint/index.html');
-      const lnglat = (
-        await prompts({ type: 'text', name: 'lnglat', message: '经纬度', initial: '113.516288,34.817038' }, PromptsOptions)
-      ).lnglat;
-      const address = (await prompts({ type: 'text', name: 'address', message: '详细地址' })).address;
+      const defaultLngLat = configs.monitor ? `${configs.monitor.lon},${configs.monitor.lat}` : '113.516288,34.817038';
+      const defaultAddress = configs.monitor ? configs.monitor.address : '';
+      const { lnglat } = await prompts({ type: 'text', name: 'lnglat', message: '经纬度', initial: defaultLngLat }, PromptsOptions);
+      const { address } = await prompts({ type: 'text', name: 'address', message: '详细地址', initial: defaultAddress });
       const lat = lnglat.substring(lnglat.indexOf(',') + 1, lnglat.length);
       const lon = lnglat.substring(0, lnglat.indexOf(','));
-      await LocationSign({
-        ...activity,
-        ...params,
-        address,
-        lat,
-        lon,
-        name,
-      });
+      await LocationSign({ ...activity, ...params, address, lat, lon, name, });
+      configs.monitor = { lon, lat, address, delay: configs?.monitor?.delay || 0 };
+      configs.mailing = configs.mailing ? configs.mailing : { enabled: false };
+      configs.cqserver = configs.cqserver ? configs.cqserver : { cq_enabled: false };
       break;
     }
     case 3: {
@@ -113,4 +110,7 @@ const PromptsOptions = {
       }
     }
   }
+  // 记录签到信息
+  const { phone, ...rest_param } = params;
+  if (phone) storeUser(phone, { phone, params: rest_param, ...configs });
 })();

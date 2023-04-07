@@ -6,6 +6,7 @@ interface MonitorConfig {
 }
 
 interface MailConfig {
+  enabled: boolean;
   host: string;
   ssl: boolean;
   port: number;
