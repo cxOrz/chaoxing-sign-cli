@@ -65,20 +65,6 @@ const conn = new webIM.connection({
 
 async function configure(phone: string) {
   const config = getStoredUser(phone);
-  if (process.argv[2] === '--auth') {
-    if (config === null || !config.monitor) {
-      console.log('未配置监听模式');
-      process.send ? process.send('notconfigured') : null;
-      process.exit(0);
-    } else {
-      return {
-        mailing: { ...config.mailing },
-        monitor: { ...config.monitor },
-        cqserver: { ...config.cqserver },
-      };
-    }
-  }
-
   let local = false;
   console.log(blue('自动签到支持 [普通/手势/拍照/签到码/位置]'));
   if (config?.monitor) {
