@@ -12,6 +12,7 @@ import FormGroup from '@mui/material/FormGroup';
 import Switch from '@mui/material/Switch';
 import Divider from '@mui/material/Divider';
 import Box from '@mui/material/Box';
+import MenuItem from '@mui/material/MenuItem';
 
 type renderLoginType = React.FC<{
   onOK: (phone: string, password: string) => Promise<any>;
@@ -78,6 +79,17 @@ export const RenderLogin: renderLoginType = (props) => {
     </>
   );
 };
+
+const listTargetType = [
+  {
+    value: 'private',
+    label: '私聊',
+  },
+  {
+    value: 'group',
+    label: '群组',
+  },
+];
 
 export const RenderConfig: renderConfigType = (props) => {
   const [config, setConfig] = useState<UserConfig>(defaultConfig);
@@ -291,8 +303,8 @@ export const RenderConfig: renderConfigType = (props) => {
           <TextField
             margin="dense"
             id="target_type"
-            label="私聊或群组(private或group)"
-            type="text"
+            label="消息推送目标"
+            select
             value={config.cqserver.target_type}
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
               setConfig(prev => {
@@ -300,8 +312,13 @@ export const RenderConfig: renderConfigType = (props) => {
               });
             }}
             fullWidth
-            variant="outlined"
-          />
+            variant="outlined">
+            {listTargetType.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </TextField>
           <TextField
             margin="dense"
             id="target_id"
