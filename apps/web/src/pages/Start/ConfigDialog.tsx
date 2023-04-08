@@ -217,7 +217,7 @@ export const RenderConfig: renderConfigType = (props) => {
             margin="dense"
             id="port"
             label="端口"
-            type="text"
+            type="number"
             value={config.mailing.port}
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
               setConfig(prev => {
