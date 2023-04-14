@@ -318,6 +318,10 @@ async function handleMsg(this: CQ, data: string) {
   }
 }
 
+process.on('SIGINT', () => {
+  process.exit(0);
+});
+
 // 开始运行
 (async () => {
   let params: any = {};

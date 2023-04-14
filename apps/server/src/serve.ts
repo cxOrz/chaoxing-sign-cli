@@ -307,10 +307,12 @@ app.use(async (ctx, next) => {
 });
 app.use(router.routes());
 
-process.on('exit', () => {
+// Ctrl + C 终止程序
+process.on('SIGINT', () => {
   processMap.forEach((pcs) => {
-    pcs.kill('SIGKILL');
+    pcs.kill('SIGINT');
   });
+  process.exit();
 });
 
 // 若在服务器，直接运行
