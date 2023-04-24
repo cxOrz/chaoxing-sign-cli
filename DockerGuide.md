@@ -10,7 +10,7 @@ docker pull ghcr.io/cxorz/chaoxing-sign-cli:latest
 
 （待更新国内站点）
 
-## 一般部署方式
+## 本机部署
 
 ```dockerfile
 docker run --name chaoxing -d -p 80:80 -p 5000:5000 chaoxing-sign-cli
@@ -18,9 +18,9 @@ docker run --name chaoxing -d -p 80:80 -p 5000:5000 chaoxing-sign-cli
 
 你可以直接通过这个方式创建一个容器，然后使用服务器的IP访问，但直接暴露你服务器的公网IP并不安全（局域网服务器除外），且IP地址不方便记忆，你可以使用一个域名来指向他。
 
-且容器默认使用`localhost`地址来访问API，因此你的容器的服务端很可能出现`无法登录`的严重问题。解决方法见下面
+且容器默认使用`localhost`地址来访问API，因此你的容器的服务端很可能出现本地(内网)登录没问题，外网访问无法登录的奇妙问题。如果你希望你的服务能在外网被访问而不是只在内网访问的话，建议使用下面的方案。
 
-## .
+## Docker化部署
 
 如果你应用如下的解决方案，请不要使用上面的部署指令。一般使用：
 
@@ -90,11 +90,13 @@ server {
 
 我们首先来看原来的拓扑图：
 
-`[这里理论上应该有图片]`
+![](https://raw.githubusercontent.com/QLozin/Image/master/newimg/old.png)
 
 一个非常自然的想法就是通过反代理部分文件路径的方式来完成5000端口的访问，这是调整后的拓扑图：
 
-`[这里理论上也应该有图片]`
+![](https://raw.githubusercontent.com/QLozin/Image/master/newimg/new.png)
+
+> 实际上还有一种办法，就是使用一个域名（或者子域名、字路径）指向5000端口，然后`baseUrl`使用这个域名即可。但这依然需要开放两个端口，对我来说我并不喜欢（而且5000端口已经被占用了）
 
 就是说，将`baseUrl`的地址改为从`yourDomain.com:5000`改成`yourDomain.com/allinone`，但是这样的话他真实的访问地址是`https://yourDomain.com/allinone/login...`，你必须把`allinone`剔除掉才能保证访问正常，这个可以很简答的通过Nginx设置实现。这是示例：
 
@@ -123,16 +125,20 @@ server {
 
 ```
 
-### 重新构建
+## 收尾
 
-上面两种方案你只需要采用一种，然后就可以走到这一步：
+上面两种方案你只需要采用一种即可，在这之后你也许得注意下面的内容：
 
-你配置完成NGINX、修改完`baseURL`后还必须重新在容器中执行构建指令才能应用你的设置：
+- 刷新NGINX：在nginx容器中使用`nginx -t`检查你的配置是否有误，如果看到两个`OK!`就行，之后运行`nginx -s reload`，你的反代理程序就应用上去了。更多nginx的排障内容请移步到官方文档。
 
-```dockerfile
-# 在容器里
-pnpm build
-```
+- 重新构建
 
-等待构建完成后访问前端进行测试即可。
+	你配置完成NGINX、修改完`baseURL`后还必须重新在容器中执行构建指令才能应用你的设置：
+
+	```dockerfile
+	# 在容器里
+	pnpm build
+	```
+
+	等待构建完成后访问前端进行测试即可。
 
