@@ -309,11 +309,11 @@ async function handleMsg(this: CQ, data: string) {
 
     if (typeof qr_str === 'undefined') this.send('是否已配置腾讯云OCR？图像是否包含清晰二维码？', this.getTargetID());
     else {
-      params.enc = qr_str.match(/(?<=&enc=)[\dA-Z]+/)[0];
+      params.enc = qr_str.match(/(?<=&enc=)[\dA-Z]+/)?.[0];
       const result = await QRCodeSign(params);
       this.send(`${result} - ${params.name}`, this.getTargetID());
       // 签到成功则清理缓存
-      result === '[二维码]签到成功' && this.clearCache();
+      result === '[二维码]签到成功' ? this.clearCache() : this.send(result, this.getTargetID());
     }
   }
 }
