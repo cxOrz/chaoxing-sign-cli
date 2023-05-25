@@ -15,6 +15,7 @@ import { getIMParams, getLocalUsers, userLogin } from './functions/user';
 import { getJsonObject, getStoredUser, storeUser } from './utils/file';
 import { delay } from './utils/helper';
 import { sendEmail } from './utils/mailer';
+import { PromptsOptions, addressPrompts, monitorPromptsQuestions } from './configs/prompts';
 const JSDOM = new jsdom.JSDOM('', { url: 'https://im.chaoxing.com/webim/me' });
 (globalThis.window as any) = JSDOM.window;
 (globalThis.WebSocket as any) = WebSocket;
@@ -23,13 +24,6 @@ globalThis.location = JSDOM.window.location;
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const webIM = require('./utils/websdk3.1.4.js').default;
-
-const PromptsOptions = {
-  onCancel: () => {
-    console.log(red('✖') + ' 操作取消');
-    process.exit(0);
-  },
-};
 
 const WebIMConfig = {
   xmppURL: 'https://im-api-vip6-v2.easecdn.com/ws',
@@ -82,108 +76,15 @@ async function configure(phone: string) {
   }
   // 若不使用本地，则配置并写入本地
   if (!local) {
-    const response = await prompts(
-      [
-        {
-          type: 'text',
-          name: 'lon',
-          message: '位置签到经度',
-          initial: '113.516288',
-        },
-        {
-          type: 'text',
-          name: 'lat',
-          message: '位置签到纬度',
-          initial: '34.817038',
-        },
-        {
-          type: 'text',
-          name: 'address',
-          message: '详细地址',
-        },
-        {
-          type: 'number',
-          name: 'delay',
-          message: '签到延时（单位：秒）',
-          initial: 0,
-        },
-        {
-          type: 'confirm',
-          name: 'mail',
-          message: '是否启用邮件通知?',
-          initial: false,
-        },
-        {
-          type: (prev) => (prev ? 'text' : null),
-          name: 'host',
-          message: 'SMTP服务器',
-          initial: 'smtp.qq.com',
-        },
-        {
-          type: (prev) => (prev ? 'confirm' : null),
-          name: 'ssl',
-          message: '是否启用SSL',
-          initial: true,
-        },
-        {
-          type: (prev) => (prev ? 'number' : null),
-          name: 'port',
-          message: '端口号',
-          initial: 465,
-        },
-        {
-          type: (prev) => (prev ? 'text' : null),
-          name: 'user',
-          message: '邮件账号',
-          initial: 'xxxxxxxxx@qq.com',
-        },
-        {
-          type: (prev) => (prev ? 'text' : null),
-          name: 'pass',
-          message: '授权码(密码)',
-        },
-        {
-          type: (prev) => (prev ? 'text' : null),
-          name: 'to',
-          message: '接收邮箱',
-        },
-        {
-          type: 'confirm',
-          name: 'cq_enabled',
-          message: '是否连接到go-cqhttp服务?',
-          initial: false,
-        },
-        {
-          type: (prev) => (prev ? 'text' : null),
-          name: 'ws_url',
-          message: 'Websocket 地址',
-          initial: 'ws://127.0.0.1:8080',
-        },
-        {
-          type: (prev) => (prev ? 'select' : null),
-          name: 'target_type',
-          message: '选择消息的推送目标',
-          choices: [
-            { title: '群组', value: 'group' },
-            { title: '私聊', value: 'private' }
-          ],
-        },
-        {
-          type: (prev) => (prev ? 'number' : null),
-          name: 'target_id',
-          message: '接收号码',
-          initial: 10001,
-        },
-      ],
-      PromptsOptions
-    );
+    const presetAddress = await addressPrompts();
+    const response = await prompts(monitorPromptsQuestions, PromptsOptions);
     const monitor: any = {};
     const mailing: any = {};
     const cqserver: any = {};
     monitor.delay = response.delay;
     monitor.lon = response.lon;
     monitor.lat = response.lat;
-    monitor.address = response.address;
+    monitor.presetAddress = presetAddress;
     mailing.enabled = response.mail;
     mailing.host = response.host;
     mailing.ssl = response.ssl;
@@ -236,10 +137,8 @@ async function Sign(realname: string, params: UserCookieType & { tuid: string; }
       case 'location': {
         result = await LocationSign_2({
           name: realname,
-          address: config.address,
+          presetAddress: config.presetAddress,
           activeId: activity.activeId,
-          lat: config.lat,
-          lon: config.lon,
           ...params,
         });
         break;
@@ -266,10 +165,8 @@ async function Sign(realname: string, params: UserCookieType & { tuid: string; }
       // 位置签到
       result = await LocationSign({
         name: realname,
-        address: config.address,
+        presetAddress: config.presetAddress,
         activeId: activity.activeId,
-        lat: config.lat,
-        lon: config.lon,
         ...params,
       });
       break;
