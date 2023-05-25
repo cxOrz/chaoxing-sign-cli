@@ -2,7 +2,7 @@ import prompts from 'prompts';
 import { blue, red } from 'kolorist';
 import { getPPTActiveInfo, preSign, traverseCourseActivity } from './functions/activity';
 import { GeneralSign } from './functions/general';
-import { LocationSign } from './functions/location';
+import { LocationSign, presetAddressChoices } from './functions/location';
 import { getObjectIdFromcxPan, PhotoSign } from './functions/photo';
 import { QRCodeSign } from './functions/qrcode';
 import { getAccountInfo, getCourses, getLocalUsers, userLogin } from './functions/user';
@@ -72,14 +72,49 @@ const PromptsOptions = {
     case 4: {
       // 位置签到
       console.log('[获取经纬度]https://api.map.baidu.com/lbsapi/getpoint/index.html');
-      const defaultLngLat = configs.monitor ? `${configs.monitor.lon},${configs.monitor.lat}` : '113.516288,34.817038';
-      const defaultAddress = configs.monitor ? configs.monitor.address : '';
-      const { lnglat } = await prompts({ type: 'text', name: 'lnglat', message: '经纬度', initial: defaultLngLat }, PromptsOptions);
-      const { address } = await prompts({ type: 'text', name: 'address', message: '详细地址', initial: defaultAddress });
-      const lat = lnglat.substring(lnglat.indexOf(',') + 1, lnglat.length);
-      const lon = lnglat.substring(0, lnglat.indexOf(','));
-      await LocationSign({ ...activity, ...params, address, lat, lon, name, });
-      configs.monitor = { lon, lat, address, delay: configs?.monitor?.delay || 0 };
+      const { presetItem } = await prompts({
+        type: 'select',
+        name: 'presetItem',
+        message: '详细地址',
+        choices: presetAddressChoices(configs.monitor.presetAddress),
+        initial: 0,
+      }, PromptsOptions);
+      let lon_lat_address: any;
+      if (presetItem === -1) {
+        // 手动添加
+        const { lon_lat_address: result } = await prompts({
+          type: 'text',
+          name: 'lon_lat_address',
+          message: '位置参数预设（经纬度/地址）',
+          initial: '113.516288,34.817038/河南省郑州市万科城大学软件楼',
+        }, PromptsOptions);
+        lon_lat_address = result.match(/([\d.]*),([\d.]*)\/(\S*)/);
+        configs.monitor.presetAddress.push({
+          lon: result?.[1],
+          lat: result?.[2],
+          address: result?.[3]
+        }
+        );
+      } else {
+        // 选取地址
+        lon_lat_address = [
+          '填充[0]',
+          configs.monitor.presetAddress[presetItem].lon,
+          configs.monitor.presetAddress[presetItem].lat,
+          configs.monitor.presetAddress[presetItem].address,
+        ];
+      }
+
+      // 构成预设位置对象
+      const addressItem = {
+        lon: lon_lat_address?.[1],
+        lat: lon_lat_address?.[2],
+        address: lon_lat_address?.[3]
+      };
+      await LocationSign({ ...activity, ...params, ...addressItem, name });
+
+      // 更新本地数据
+      configs.monitor = { presetAddress: configs?.monitor.presetAddress, delay: configs?.monitor?.delay || 0 };
       configs.mailing = configs.mailing ? configs.mailing : { enabled: false };
       configs.cqserver = configs.cqserver ? configs.cqserver : { cq_enabled: false };
       break;
