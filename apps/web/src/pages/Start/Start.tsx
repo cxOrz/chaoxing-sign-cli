@@ -21,9 +21,11 @@ export enum DialogChoice {
 export const defaultConfig: UserConfig = {
   monitor: {
     delay: 0,
-    lon: '113.516288',
-    lat: '34.817038',
-    address: ''
+    presetAddress: [{
+      lon: '113.516288',
+      lat: '34.817038',
+      address: '安徽省蚌埠市蚌埠坦克学院'
+    }]
   },
   mailing: {
     enabled: false,

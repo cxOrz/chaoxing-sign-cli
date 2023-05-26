@@ -23,12 +23,19 @@ interface UserConfig {
   cqserver: CQServerConfig;
 }
 
-interface MonitorConfig {
-  delay: number;
+interface AddressItem {
   lon: string;
   lat: string;
   address: string;
 }
+
+type PresetAddress = AddressItem[];
+
+interface MonitorConfig {
+  delay: number;
+  presetAddress: PresetAddress;
+}
+
 interface MailingConfig {
   enabled: boolean;
   host: string;
@@ -38,6 +45,7 @@ interface MailingConfig {
   pass: string;
   to: string;
 }
+
 interface CQServerConfig {
   cq_enabled: boolean;
   ws_url: string;

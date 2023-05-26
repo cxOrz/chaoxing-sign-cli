@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
@@ -13,6 +15,7 @@ import Switch from '@mui/material/Switch';
 import Divider from '@mui/material/Divider';
 import Box from '@mui/material/Box';
 import MenuItem from '@mui/material/MenuItem';
+import ButtonBase from '@mui/material/ButtonBase';
 
 type renderLoginType = React.FC<{
   onOK: (phone: string, password: string) => Promise<any>;
@@ -92,17 +95,43 @@ const listTargetType = [
 ];
 
 export const RenderConfig: renderConfigType = (props) => {
-  const [config, setConfig] = useState<UserConfig>(defaultConfig);
+  const [config, setConfig] = useState<UserConfig>({ ...defaultConfig });
+  const [presetAddress, setPresetAddress] = useState<PresetAddress>([...defaultConfig.monitor.presetAddress]);
 
   useEffect(() => {
     if (props.current.config !== undefined) {
       setConfig(props.current.config);
+      setPresetAddress(props.current.config.monitor.presetAddress);
     }
   }, [props.current]);
 
   // 写入配置
   const onOK = () => {
-    props.onOK(props.current, config);
+    props.onOK(props.current, {
+      ...config,
+      monitor: {
+        ...config.monitor,
+        presetAddress
+      }
+    });
+  };
+
+  const addPresetAddress = () => {
+    setPresetAddress(prev => {
+      prev.push({
+        lon: '',
+        lat: '',
+        address: ''
+      });
+      return [...prev];
+    });
+  };
+
+  const removePresetAddress = (i: number) => {
+    setPresetAddress(prev => {
+      prev.splice(i, 1);
+      return [...prev];
+    });
   };
 
   return (
@@ -112,7 +141,7 @@ export const RenderConfig: renderConfigType = (props) => {
         <DialogContentText>
           配置监听模式下的签到信息：默认签到信息、邮箱信息、QQ机器人信息。
         </DialogContentText>
-        <Box sx={{ my: 2 }}>
+        <Box sx={{ my: 2 }} display="flex" flexDirection="column" >
           <Divider><Chip label="签到信息" /></Divider>
           <TextField
             margin="dense"
@@ -128,48 +157,83 @@ export const RenderConfig: renderConfigType = (props) => {
             fullWidth
             variant="outlined"
           />
-          <TextField
-            margin="dense"
-            id="lon"
-            label="经度"
-            type="text"
-            value={config.monitor.lon}
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-              setConfig(prev => {
-                return { ...prev, monitor: { ...prev.monitor, lon: event.target.value } };
-              });
-            }}
-            fullWidth
-            variant="outlined"
-          />
-          <TextField
-            margin="dense"
-            id="lat"
-            label="纬度"
-            type="text"
-            value={config.monitor.lat}
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-              setConfig(prev => {
-                return { ...prev, monitor: { ...prev.monitor, lat: event.target.value } };
-              });
-            }}
-            fullWidth
-            variant="outlined"
-          />
-          <TextField
-            margin="dense"
-            id="address"
-            label="详细地址"
-            type="text"
-            value={config.monitor.address}
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-              setConfig(prev => {
-                return { ...prev, monitor: { ...prev.monitor, address: event.target.value } };
-              });
-            }}
-            fullWidth
-            variant="outlined"
-          />
+          {
+            presetAddress.map((preset, i) => {
+              return (
+                <Box
+                  key={i}
+                  display="flex"
+                >
+                  <Box flex={1}>
+                    <Box display="flex" gap={1}>
+                      <TextField
+                        fullWidth
+                        margin="dense"
+                        variant="outlined"
+                        label="经度"
+                        type="text"
+                        value={preset.lon}
+                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                          setPresetAddress(prev => {
+                            prev[i].lon = event.target.value;
+                            return [...prev];
+                          });
+                        }}
+                      />
+                      <TextField
+                        fullWidth
+                        margin="dense"
+                        variant="outlined"
+                        label="纬度"
+                        type="text"
+                        value={preset.lat}
+                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                          setPresetAddress(prev => {
+                            prev[i].lat = event.target.value;
+                            return [...prev];
+                          });
+                        }}
+                      />
+                    </Box>
+                    <TextField
+                      margin="dense"
+                      label="详细地址"
+                      type="text"
+                      value={preset.address}
+                      onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                        setPresetAddress(prev => {
+                          prev[i].address = event.target.value;
+                          return [...prev];
+                        });
+                      }}
+                      fullWidth
+                      variant="outlined"
+                    />
+                  </Box>
+                  {
+                    i !== 0 &&
+                    <ButtonBase
+                      sx={{
+                        color: '#d32f2f',
+                        border: '1px solid #d32f2f70',
+                        borderRadius: '4px',
+                        m: '8px 0 4px 4px',
+                        transition: 'all 200ms',
+                        ':hover': {
+                          background: '#d32f2f15',
+                          borderColor: '#d32f2f'
+                        }
+                      }}
+                      onClick={() => { removePresetAddress(i); }}
+                    >
+                      <DeleteIcon />
+                    </ButtonBase>
+                  }
+                </Box>
+              );
+            })
+          }
+          <Button variant="text" onClick={addPresetAddress}><AddIcon /></Button>
         </Box>
         <Box sx={{ my: 2 }}>
           <Divider><Chip label="邮件" /></Divider>
