@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM alpine:latest
+FROM alpine:3.17
 
 WORKDIR /app
 

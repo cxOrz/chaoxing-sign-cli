@@ -61,7 +61,8 @@ jobs:
             cxorz/chaoxingsigncli
             ghcr.io/${{ github.repository }}
           tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=latest
+            type=semver,pattern={{raw}}
       -
         name: Build and push
         uses: docker/build-push-action@v3
