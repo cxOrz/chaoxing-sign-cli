@@ -72,6 +72,7 @@ const PromptsOptions = {
     case 4: {
       // 位置签到
       console.log('[获取经纬度]https://api.map.baidu.com/lbsapi/getpoint/index.html');
+      if (!configs.monitor.presetAddress) configs.monitor.presetAddress = [];
       const { presetItem } = await prompts({
         type: 'select',
         name: 'presetItem',
@@ -90,11 +91,10 @@ const PromptsOptions = {
         }, PromptsOptions);
         lon_lat_address = result.match(/([\d.]*),([\d.]*)\/(\S*)/);
         configs.monitor.presetAddress.push({
-          lon: result?.[1],
-          lat: result?.[2],
-          address: result?.[3]
-        }
-        );
+          lon: lon_lat_address?.[1],
+          lat: lon_lat_address?.[2],
+          address: lon_lat_address?.[3]
+        });
       } else {
         // 选取地址
         lon_lat_address = [
