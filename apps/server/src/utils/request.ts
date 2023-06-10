@@ -76,7 +76,7 @@ const request = (url: string, options: RequestOptions, payload?: any): Promise<R
 };
 
 const cookieSerialize = ({ ...args }) => {
-  return `uf=${args.uf}; _d=${args._d}; UID=${args._uid || args.UID}; vc3=${args.vc3};`;
+  return `fid=${args.fid}; uf=${args.uf}; _d=${args._d}; UID=${args._uid || args.UID}; vc3=${args.vc3};`;
 };
 
 export { request, cookieSerialize };
