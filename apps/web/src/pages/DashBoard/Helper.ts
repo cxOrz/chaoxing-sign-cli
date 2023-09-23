@@ -37,7 +37,8 @@ export const photoSign = async (userParams: UserParamsType, activeId: number | u
   return result;
 };
 
-export const qrcodeSign = async (userParams: UserParamsType, activeId: number | undefined, enc: string) => {
+export const qrcodeSign = async (userParams: UserParamsType, activeId: number | undefined, enc: string,lat: string,lon: string,
+  address: string) => {
   const result = await Fetch(qrcode_api, {
     method: 'POST',
     body: {
@@ -49,6 +50,9 @@ export const qrcodeSign = async (userParams: UserParamsType, activeId: number | 
       activeId: activeId,
       name: userParams.name,
       enc: enc,
+      lat: lat,
+      lon: lon,
+      address: address,
     },
     type: 'text'
   });
