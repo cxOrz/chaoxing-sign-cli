@@ -145,7 +145,9 @@ function DashBoard() {
     showResultWithTransition(setStatus, res);
   };
   const onSign_2 = async () => {
-    const res = await qrcodeSign(userParams, sign.activity.activeId, values['enc'] as string);
+    const latlon = values['latlon'] as string, address = values['address'] as string;
+    const res = await qrcodeSign(userParams, sign.activity.activeId, values['enc'] as string, latlon.substring(latlon.indexOf(',') + 1, latlon.length),
+    latlon.substring(0, latlon.indexOf(',')), address);
     showResultWithTransition(setStatus, res);
   };
   const setEncByQRCodeImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -334,7 +336,20 @@ function DashBoard() {
                 type='file'
                 accept='image/*'
                 onChange={setEncByQRCodeImage}></input>
-            </ButtonBase>
+              </ButtonBase>
+              <p className='form-title'>经纬度和地址</p><br />
+            <input id='input-latlon' className='input-area' placeholder='例: 116.417492,39.920912' type='text'
+              onChange={(e) => {
+                updateValue('latlon', e.target.value);
+                console.log(values);
+              }} />
+            <input id='input-address' className='input-area' placeholder='如: 河南省郑州市x区x大学' type='text'
+              onChange={(e) => {
+                updateValue('address', e.target.value);
+                console.log(values);
+              }} />
+            <br />
+              
             <ButtonBase
               id='sign-btn'
               onClick={onSign_2}
