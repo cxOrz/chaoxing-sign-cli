@@ -68,7 +68,7 @@ router.post('/activity', async (ctx) => {
 });
 
 router.post('/qrcode', async (ctx) => {
-  const { name, fid, uid, activeId, uf, _d, vc3, enc,lat, lon, address } = ctx.request.body as any;
+  const { name, fid, uid, activeId, uf, _d, vc3, enc, lat, lon, address, altitude } = ctx.request.body as any;
   const res = await QRCodeSign({
     enc,
     name,
@@ -81,6 +81,7 @@ router.post('/qrcode', async (ctx) => {
     lat,
     lon,
     address,
+    altitude
   });
   console.log(name, uid);
   if (res === 'success') {

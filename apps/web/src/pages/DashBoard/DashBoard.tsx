@@ -145,9 +145,9 @@ function DashBoard() {
     showResultWithTransition(setStatus, res);
   };
   const onSign_2 = async () => {
-    const latlon = values['latlon'] as string, address = values['address'] as string;
-    const res = await qrcodeSign(userParams, sign.activity.activeId, values['enc'] as string, latlon.substring(latlon.indexOf(',') + 1, latlon.length),
-    latlon.substring(0, latlon.indexOf(',')), address);
+    const latlon = (values['latlon'] as string).split(','), address = values['address'] as string;
+    const res = await qrcodeSign(userParams, sign.activity.activeId, values['enc'] as string, latlon[1],
+      latlon[0], address, values['altitude'] as string);
     showResultWithTransition(setStatus, res);
   };
   const setEncByQRCodeImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -313,7 +313,20 @@ function DashBoard() {
         >
           <h3>{sign.status}</h3>
           <div id='neum-form-content' className='form-content'>
-            <p className='form-title'>填写enc参数</p><br />
+            <p className='form-title'>经纬度/地址/海拔</p><br />
+            <input id='input-latlon' className='input-area' placeholder='例: 116.417492,39.920912' type='text'
+              onChange={(e) => {
+                updateValue('latlon', e.target.value);
+              }} />
+            <input id='input-address' className='input-area' placeholder='如: 河南省郑州市x区x大学' type='text'
+              onChange={(e) => {
+                updateValue('address', e.target.value);
+              }} />
+            <input id='input-altitude' className='input-area' placeholder='如：123.555' type='text'
+              onChange={(e) => {
+                updateValue('altitude', e.target.value);
+              }} />
+            <p className='form-title'>二维码enc参数</p><br />
             <input id='input-enc' className='input-area' type='text' onChange={(e) => {
               updateValue('enc', e.target.value);
             }} />
@@ -336,20 +349,7 @@ function DashBoard() {
                 type='file'
                 accept='image/*'
                 onChange={setEncByQRCodeImage}></input>
-              </ButtonBase>
-              <p className='form-title'>经纬度和地址</p><br />
-            <input id='input-latlon' className='input-area' placeholder='例: 116.417492,39.920912' type='text'
-              onChange={(e) => {
-                updateValue('latlon', e.target.value);
-                console.log(values);
-              }} />
-            <input id='input-address' className='input-area' placeholder='如: 河南省郑州市x区x大学' type='text'
-              onChange={(e) => {
-                updateValue('address', e.target.value);
-                console.log(values);
-              }} />
-            <br />
-              
+            </ButtonBase>
             <ButtonBase
               id='sign-btn'
               onClick={onSign_2}

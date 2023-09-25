@@ -64,18 +64,16 @@ const PromptsOptions = {
   // 处理签到，先进行预签
   switch (activity.otherId) {
     case 2: {
-     // 二维码签到
-     const { enc } = await prompts({ type: 'text', name: 'enc', message: 'enc(微信或其他识别二维码，可得enc参数)' }, PromptsOptions);
-     //   await QRCodeSign({ ...params, activeId: activity.activeId, enc, name });
-     
-       const defaultLngLat = configs.monitor ? `${configs.monitor.lon},${configs.monitor.lat}` : '113.516288,34.817038';
-       const defaultAddress = configs.monitor ? configs.monitor.address : '';
-       const { lnglat } = await prompts({ type: 'text', name: 'lnglat', message: '经纬度', initial: defaultLngLat }, PromptsOptions);
-       const { address } = await prompts({ type: 'text', name: 'address', message: '详细地址', initial: defaultAddress });
-       const lat = lnglat.substring(lnglat.indexOf(',') + 1, lnglat.length);
-       const lon = lnglat.substring(0, lnglat.indexOf(','));
-       await QRCodeSign({ ...params, activeId: activity.activeId, enc,lat,lon,address, name });
-       
+      // 二维码签到
+      const { enc } = await prompts({ type: 'text', name: 'enc', message: 'enc(微信或其他识别二维码，可得enc参数)' }, PromptsOptions);
+      const defaultLngLat = configs.monitor?.lon ? `${configs.monitor.lon},${configs.monitor.lat}` : '113.516288,34.817038';
+      const defaultAddress = configs.monitor?.address ? configs.monitor.address : '';
+      const { lnglat } = await prompts({ type: 'text', name: 'lnglat', message: '经纬度', initial: defaultLngLat }, PromptsOptions);
+      const { address } = await prompts({ type: 'text', name: 'address', message: '详细地址', initial: defaultAddress });
+      const { altitude } = await prompts({ type: 'text', name: 'altitude', message: '海拔', initial: '100' });
+      const lat = lnglat.substring(lnglat.indexOf(',') + 1, lnglat.length);
+      const lon = lnglat.substring(0, lnglat.indexOf(','));
+      await QRCodeSign({ ...params, activeId: activity.activeId, enc, lat, lon, address, name, altitude });
       break;
     }
     case 4: {
