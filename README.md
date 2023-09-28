@@ -120,8 +120,8 @@ docker run -d -p 80:80 -p 5000:5000 chaoxing-sign-cli
 
 演示地址：https://prod.d6afmntd8nh5y.amplifyapp.com （海外服务器较慢，功能阉割仅供演示UI）
 
-![](https://cxorz.blob.core.windows.net/static-files/ui-start.png)
-![](https://cxorz.blob.core.windows.net/static-files/ui-config.webp)
+![](https://service-m9r7liw5-1252446325.bj.apigw.tencentcs.com/release/ui-start.png)
+![](https://service-m9r7liw5-1252446325.bj.apigw.tencentcs.com/release/ui-config.webp)
 
 ## 贡献须知
 
