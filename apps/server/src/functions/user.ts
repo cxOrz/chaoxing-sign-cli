@@ -48,6 +48,11 @@ export const userLogin = async (uname: string, password: string): Promise<string
 
     // 将每一项 cookie 以键值对形式存入 Map，再转为对象，合并到默认参数中
     const map = new Map();
+    if (!cookies) {
+      console.log('网络异常，换个环境重试');
+      return 'AuthFailed';
+    }
+
     for (let i = 0; i < cookies!.length; i++) {
       c_equal = cookies![i].indexOf('=');
       c_semi = cookies![i].indexOf(';');
