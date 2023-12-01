@@ -10,6 +10,14 @@ export const PRESIGN = {
   URL: 'https://mobilelearn.chaoxing.com/newsign/preSign',
   METHOD: 'GET'
 };
+export const ANALYSIS = {
+  URL: 'https://mobilelearn.chaoxing.com/pptSign/analysis',
+  METHOD: 'GET'
+};
+export const ANALYSIS2 = {
+  URL: 'https://mobilelearn.chaoxing.com/pptSign/analysis2',
+  METHOD: 'GET'
+};
 export const PPTSIGN = {
   URL: 'https://mobilelearn.chaoxing.com/pptSign/stuSignajax',
   METHOD: 'GET'

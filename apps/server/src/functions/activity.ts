@@ -1,4 +1,4 @@
-import { ACTIVELIST, CHAT_GROUP, PPTACTIVEINFO, PRESIGN } from '../configs/api';
+import { ACTIVELIST, ANALYSIS, ANALYSIS2, CHAT_GROUP, PPTACTIVEINFO, PRESIGN } from '../configs/api';
 import { cookieSerialize, request } from '../utils/request';
 
 /**
@@ -111,6 +111,34 @@ export const preSign = async (args: BasicCookie & { activeId: string; courseId: 
     }
   );
   console.log('[预签]已请求');
+
+  // analysis
+  const analysisResult = await request(
+    `${ANALYSIS.URL}?vs=1&DB_STRATEGY=RANDOM&aid=${activeId}`,
+    {
+      secure: true,
+      headers: {
+        Cookie: cookieSerialize(cookies),
+      },
+    }
+  );
+  let code: string = analysisResult.data;
+  const code_start = code.indexOf('code=\'+\'') + 8;
+  code = code.substring(code_start, code.length);
+  const code_end = code.indexOf('\'');
+  code = code.substring(0, code_end);
+
+  // analysis2
+  const analysis2Result = await request(
+    `${ANALYSIS2.URL}?DB_STRATEGY=RANDOM&code=${code}`,
+    {
+      secure: true,
+      headers: {
+        Cookie: cookieSerialize(cookies),
+      },
+    }
+  );
+  console.log(`analysis 请求结果：${analysis2Result.data}`);
 };
 
 export const preSign2 = async (args: BasicCookie & { activeId: string; chatId: string; _uid: string; tuid: string; }) => {
