@@ -139,6 +139,13 @@ export const preSign = async (args: BasicCookie & { activeId: string; courseId: 
     }
   );
   console.log(`analysis 请求结果：${analysis2Result.data}`);
+
+  // sleep for 500ms.
+  await new Promise<void>(resolve =>
+    setTimeout(async () => {
+      resolve();
+    }, 500),
+  );
 };
 
 export const preSign2 = async (args: BasicCookie & { activeId: string; chatId: string; _uid: string; tuid: string; }) => {
