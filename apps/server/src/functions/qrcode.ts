@@ -5,7 +5,6 @@ export const QRCodeSign = async (args: BasicCookie & { enc: string; name: string
   const { enc, name, fid, activeId, lat, lon, address, altitude, ...cookies } = args;
   const urlParams = `${PPTSIGN.URL}?enc=${enc}&name=${name}&activeId=${activeId}&uid=${cookies._uid}&clientip=&location={"result":"1","address":"${address}","latitude":${lat},"longitude":${lon},"altitude":${altitude}}&latitude=-1&longitude=-1&fid=${fid}&appType=15`;
   const result = await request(encodeURI(urlParams), {
-    secure: true,
     headers: {
       Cookie: cookieSerialize(cookies),
     },

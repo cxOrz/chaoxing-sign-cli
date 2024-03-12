@@ -133,7 +133,6 @@ export const getAccountInfo = async (cookies: BasicCookie): Promise<string> => {
 // 获取用户鉴权token
 export const getPanToken = async (cookies: BasicCookie) => {
   const result = await request(PANTOKEN.URL, {
-    secure: true,
     headers: {
       Cookie: cookieSerialize(cookies),
     },
@@ -169,7 +168,6 @@ export const getIMParams = async (cookies: BasicCookie): Promise<IMParamsType | 
     myPuid: '',
   };
   const result = await request(WEBIM.URL, {
-    secure: true,
     headers: {
       Cookie: cookieSerialize(cookies),
     },

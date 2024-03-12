@@ -5,7 +5,6 @@ export const GeneralSign = async (args: BasicCookie & { name: string; activeId: 
   const { name, activeId, fid, ...cookies } = args;
   const url = `${PPTSIGN.URL}?activeId=${activeId}&uid=${cookies._uid}&clientip=&latitude=-1&longitude=-1&appType=15&fid=${fid}&name=${name}`;
   const result = await request(url, {
-    secure: true,
     headers: {
       Cookie: cookieSerialize(cookies),
     },
@@ -22,7 +21,6 @@ export const GeneralSign_2 = async (args: BasicCookie & { activeId: string; }): 
   const { activeId, ...cookies } = args;
   const url = `${CHAT_GROUP.SIGN.URL}?activeId=${activeId}&uid=${cookies._uid}&clientip=`;
   const result = await request(url, {
-    secure: true,
     headers: {
       Cookie: cookieSerialize(cookies),
     },
