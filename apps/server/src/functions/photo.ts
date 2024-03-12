@@ -13,7 +13,6 @@ export const PhotoSign = async (
     cookies._uid
   }&clientip=&useragent=&latitude=-1&longitude=-1&appType=15&fid=${fid}&objectId=${objectId}&name=${encodeURIComponent(name)}`;
   const result = await request(url, {
-    secure: true,
     headers: {
       Cookie: cookieSerialize(cookies),
     },
@@ -27,7 +26,6 @@ export const PhotoSign_2 = async (args: BasicCookie & { objectId: string; active
   const { activeId, objectId, ...cookies } = args;
   const url = `${CHAT_GROUP.SIGN.URL}?activeId=${activeId}&uid=${cookies._uid}&clientip=&useragent=&latitude=-1&longitude=-1&fid=0&objectId=${objectId}`;
   const result = await request(url, {
-    secure: true,
     headers: {
       Cookie: cookieSerialize(cookies),
     },
@@ -41,7 +39,6 @@ export const PhotoSign_2 = async (args: BasicCookie & { objectId: string; active
 export const getObjectIdFromcxPan = async (cookies: BasicCookie) => {
   // 获得 parentId, enc
   const result = await request(PANCHAOXING.URL, {
-    secure: true,
     headers: {
       Cookie: cookieSerialize(cookies),
     },
@@ -56,7 +53,6 @@ export const getObjectIdFromcxPan = async (cookies: BasicCookie) => {
   const result_panlist = await request(
     `${PANLIST.URL}?puid=0&shareid=0&parentId=${parentId}&page=1&size=50&enc=${enc}`,
     {
-      secure: true,
       method: PANLIST.METHOD,
       headers: {
         Cookie: cookieSerialize(cookies),
@@ -91,7 +87,6 @@ export const uploadPhoto = async (args: BasicCookie & { buffer: Buffer; token: s
   const result = await request(
     `${PANUPLOAD.URL}?_from=mobilelearn&_token=${token}`,
     {
-      secure: true,
       method: PANUPLOAD.METHOD,
       headers: {
         Cookie: cookieSerialize(cookies),

@@ -23,7 +23,6 @@ export const LocationSign: LocationSignType = async (args): Promise<string> => {
     const { name, address, activeId, lat, lon, fid, ...cookies } = args;
     const url = `${PPTSIGN.URL}?name=${name}&address=${address}&activeId=${activeId}&uid=${cookies._uid}&clientip=&latitude=${lat}&longitude=${lon}&fid=${fid}&appType=15&ifTiJiao=1`;
     const result = await request(url, {
-      secure: true,
       headers: {
         Cookie: cookieSerialize(cookies),
       },
@@ -35,7 +34,6 @@ export const LocationSign: LocationSignType = async (args): Promise<string> => {
     for (let i = 0; i < presetAddress.length; i++) {
       const url = `${PPTSIGN.URL}?name=${name}&address=${presetAddress[i].address}&activeId=${activeId}&uid=${cookies._uid}&clientip=&latitude=${presetAddress[i].lat}&longitude=${presetAddress[i].lon}&fid=${fid}&appType=15&ifTiJiao=1`;
       const result = await request(url, {
-        secure: true,
         headers: {
           Cookie: cookieSerialize(cookies),
         },
@@ -65,7 +63,6 @@ export const LocationSign_2: LocationSignType = async (args): Promise<string> =>
     const result = await request(
       CHAT_GROUP.SIGN.URL,
       {
-        secure: true,
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
@@ -83,7 +80,6 @@ export const LocationSign_2: LocationSignType = async (args): Promise<string> =>
       const result = await request(
         CHAT_GROUP.SIGN.URL,
         {
-          secure: true,
           method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',

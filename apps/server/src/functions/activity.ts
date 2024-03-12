@@ -49,7 +49,6 @@ export const getActivity = async (args: BasicCookie & { course: CourseType; }): 
   const result = await request(
     `${ACTIVELIST.URL}?fid=0&courseId=${course.courseId}&classId=${course.classId}&_=${new Date().getTime()}`,
     {
-      secure: true,
       headers: {
         Cookie: cookieSerialize(cookies),
       },
@@ -89,7 +88,6 @@ export const getActivity = async (args: BasicCookie & { course: CourseType; }): 
  */
 export const getPPTActiveInfo = async ({ activeId, ...cookies }: BasicCookie & { activeId: string; }) => {
   const result = await request(`${PPTACTIVEINFO.URL}?activeId=${activeId}`, {
-    secure: true,
     headers: {
       Cookie: cookieSerialize(cookies),
     },
@@ -104,7 +102,6 @@ export const preSign = async (args: BasicCookie & { activeId: string; courseId: 
   await request(
     `${PRESIGN.URL}?courseId=${courseId}&classId=${classId}&activePrimaryId=${activeId}&general=1&sys=1&ls=1&appType=15&&tid=&uid=${args._uid}&ut=s`,
     {
-      secure: true,
       headers: {
         Cookie: cookieSerialize(cookies),
       },
@@ -116,7 +113,6 @@ export const preSign = async (args: BasicCookie & { activeId: string; courseId: 
   const analysisResult = await request(
     `${ANALYSIS.URL}?vs=1&DB_STRATEGY=RANDOM&aid=${activeId}`,
     {
-      secure: true,
       headers: {
         Cookie: cookieSerialize(cookies),
       },
@@ -132,7 +128,6 @@ export const preSign = async (args: BasicCookie & { activeId: string; courseId: 
   const analysis2Result = await request(
     `${ANALYSIS2.URL}?DB_STRATEGY=RANDOM&code=${code}`,
     {
-      secure: true,
       headers: {
         Cookie: cookieSerialize(cookies),
       },
@@ -153,7 +148,6 @@ export const preSign2 = async (args: BasicCookie & { activeId: string; chatId: s
   const result = await request(
     `${CHAT_GROUP.PRESTUSIGN.URL}?activeId=${activeId}&code=&uid=${cookies._uid}&courseId=null&classId=0&general=0&chatId=${chatId}&appType=0&tid=${tuid}&atype=null&sys=0`,
     {
-      secure: true,
       headers: {
         Cookie: cookieSerialize(cookies),
       },

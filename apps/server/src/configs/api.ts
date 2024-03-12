@@ -1,9 +1,9 @@
 export const LOGIN_PAGE = {
-  URL: 'http://passport2.chaoxing.com/mlogin?fid=&newversion=true&refer=http%3A%2F%2Fi.chaoxing.com',
+  URL: 'https://passport2.chaoxing.com/mlogin?fid=&newversion=true&refer=http%3A%2F%2Fi.chaoxing.com',
   METHOD: 'GET'
 };
 export const LOGIN = {
-  URL: 'http://passport2.chaoxing.com/fanyalogin',
+  URL: 'https://passport2.chaoxing.com/fanyalogin',
   METHOD: 'POST',
 };
 export const PRESIGN = {
@@ -27,11 +27,11 @@ export const PPTACTIVEINFO = {
   METHOD: 'GET'
 };
 export const COURSELIST = {
-  URL: 'http://mooc1-1.chaoxing.com/visit/courselistdata',
+  URL: 'https://mooc1-1.chaoxing.com/visit/courselistdata',
   METHOD: 'POST'
 };
 export const BACKCLAZZDATA = {
-  URL: 'http://mooc1-api.chaoxing.com/mycourse/backclazzdata',
+  URL: 'https://mooc1-api.chaoxing.com/mycourse/backclazzdata',
   METHOD: 'GET'
 };
 export const ACTIVELIST = {
@@ -39,7 +39,7 @@ export const ACTIVELIST = {
   METHOD: 'GET'
 };
 export const ACCOUNTMANAGE = {
-  URL: 'http://passport2.chaoxing.com/mooc/accountManage',
+  URL: 'https://passport2.chaoxing.com/mooc/accountManage',
   METHOD: 'GET'
 };
 export const PANCHAOXING = {
