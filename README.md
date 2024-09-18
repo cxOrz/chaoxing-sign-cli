@@ -118,14 +118,12 @@ docker run -d -p 80:80 -p 5000:5000 ghcr.io/cxorz/chaoxing-sign-cli
 
 ### 展示
 
-演示地址：https://prod.d6afmntd8nh5y.amplifyapp.com （海外服务器较慢，功能阉割仅供演示UI）
-
 ![](https://service-m9r7liw5-1252446325.bj.apigw.tencentcs.com/release/ui-start.png)
 ![](https://service-m9r7liw5-1252446325.bj.apigw.tencentcs.com/release/ui-config.webp)
 
 ## 贡献须知
 
-> 由于作者精力有限，自 2023.6.10 起，本项目将进入维护阶段，欢迎热心同学们贡献代码。
+> 由于作者精力有限，自 2023.6.10 起，本项目不再维护，欢迎热心同学们贡献代码。
 
 发起 pr 之前务必先发起issue进行讨论，之后新建一个分支(以提供的功能命名），并在此分支完成你的代码即可提交 pr。
 
